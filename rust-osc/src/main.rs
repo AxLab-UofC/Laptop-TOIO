@@ -521,8 +521,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     for characteristic in chars.into_iter() {
                         println!("Checking {:?}", characteristic);
                         if characteristic.uuid == POSITION_CHARACTERISTIC_UUID
-                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
-                        {
+                            && characteristic.properties.contains(CharPropFlags::NOTIFY) {
                             println!(
                                 "Subscribing to position characteristic {:?}",
                                 characteristic.uuid
@@ -530,8 +529,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             peripheral.subscribe(&characteristic).await?;
                         } 
                         if characteristic.uuid == BUTTON_CHARACTERISTIC_UUID
-                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
-                        {
+                            && characteristic.properties.contains(CharPropFlags::NOTIFY) {
                             println!(
                                 "Subscribing to button characteristic {:?}",
                                 characteristic.uuid
@@ -539,8 +537,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             peripheral.subscribe(&characteristic).await?;
                         } 
                         if characteristic.uuid == MOTION_CHARACTERISTIC_UUID
-                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
-                        {
+                            && characteristic.properties.contains(CharPropFlags::NOTIFY) {
                             println!(
                                 "Subscribing to motion characteristic {:?}",
                                 characteristic.uuid
