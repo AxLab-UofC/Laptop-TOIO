@@ -1,0 +1,16 @@
+[package]
+name = "rust-osc"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = "0.4"
+env_logger = "0.7"
+btleplug = "0.8"
+uuid = "0.8.2"
+futures = "0.3.16"
+tokio = { version = "1.9.0", features = ["rt","macros","rt-multi-thread"] }
+rosc = "0.5"
+getopts = "0.2"
