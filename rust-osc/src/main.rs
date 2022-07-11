@@ -22,7 +22,7 @@ use uuid::Uuid;
 //TOIO_ALLOWED to the IDs of the TOIO you want to connect to
 const TOIO_NUM: usize = 1;
 const TOIO_ALLOWED: [i32; TOIO_NUM] = 
-    [47];
+    [31];
 
 //#[macro_use]
 extern crate log;
@@ -125,7 +125,7 @@ const BLTADDR: [&str; 129] =
 "66:31:65:66:63:64",  // #83
 "65:34:63:36:31:35",  // #84
 "33:33:62:33:65:33",  // #85
-"62:33:32:63:31:62",  // #86
+"38:66:33:63:63:32",  // #86
 "37:63:35:37:37:30",  // #87
 "39:32:39:30:65:62",  // #88
 "63:32:32:38:30:32",  // #89
@@ -263,7 +263,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     tokio::spawn(async move {
         while let Ok((len, addr)) = r.recv_from(&mut buf).await {
-            println!("{:?} bytes received from {:?}", len, addr);
+            //println!("{:?} bytes received from {:?}", len, addr);
             let packet = rosc::decoder::decode(&buf[..len]).unwrap();
             match packet {
                 OscPacket::Message(msg) => {
@@ -272,7 +272,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         if let OscType::Int(i) = msg.args[0] {
                             marg = i;
                         }
-                        println!("Got a message for {}", marg);
+                        //println!("Got a message for {}", marg);
 
                         // find the address
                         let maybe_address = {
@@ -291,7 +291,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 //we drop the lock here because we *clone*
                             };
                             if let Some(channel) = sender {
-                                println!("Sending to...");
+                                //println!("Sending to...");
                                 channel.send(msg).await.unwrap();
                             }
                         }
@@ -375,7 +375,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     let p2 = peripheral.clone();
                     tokio::spawn(async move {
                         while let Some(message) = rx.recv().await {
-                            println!("Received {:?} for cube {}", message, id2);
+                            //println!("Received {:?} for cube {}", message, id2);
                             match message.addr.as_ref() {
                                 "/motor" => {
                                     if message.args.len() == 4 {
@@ -503,7 +503,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     let cmd = vec![
                                         0x81,
                                     ];
-                                    println!("{:?}", cmd);
+                                    //println!("{:?}", cmd);
                                     p2.write(&characteristic, &cmd, WriteType::WithResponse)
                                         .await
                                         .unwrap();

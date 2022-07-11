@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["MTU","Common MTU size for ethernet"]],"fn":[["decode","Takes an byte slice as argument and returns an OSC packet on success or an `OscError` if the slice does not contain a valid OSC message."]]});

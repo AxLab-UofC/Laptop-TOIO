@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["uuid_from_u16","Convert a 16-bit BLE short UUID to a full 128-bit UUID by filling in the standard Bluetooth Base UUID."],["uuid_from_u32","Convert a 32-bit BLE short UUID to a full 128-bit UUID by filling in the standard Bluetooth Base UUID."]],"trait":[["BleUuid","An extension trait for `Uuid` which provides BLE-specific methods."]]});

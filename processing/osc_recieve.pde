@@ -76,6 +76,6 @@ void oscEvent(OscMessage msg) {
     int double_tap =msg.get(4).intValue();
     int face_up =msg.get(5).intValue();
     int shake_level =msg.get(6).intValue();
-    //println("motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
+    println("motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
   }
 }
