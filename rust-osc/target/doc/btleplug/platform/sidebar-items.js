@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Adapter","Implementation of api::Central."],["Manager","Implementation of api::Manager."],["Peripheral","Implementation of api::Peripheral."]]});

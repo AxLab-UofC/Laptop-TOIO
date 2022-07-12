@@ -262,8 +262,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let senders2 = senders.clone();
 
     tokio::spawn(async move {
-        while let Ok((len, addr)) = r.recv_from(&mut buf).await {
-            //println!("{:?} bytes received from {:?}", len, addr);
+        while let Ok((len, __addr)) = r.recv_from(&mut buf).await {
+            //println!("{:?} bytes received from {:?}", len, __addr);
             let packet = rosc::decoder::decode(&buf[..len]).unwrap();
             match packet {
                 OscPacket::Message(msg) => {
@@ -371,7 +371,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     sends.insert(address, tx);
                     drop(sends);
 
-                    let id2 = id;
+                    //let id2 = id;
                     let p2 = peripheral.clone();
                     tokio::spawn(async move {
                         while let Some(message) = rx.recv().await {

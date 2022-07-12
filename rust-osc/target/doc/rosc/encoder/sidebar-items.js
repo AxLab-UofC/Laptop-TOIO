@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["encode","Takes a reference to an OSC packet and returns a byte vector on success. If the packet was invalid an `OscError` is returned."],["encode_string","Null terminates the byte representation of string `s` and adds null bytes until the length of the result is a multiple of 4."],["pad","Returns the position padded to 4 bytes."]]});
