@@ -23,13 +23,14 @@ extern crate log;
 
 
 //characteristic of interest
-const TOIO_SERVICE_UUID: Uuid = Uuid::from_u128(0x10B20100_5B3B_4571_9508_CF3EFCD7BBAE);
+const TOIO_SERVICE_UUID:            Uuid = Uuid::from_u128(0x10B20100_5B3B_4571_9508_CF3EFCD7BBAE);
 const POSITION_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x10B20101_5B3B_4571_9508_CF3EFCD7BBAE);
-const MOTOR_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x10B20102_5B3B_4571_9508_CF3EFCD7BBAE);
-const BUTTON_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x10B20107_5B3B_4571_9508_CF3EFCD7BBAE);
-const LIGHT_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x10B20103_5B3B_4571_9508_CF3EFCD7BBAE);
-const MOTION_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x10B20106_5B3B_4571_9508_CF3EFCD7BBAE);
-const SOUND_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x10B20104_5B3B_4571_9508_CF3EFCD7BBAE);
+const MOTOR_CHARACTERISTIC_UUID:    Uuid = Uuid::from_u128(0x10B20102_5B3B_4571_9508_CF3EFCD7BBAE);
+const LIGHT_CHARACTERISTIC_UUID:    Uuid = Uuid::from_u128(0x10B20103_5B3B_4571_9508_CF3EFCD7BBAE);
+const SOUND_CHARACTERISTIC_UUID:    Uuid = Uuid::from_u128(0x10B20104_5B3B_4571_9508_CF3EFCD7BBAE);
+const MOTION_CHARACTERISTIC_UUID:   Uuid = Uuid::from_u128(0x10B20106_5B3B_4571_9508_CF3EFCD7BBAE);
+const BUTTON_CHARACTERISTIC_UUID:   Uuid = Uuid::from_u128(0x10B20107_5B3B_4571_9508_CF3EFCD7BBAE);
+const BATTERY_CHARACTERISTIC_UUID:  Uuid = Uuid::from_u128(0x10B20108_5B3B_4571_9508_CF3EFCD7BBAE);
 
 fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} FILE [options]", program);
@@ -42,8 +43,146 @@ fn print_toio_connected(toio_connected: i32){
 }
 
 fn return_toio_id(name: &str) -> &str{
-    //skeleton function
-    return name;
+    //list of toio ids
+    const IDARR : [&str; 129] = ["Individual ID",  //TOIO Num
+    "0",  // #1
+    "0",  // #2
+    "r81",  // #3
+    "0",  // #4
+    "76t",  // #5
+    "0",  // #6
+    "0",  // #7
+    "0",  // #8
+    "0",  // #9
+    "0",  // #10
+    "0",  // #11
+    "0",  // #12
+    "0",  // #13
+    "0",  // #14
+    "0",  // #15
+    "0",  // #16
+    "0",  // #17
+    "0",  // #18
+    "0",  // #19
+    "0",  // #20
+    "G1E",  // #21
+    "0",  // #22
+    "0",  // #23
+    "0",  // #24
+    "0",  // #25
+    "0",  // #26
+    "0",  // #27
+    "0",  // #28
+    "0",  // #29
+    "0",  // #30
+    "E2N",  // #31
+    "G7t",  // #32
+    "0",  // #33
+    "0",  // #34
+    "0",  // #35
+    "0",  // #36
+    "0",  // #37
+    "0",  // #38
+    "0",  // #39
+    "0",  // #40
+    "M5p",  // #41
+    "A4a",  // #42
+    "M9J",  // #43
+    "0",  // #44
+    "0",  // #45
+    "j1G",  // #46
+    "0",  // #47
+    "0",  // #48
+    "0",  // #49
+    "0",  // #50
+    "0",  // #51
+    "0",  // #52
+    "0",  // #53
+    "0",  // #54
+    "0",  // #55
+    "0",  // #56
+    "0",  // #57
+    "0",  // #58
+    "0",  // #59
+    "0",  // #60
+    "0",  // #61
+    "0",  // #62
+    "0",  // #63
+    "0",  // #64
+    "0",  // #65
+    "0",  // #66
+    "0",  // #67
+    "0",  // #68
+    "0",  // #69
+    "0",  // #70
+    "0",  // #71
+    "0",  // #72
+    "0",  // #73
+    "0",  // #74
+    "0",  // #75
+    "0",  // #76
+    "0",  // #77
+    "0",  // #78
+    "E7c",  // #79
+    "P1B",  // #80
+    "0",  // #81
+    "0",  // #82
+    "0",  // #83
+    "0",  // #84
+    "0",  // #85
+    "0",  // #86
+    "0",  // #87
+    "0",  // #88
+    "0",  // #89
+    "0",  // #90
+    "13c",  // #91
+    "0",  // #92
+    "0",  // #93
+    "0",  // #94
+    "0",  // #95
+    "G74",  // #96
+    "0",  // #97
+    "0",  // #98
+    "0",  // #99
+    "0",  // #100
+    "0",  // #101
+    "0",  // #102
+    "0",  // #103
+    "0",  // #104
+    "0",  // #105
+    "0",  // #106
+    "0",  // #107
+    "0",  // #108
+    "0",  // #109
+    "0",  // #110
+    "0",  // #111
+    "0",  // #112
+    "0",  // #113
+    "0",  // #114
+    "c05",  // #115
+    "0",  // #116
+    "0",  // #117
+    "0",  // #118
+    "0",  // #119
+    "0",  // #120
+    "D0m",  // #121
+    "0",  // #122
+    "0",  // #123
+    "0",  // #124
+    "0",  // #125
+    "p7J",  // #126
+    "t0H",  // #127
+    "M5i",  // #128
+    ];
+    match name.parse::<i32>() {
+        Ok(n) => {
+            let name = IDARR[n as usize];
+            return name;
+        },
+        Err(_e) => {
+            panic!("Error while reading the names");
+        }
+      }
 }
 
 #[tokio::main]
@@ -62,6 +201,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     opts.optopt("r", "remote", "set remote port", "IP:PORT_NUMBER");
     opts.optopt("i", "host_id", "set host id number", "ID_NUMBER");
     opts.optopt("n", "names", "connect to those cubes only (toio Core Cube-AAA, toio Core Cube-BBB,...)", "AAA,BBB,CCC");
+    opts.optopt("a", "axlab_id", "connect to those cubes only (#1, #2, #3)", "1,2,3");
     opts.optflag("h", "help", "print this help menu");
     opts.optflag("v", "verbose", "print more connection details");
     let matches = match opts.parse(&args[1..]) {
@@ -80,19 +220,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let listening_address = format!("0.0.0.0:{}",port_number);
 
     //this will be filled with the names to connect to *if needed*
-    let possible_names = match matches.opt_str("n") {
-        Some(names) => {
-            let mut res = Vec::new();
-            for part in names.split(",") {
-                if part.len() == 3 {
-                    res.push(format!("toio Core Cube-{}", return_toio_id(part)));
-                } else {
-                    panic!("Error while reading the names");
+    let possible_names = {
+        let mut res = Vec::new();
+        match matches.opt_str("n") {
+            Some(names) => {
+                for part in names.split(",") {
+                    if part.len() == 3 {
+                        res.push(format!("toio Core Cube-{}", part));
+                    } else {
+                        panic!("Error while reading the names");
+                    }
                 }
-            }
+            },
+            None => {}
+        }
+        match matches.opt_str("a") {
+            Some(names) => {
+                for part in names.split(",") {
+                    res.push(format!("toio Core Cube-{}", return_toio_id(part)));
+                }
+            },
+            None => {}
+        }
+        if res.len() > 0{
             Some(res)
-        },
-        None => {None},
+        } else {
+            None
+        }
     };
 
     //the ID/addresses of the cubes
@@ -204,8 +358,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
     else {
         println!("Scanning for BTLE events...");
-    }
-    
+    }  
 
     //Scan all the time
     while let Some(event) = events.next().await {
@@ -458,6 +611,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             }
                             peripheral.subscribe(&characteristic).await?;
                         }
+                        if characteristic.uuid == BATTERY_CHARACTERISTIC_UUID
+                        && characteristic.properties.contains(CharPropFlags::NOTIFY)
+                        {
+                            if verbose {
+                                println!(
+                                    "Subscribing to battery characteristic {:?}",
+                                    characteristic.uuid
+                                );
+                            }
+                            peripheral.subscribe(&characteristic).await?;
+                        }
                     }
 
                     //after scanning all chars and subscribing
@@ -532,6 +696,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             OscType::Int(double_tap as i32),
                                             OscType::Int(face_up as i32),
                                             OscType::Int(shake_level as i32),
+                                        ],
+                                    }))
+                                    .unwrap();
+
+                                    tx3.send((msg, remote_addr)).await.unwrap();
+                                },
+                                BATTERY_CHARACTERISTIC_UUID => {
+                                    let battery = data.value[1];
+                                    let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                        addr: "/battery".to_string(),
+                                        args: vec![
+                                            OscType::Int(host_id),
+                                            OscType::Int(id as i32),
+                                            OscType::Int(battery as i32),
                                         ],
                                     }))
                                     .unwrap();
