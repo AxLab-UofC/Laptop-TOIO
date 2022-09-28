@@ -91,3 +91,16 @@ void motion(int cubeId) {
   msg.add(actualcubeid);
   oscP5.send(msg, server[hostId]);
 }
+
+void posture(int cubeId, boolean euler) {
+    int hostId = cubeId/cubesPerHost;
+    int actualcubeid = cubeId % cubesPerHost;
+    OscMessage msg;
+    if (euler) {
+      msg = new OscMessage("/postureeuler");
+    } else {
+      msg = new OscMessage("/posturequaternion");
+    }
+     msg.add(actualcubeid);
+     oscP5.send(msg, server[hostId]);
+}

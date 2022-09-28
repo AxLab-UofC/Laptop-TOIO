@@ -76,8 +76,28 @@ void oscEvent(OscMessage msg) {
     int double_tap =msg.get(4).intValue();
     int face_up =msg.get(5).intValue();
     int shake_level =msg.get(6).intValue();
-    //println("Motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
+    println("Motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
     
+    
+  } else if (msg.checkAddrPattern("/postureeuler")) {
+    int hostId = msg.get(0).intValue();
+    int relid = msg.get(1).intValue();
+    int id = cubesPerHost*hostId + relid;
+    int roll =msg.get(2).intValue();
+    int pitch =msg.get(3).intValue();
+    int yaw =msg.get(4).intValue();
+    println("Posture for id "+id +": " + roll +", "+ pitch+", "+ yaw);
+    
+    
+  } else if (msg.checkAddrPattern("/posturequaternion")) {
+    int hostId = msg.get(0).intValue();
+    int relid = msg.get(1).intValue();
+    int id = cubesPerHost*hostId + relid;
+    int w =msg.get(2).intValue();
+    int x =msg.get(3).intValue();
+    int y =msg.get(4).intValue();
+    int z =msg.get(5).intValue();
+    println("Posture for id "+id +": " + w +", "+ x+", "+ y +", " + z);
     
   } else if (msg.checkAddrPattern("/battery")) {
     int hostId = msg.get(0).intValue();

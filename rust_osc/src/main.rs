@@ -139,7 +139,7 @@ fn return_toio_id(name: &str) -> &str{
     "0",  // #93
     "0",  // #94
     "0",  // #95
-    "G74",  // #96
+    "m8k",  // #96
     "0",  // #97
     "0",  // #98
     "0",  // #99
@@ -182,7 +182,7 @@ fn return_toio_id(name: &str) -> &str{
             panic!("Error while reading the names");
         }
       }
-}
+}                
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -393,6 +393,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             _ => {}
         }
 
+        
         //
         if let Some(bd_addr) = device_candidate {
             let peripheral = central.peripheral(&bd_addr).await.unwrap();
@@ -407,12 +408,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 services.contains(&TOIO_SERVICE_UUID)
             };
 
+
             //if (services.contains(&TOIO_SERVICE_UUID)) || possible_names.contains(&local_name)  {
             if should_connect {
                 //we kave a toio cube!
                 let tx3 = tx.clone();
                 if !(peripheral.is_connected().await?) {
-                    println!("Device with name: {}", local_name);
+                    println!("Device Connected: {}", local_name);
                     toio_connected += 1;
                     print_toio_connected(toio_connected);
 
@@ -662,6 +664,36 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         .await
                                         .unwrap();
                                 }
+                                "/postureeuler" => {
+                                    let characteristic = Characteristic {
+                                        uuid: MOTION_CHARACTERISTIC_UUID,
+                                        service_uuid: TOIO_SERVICE_UUID,
+                                        properties: CharPropFlags::WRITE,
+                                    };
+                                    let cmd = vec![
+                                        0x83,
+                                        0x01
+                                    ];
+                                    //println!("{:?}", cmd);
+                                    p2.write(&characteristic, &cmd, WriteType::WithResponse)
+                                        .await
+                                        .unwrap();
+                                }
+                                "/posturequaternion" => {
+                                    let characteristic = Characteristic {
+                                        uuid: MOTION_CHARACTERISTIC_UUID,
+                                        service_uuid: TOIO_SERVICE_UUID,
+                                        properties: CharPropFlags::WRITE,
+                                    };
+                                    let cmd = vec![
+                                        0x83,
+                                        0x02
+                                    ];
+                                    //println!("{:?}", cmd);
+                                    p2.write(&characteristic, &cmd, WriteType::WithResponse)
+                                        .await
+                                        .unwrap();
+                                }
                                 _ => {}
                             }
                         }
@@ -777,27 +809,69 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     tx3.send((msg, remote_addr)).await.unwrap();
                                 }
                                 MOTION_CHARACTERISTIC_UUID => {
-                                    let flatness = data.value[1];
-                                    let hit = data.value[2];
-                                    let double_tap = data.value[3];
-                                    let face_up = data.value[4];
-                                    let shake_level = data.value[5];
+                                    if data.value[0] == 0x01 {
+                                        let flatness = data.value[1];
+                                        let hit = data.value[2];
+                                        let double_tap = data.value[3];
+                                        let face_up = data.value[4];
+                                        let shake_level = data.value[5];
+    
+                                        let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                            addr: "/motion".to_string(),
+                                            args: vec![
+                                                OscType::Int(host_id),
+                                                OscType::Int(id as i32),
+                                                OscType::Int(flatness as i32),
+                                                OscType::Int(hit as i32),
+                                                OscType::Int(double_tap as i32),
+                                                OscType::Int(face_up as i32),
+                                                OscType::Int(shake_level as i32),
+                                            ],
+                                        }))
+                                        .unwrap();
+    
+                                        tx3.send((msg, remote_addr)).await.unwrap();
+                                    } else if data.value[0] == 0x03 {
+                                        if data.value[1] == 0x01 {
+                                            let roll = data.value[2];
+                                            let pitch = data.value[2];
+                                            let yaw = data.value[3];
 
-                                    let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                        addr: "/motion".to_string(),
-                                        args: vec![
-                                            OscType::Int(host_id),
-                                            OscType::Int(id as i32),
-                                            OscType::Int(flatness as i32),
-                                            OscType::Int(hit as i32),
-                                            OscType::Int(double_tap as i32),
-                                            OscType::Int(face_up as i32),
-                                            OscType::Int(shake_level as i32),
-                                        ],
-                                    }))
-                                    .unwrap();
+                                            let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                                addr: "/postureeuler".to_string(),
+                                                args: vec![
+                                                    OscType::Int(host_id),
+                                                    OscType::Int(id as i32),
+                                                    OscType::Int(roll as i32),
+                                                    OscType::Int(pitch as i32),
+                                                    OscType::Int(yaw as i32)
+                                                ],
+                                            }))
+                                            .unwrap();
+        
+                                            tx3.send((msg, remote_addr)).await.unwrap();
+                                        } else {
+                                            let w = data.value[2];
+                                            let x = data.value[2];
+                                            let y = data.value[3];
+                                            let z = data.value[3];
 
-                                    tx3.send((msg, remote_addr)).await.unwrap();
+                                            let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                                addr: "/posturequaternion".to_string(),
+                                                args: vec![
+                                                    OscType::Int(host_id),
+                                                    OscType::Int(id as i32),
+                                                    OscType::Int(w as i32),
+                                                    OscType::Int(x as i32),
+                                                    OscType::Int(y as i32),
+                                                    OscType::Int(z as i32)
+                                                ],
+                                            }))
+                                            .unwrap();
+        
+                                            tx3.send((msg, remote_addr)).await.unwrap();
+                                        }
+                                    }
                                 }
                                 BATTERY_CHARACTERISTIC_UUID => {
                                     let battery = data.value[0];
@@ -818,6 +892,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         }
                     });
                 }
+            } else {
+                // println!("Device Found: {}", local_name);
             }
         }
     }

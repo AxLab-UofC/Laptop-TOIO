@@ -28,7 +28,8 @@ void keyPressed() {
     } 
     break;
   case 'm':
-    motortarget(0, 0, 700, 286, 90);
+    //motortarget(0, 0, 700, 286, 90);
+    motion(0);
     break;
     
   case 'b':
@@ -36,7 +37,14 @@ void keyPressed() {
        println("Battery level of cube " + i + ": " + cubes[i].battery);
      }
      break;
-    
+  case 'p':
+    posture(0, true);
+    break;
+   
+   case 'o':
+     posture(0, false);
+     break;
+  
   case '`':
     midi(0, 57, 255, 10);
     break;
