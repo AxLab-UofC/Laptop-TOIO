@@ -31,7 +31,10 @@ void keyPressed() {
     //motorTarget(0, 0, 700, 286, 90);
     magnetic(0);
     break;
-    
+  
+  case 'a':
+    motorAcceleration(0, 50, 5, 15, 0, 0, 0, 100);
+    break;
   case 'b':
      //for (int i = 0; i < cubes.length; i++) {
      //  println("Battery level of cube " + i + ": " + cubes[i].battery);
@@ -104,11 +107,11 @@ void keyPressed() {
     mouseDrive = false;
     break;
     
-  case 'a':
-    for (int i=0; i < nCubes; ++i) {
-      aimMotorControl(i, 380, 260);
-    }
-    break;
+  //case 'a':
+  //  for (int i=0; i < nCubes; ++i) {
+  //    aimMotorControl(i, 380, 260);
+  //  }
+  //  break;
     
   case 'k':
     light(0, 100, 255, 0, 0);

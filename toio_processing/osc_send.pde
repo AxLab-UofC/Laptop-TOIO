@@ -13,7 +13,7 @@ void aimMotorControl(int cubeId, float x, float y) {
 void basicMotor(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/basicmotor");
+  OscMessage msg = new OscMessage("/motorbasic");
   msg.add(actualcubeid);
   if (leftforwards) {
     msg.add(0x01);
@@ -44,7 +44,7 @@ void motorControl(int cubeId, float left, float right, int duration) {
 void motorTarget(int cubeId, int mode, int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motorTarget");
+  OscMessage msg = new OscMessage("/motortarget");
   msg.add(actualcubeid);
   msg.add(mode);
   msg.add(x);
@@ -56,7 +56,7 @@ void motorTarget(int cubeId, int mode, int x, int y, int theta){
 void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motorTarget");
+  OscMessage msg = new OscMessage("/motortarget");
   msg.add(actualcubeid);
   msg.add(control);
   msg.add(timeout);
@@ -66,6 +66,22 @@ void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
   msg.add(x);
   msg.add(y);
   msg.add(theta);
+  oscP5.send(msg, server[hostId]);
+}
+
+void motorAcceleration(int cubeId, int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration){
+  OscMessage msg = new OscMessage("/motoracceleration");
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  msg.add(actualcubeid);
+  msg.add(speed);
+  msg.add(a);
+  msg.add(rotateVelocity);
+  msg.add(rotateDir);
+  msg.add(dir);
+  msg.add(priority);
+  msg.add(duration);
+  oscP5.send(msg, server[hostId]);
   oscP5.send(msg, server[hostId]);
 }
 

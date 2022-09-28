@@ -461,7 +461,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         while let Some(message) = rx.recv().await {
                             println!("Received {:?} for cube {}", message, id2);
                             match message.addr.as_ref() {
-                                "/basicmotor" => {
+                                "/motorbasic" => {
                                     if message.args.len() == 5 {
                                         //we should have 5 args
                                         println!("Message received");
@@ -592,6 +592,36 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             .unwrap();
                                     } else {
                                         //error
+                                    }
+                                }
+                                "/motoracceleration" => {
+                                    if message.args.len() == 8 {
+                                        //we should have 4 args
+                                        let mut marg = [0; 8];
+                                        for k in 0..8 {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                marg[k] = i;
+                                            }
+                                        }
+                                        let characteristic = Characteristic {
+                                            uuid: MOTOR_CHARACTERISTIC_UUID,
+                                            service_uuid: TOIO_SERVICE_UUID,
+                                            properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                        };
+                                        let cmd = vec![
+                                            0x05,                               //motor control with acceleration
+                                            marg[1].abs() as u8,                //translational speed
+                                            marg[2].abs() as u8,                //acceleration
+                                            (marg[3].abs() >> 8) as u8,         //rotational velocity
+                                            (marg[3].abs() & 0x00FF) as u8, 
+                                            marg[4].abs() as u8,                //rotational direction
+                                            marg[5].abs() as u8,                //direction
+                                            marg[6].abs() as u8,                //Priority designation
+                                            marg[7].abs() as u8,                //duration
+                                        ];
+                                        p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
+                                            .await
+                                            .unwrap();
                                     }
                                 }
                                 "/led" => {
