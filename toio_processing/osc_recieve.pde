@@ -1,7 +1,7 @@
 
 
 void oscEvent(OscMessage msg) {
-  if (msg.checkAddrPattern("/position") == true) {
+  if (msg.checkAddrPattern("/position")) {
     int hostId = msg.get(0).intValue();
     int id = msg.get(1).intValue();
     //int matId = msg.get(1).intValue();
@@ -58,7 +58,7 @@ void oscEvent(OscMessage msg) {
         cubes[id].isLost = false;
       }
     }
-  } else if (msg.checkAddrPattern("/button") == true) {
+  } else if (msg.checkAddrPattern("/button")) {
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
@@ -66,8 +66,8 @@ void oscEvent(OscMessage msg) {
     
 
     
-    //println("Button pressed for id : "+id + " "+ pressValue);
-  } else if (msg.checkAddrPattern("/motion") == true) {
+    println("Button pressed for id " + id + ":  " + pressValue);
+  } else if (msg.checkAddrPattern("/motion")) {
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
@@ -76,6 +76,16 @@ void oscEvent(OscMessage msg) {
     int double_tap =msg.get(4).intValue();
     int face_up =msg.get(5).intValue();
     int shake_level =msg.get(6).intValue();
-    println("motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
+    //println("Motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
+    
+    
+  } else if (msg.checkAddrPattern("/battery")) {
+    int hostId = msg.get(0).intValue();
+    int relid = msg.get(1).intValue();
+    int id = cubesPerHost*hostId + relid;
+    int battery = msg.get(2).intValue();
+    cubes[id].battery = battery;
+    //println("Battery Level for id " + id + ": " + battery);
   }
+  
 }

@@ -21,6 +21,34 @@ void motorControl(int cubeId, float left, float right, int duration) {
   oscP5.send(msg, server[hostId]);
 }
 
+void motortarget(int cubeId, int mode, int x, int y, int theta){
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/motortarget");
+  msg.add(actualcubeid);
+  msg.add(mode);
+  msg.add(x);
+  msg.add(y);
+  msg.add(theta);
+  oscP5.send(msg, server[hostId]);
+}
+
+void motortarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta){
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/motortarget");
+  msg.add(actualcubeid);
+  msg.add(control);
+  msg.add(timeout);
+  msg.add(mode);
+  msg.add(maxspeed);
+  msg.add(speedchange);
+  msg.add(x);
+  msg.add(y);
+  msg.add(theta);
+  oscP5.send(msg, server[hostId]);
+}
+
 void light(int cubeId, int duration, int red, int green, int blue) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;

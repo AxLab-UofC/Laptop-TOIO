@@ -27,6 +27,15 @@ void keyPressed() {
       System.out.println("got interrupted!");
     } 
     break;
+  case 'm':
+    motortarget(0, 0, 700, 286, 90);
+    break;
+    
+  case 'b':
+     for (int i = 0; i < cubes.length; i++) {
+       println("Battery level of cube " + i + ": " + cubes[i].battery);
+     }
+     break;
     
   case '`':
     midi(0, 57, 255, 10);
@@ -92,9 +101,9 @@ void keyPressed() {
     light(0, 100, 255, 0, 0);
     break;
     
-  case 'm':
-    motion(0);
-    break;
+  //case 'm':
+  //  motion(0);
+  //  break;
     
   default:
     break;

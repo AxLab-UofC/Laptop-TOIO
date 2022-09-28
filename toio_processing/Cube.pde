@@ -1,7 +1,7 @@
 class Cube {
   int x;
   int y;
-  
+  int battery;
 
   
   int prex;

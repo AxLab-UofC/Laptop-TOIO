@@ -206,7 +206,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
-        Err(f) => { panic!("{}",f.to_string()) }
+        Err(f) => { panic!("{}",f.to_string())}
     };
     if matches.opt_present("h") {
         print_usage(&program, opts);
@@ -387,6 +387,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
             CentralEvent::DeviceDisconnected(bd_addr) => {
                 println!("DeviceDisconnected: {:?}", bd_addr);
+                toio_connected -= 1;
+                print_toio_connected(toio_connected);
             }
             _ => {}
         }
@@ -397,7 +399,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             let properties = peripheral.properties().await?.unwrap();
             let local_name = properties.local_name.unwrap_or("".to_string());
-            print!("Device with name: {} ...", local_name);
 
             let services = properties.services;
             let should_connect = if let Some(names) = &possible_names {
@@ -410,10 +411,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
             if should_connect {
                 //we kave a toio cube!
                 let tx3 = tx.clone();
-                let is_connected = peripheral.is_connected().await?;
-                if is_connected {
-                    println!("Already connected!");
-                } else {
+                if !(peripheral.is_connected().await?) {
+                    println!("Device with name: {}", local_name);
+                    toio_connected += 1;
+                    print_toio_connected(toio_connected);
+
                     // Connect if we aren't already connected.
                     if let Err(err) = peripheral.connect().await {
                         eprintln!("Error connecting to peripheral, skipping: {}", err);
@@ -422,7 +424,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     time::sleep(Duration::from_millis(200)).await;
                     // We should be connected now
                     let peripheral_id = peripheral.id();
-                    println!("connecting with Peripheral ID: {:?}", peripheral_id);
+                    if verbose {
+                        println!("connecting with Peripheral ID: {:?}", peripheral_id);
+                    }
 
                     //find the id for this cube
                     //let mut addr = addresses.lock().unwrap();
@@ -481,6 +485,73 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             rightdirection,       //direction
                                             marg[2].abs() as u8,  //speed
                                             (marg[3] / 10) as u8, //length
+                                        ];
+                                        p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
+                                            .await
+                                            .unwrap();
+                                    } else {
+                                        //error
+                                    }
+                                }
+                                "/motortarget" => {
+                                    if message.args.len() == 5 {
+                                        //we should have 4 args
+                                        let mut marg = [0; 5];
+                                        for k in 0..5 {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                marg[k] = i;
+                                            }
+                                        }
+                                        let characteristic = Characteristic {
+                                            uuid: MOTOR_CHARACTERISTIC_UUID,
+                                            service_uuid: TOIO_SERVICE_UUID,
+                                            properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                        };
+                                        let cmd = vec![
+                                            0x03,                               //motor target
+                                            0x00,                               //control distinction value
+                                            0x05,                               //timeout period
+                                            marg[1].abs() as u8,                //movement type
+                                            0x50,                               //maximum motor speed
+                                            0x00,                               //motor speed changes
+                                            0x00,                               //reserved
+                                            (marg[2].abs() >> 8) as u8,         //x value of target
+                                            (marg[2].abs() & 0x00FF) as u8, 
+                                            (marg[3].abs() >> 8) as u8,         //y value of target
+                                            (marg[3].abs() & 0x00FF) as u8,
+                                            (marg[4].abs() >> 8) as u8,
+                                            (marg[4].abs() & 0x00FF) as u8      //θ value of target
+                                        ];
+                                        p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
+                                            .await
+                                            .unwrap();
+                                    } else if message.args.len() == 9 {
+                                        //we should have 9 args
+                                        let mut marg = [0; 9];
+                                        for k in 0..9 {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                marg[k] = i;
+                                            }
+                                        }
+                                        let characteristic = Characteristic {
+                                            uuid: MOTOR_CHARACTERISTIC_UUID,
+                                            service_uuid: TOIO_SERVICE_UUID,
+                                            properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                        };
+                                        let cmd = vec![
+                                            0x03,                   //motor target
+                                            marg[1].abs() as u8,    //control distinction value
+                                            marg[2].abs() as u8,    //timeout period
+                                            marg[3].abs() as u8,    //movement type
+                                            marg[4].abs() as u8,    //maximum motor speed
+                                            marg[5].abs() as u8,    //motor speed changes
+                                            0x00,                   //reserved
+                                            (marg[6].abs() >> 8) as u8,         //x value of target
+                                            (marg[6].abs() & 0x00FF) as u8, 
+                                            (marg[7].abs() >> 8) as u8,         //y value of target
+                                            (marg[7].abs() & 0x00FF) as u8,
+                                            (marg[8].abs() >> 8) as u8,
+                                            (marg[8].abs() & 0x00FF) as u8      //θ value of target
                                         ];
                                         p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
                                             .await
@@ -722,6 +793,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             OscType::Int(double_tap as i32),
                                             OscType::Int(face_up as i32),
                                             OscType::Int(shake_level as i32),
+                                        ],
+                                    }))
+                                    .unwrap();
+
+                                    tx3.send((msg, remote_addr)).await.unwrap();
+                                }
+                                BATTERY_CHARACTERISTIC_UUID => {
+                                    let battery = data.value[0];
+                                    let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                        addr: "/battery".to_string(),
+                                        args: vec![
+                                            OscType::Int(host_id),
+                                            OscType::Int(id as i32),
+                                            OscType::Int(battery as i32),
                                         ],
                                     }))
                                     .unwrap();
