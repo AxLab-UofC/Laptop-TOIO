@@ -28,16 +28,20 @@ void keyPressed() {
     } 
     break;
   case 'm':
-    //motortarget(0, 0, 700, 286, 90);
+    //motorTarget(0, 0, 700, 286, 90);
     magnetic(0);
     break;
     
   case 'b':
-     for (int i = 0; i < cubes.length; i++) {
-       println("Battery level of cube " + i + ": " + cubes[i].battery);
-     }
+     //for (int i = 0; i < cubes.length; i++) {
+     //  println("Battery level of cube " + i + ": " + cubes[i].battery);
+     //}
+     basicMotor(0, true, 20, true, 20);
      break;
-     
+  case 's':
+    basicMotor(0, true, 0, true, 0);
+    break;
+    
   case 'p':
     posture(0, true);
     break;

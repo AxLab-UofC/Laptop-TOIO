@@ -461,6 +461,38 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         while let Some(message) = rx.recv().await {
                             println!("Received {:?} for cube {}", message, id2);
                             match message.addr.as_ref() {
+                                "/basicmotor" => {
+                                    if message.args.len() == 5 {
+                                        //we should have 5 args
+                                        println!("Message received");
+                                        let mut marg = [0; 5];
+                                        for k in 0..5 {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                marg[k] = i;
+                                            }
+                                        }
+
+                                        let characteristic = Characteristic {
+                                            uuid: MOTOR_CHARACTERISTIC_UUID,
+                                            service_uuid: TOIO_SERVICE_UUID,
+                                            properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                        };
+                                        let cmd = vec![
+                                            0x01,                 //motor
+                                            0x01,                 //left
+                                            marg[1].abs() as u8,  //forwards or backwards
+                                            marg[2].abs() as u8,  //speed
+                                            0x02,                 //right
+                                            marg[3].abs() as u8,  //forwards or backwards
+                                            marg[4].abs() as u8,  //speed
+                                        ];
+                                        p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
+                                            .await
+                                            .unwrap();
+                                    } else {
+                                        //error
+                                    }
+                                }
                                 "/motor" => {
                                     if message.args.len() == 4 {
                                         //we should have 4 args
