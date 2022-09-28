@@ -62,7 +62,7 @@ void oscEvent(OscMessage msg) {
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
-    int pressValue =msg.get(2).intValue();
+    int pressValue = msg.get(2).intValue();
     
 
     
@@ -71,21 +71,33 @@ void oscEvent(OscMessage msg) {
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
-    int flatness =msg.get(2).intValue();
-    int hit =msg.get(3).intValue();
-    int double_tap =msg.get(4).intValue();
-    int face_up =msg.get(5).intValue();
-    int shake_level =msg.get(6).intValue();
+    int flatness = msg.get(2).intValue();
+    int hit = msg.get(3).intValue();
+    int double_tap = msg.get(4).intValue();
+    int face_up = msg.get(5).intValue();
+    int shake_level = msg.get(6).intValue();
     println("Motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
     
     
-  } else if (msg.checkAddrPattern("/postureeuler")) {
+  } else if (msg.checkAddrPattern("/magnetic")) {
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
-    int roll =msg.get(2).intValue();
-    int pitch =msg.get(3).intValue();
-    int yaw =msg.get(4).intValue();
+    int state = msg.get(2).intValue();
+    int strength = msg.get(3).intValue();
+    int forcex = msg.get(4).intValue();
+    int forcey = msg.get(5).intValue();
+    int forcez = msg.get(6).intValue();
+    println("Magnetic for id "+id +": " + state +", "+ strength + ", " + forcex + ", " + forcey + ", " + forcez);
+    
+    
+  }else if (msg.checkAddrPattern("/postureeuler")) {
+    int hostId = msg.get(0).intValue();
+    int relid = msg.get(1).intValue();
+    int id = cubesPerHost*hostId + relid;
+    int roll = msg.get(2).intValue();
+    int pitch = msg.get(3).intValue();
+    int yaw = msg.get(4).intValue();
     println("Posture for id "+id +": " + roll +", "+ pitch+", "+ yaw);
     
     
@@ -93,10 +105,10 @@ void oscEvent(OscMessage msg) {
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
-    int w =msg.get(2).intValue();
-    int x =msg.get(3).intValue();
-    int y =msg.get(4).intValue();
-    int z =msg.get(5).intValue();
+    int w = msg.get(2).intValue();
+    int x = msg.get(3).intValue();
+    int y = msg.get(4).intValue();
+    int z = msg.get(5).intValue();
     println("Posture for id "+id +": " + w +", "+ x+", "+ y +", " + z);
     
   } else if (msg.checkAddrPattern("/battery")) {

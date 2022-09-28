@@ -664,6 +664,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         .await
                                         .unwrap();
                                 }
+                                "/magnetic" => {
+                                    let characteristic = Characteristic {
+                                        uuid: MOTION_CHARACTERISTIC_UUID,
+                                        service_uuid: TOIO_SERVICE_UUID,
+                                        properties: CharPropFlags::WRITE,
+                                    };
+                                    let cmd = vec![
+                                        0x82
+                                    ];
+                                    //println!("{:?}", cmd);
+                                    p2.write(&characteristic, &cmd, WriteType::WithResponse)
+                                        .await
+                                        .unwrap();
+                                }
                                 "/postureeuler" => {
                                     let characteristic = Characteristic {
                                         uuid: MOTION_CHARACTERISTIC_UUID,
@@ -826,6 +840,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                                 OscType::Int(double_tap as i32),
                                                 OscType::Int(face_up as i32),
                                                 OscType::Int(shake_level as i32),
+                                            ],
+                                        }))
+                                        .unwrap();
+    
+                                        tx3.send((msg, remote_addr)).await.unwrap();
+                                    } else if data.value[0] == 0x02 {
+                                        let state = data.value[1];
+                                        let strength = data.value[2];
+                                        let forcex = data.value[3];
+                                        let forcey = data.value[4];
+                                        let forcez = data.value[5];
+
+                                        let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                            addr: "/magnetic".to_string(),
+                                            args: vec![
+                                                OscType::Int(host_id),
+                                                OscType::Int(id as i32),
+                                                OscType::Int(state as i32),
+                                                OscType::Int(strength as i32),
+                                                OscType::Int(forcex as i32),
+                                                OscType::Int(forcey as i32),
+                                                OscType::Int(forcez as i32) 
                                             ],
                                         }))
                                         .unwrap();

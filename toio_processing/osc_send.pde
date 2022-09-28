@@ -92,6 +92,14 @@ void motion(int cubeId) {
   oscP5.send(msg, server[hostId]);
 }
 
+void magnetic(int cubeId) {
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/magnetic");
+  msg.add(actualcubeid);
+  oscP5.send(msg, server[hostId]);
+}
+
 void posture(int cubeId, boolean euler) {
     int hostId = cubeId/cubesPerHost;
     int actualcubeid = cubeId % cubesPerHost;
