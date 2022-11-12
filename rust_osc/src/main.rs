@@ -43,135 +43,147 @@ fn print_toio_connected(toio_connected: i32){
 
 fn return_toio_id(name: &str) -> &str{
     //list of toio ids
-    const IDARR : [&str; 129] = ["Individual ID",  //TOIO Num
+    const IDARR : [&str; 141] = ["Individual ID",  //TOIO Num
     "0",  // #1
-"0",  // #2
-"r81",  // #3
-"0",  // #4
-"76t",  // #5
-"0",  // #6
-"0",  // #7
-"0",  // #8
-"0",  // #9
-"0",  // #10
-"0",  // #11
-"0",  // #12
-"0",  // #13
-"0",  // #14
-"0",  // #15
-"0",  // #16
-"0",  // #17
-"0",  // #18
-"0",  // #19
-"0",  // #20
-"G1E",  // #21
-"didn't show up",  // #22
-"didn't show up",  // #23
-"0",  // #24
-"0",  // #25
-"0",  // #26
-"0",  // #27
-"01c",  // #28
-"0",  // #29
-"0",  // #30
-"E2N",  // #31
-"G7t",  // #32
-"L6T",  // #33
-"C0E",  // #34
-"t79",  // #35
-"0",  // #36
-"0",  // #37
-"0",  // #38
-"0",  // #39
-"0",  // #40
-"M5p",  // #41
-"A4a",  // #42
-"M9J",  // #43
-"0",  // #44
-"T5m",  // #45
-"j1G",  // #46
-"40G",  // #47
-"0",  // #48
-"a3F",  // #49
-"J8d",  // #50
-"0",  // #51
-"0",  // #52
-"0",  // #53
-"0",  // #54
-"0",  // #55
-"0",  // #56
-"0",  // #57
-"0",  // #58
-"0",  // #59
-"0",  // #60
-"0",  // #61
-"0",  // #62
-"0",  // #63
-"0",  // #64
-"0",  // #65
-"0",  // #66
-"0",  // #67
-"0",  // #68
-"0",  // #69
-"0",  // #70
-"0",  // #71
-"0",  // #72
-"0",  // #73
-"0",  // #74
-"0",  // #75
-"0",  // #76
-"0",  // #77
-"0",  // #78
-"E7c",  // #79
-"P1B",  // #80
-"0",  // #81
-"0",  // #82
-"0",  // #83
-"0",  // #84
-"0",  // #85
-"0",  // #86
-"0",  // #87
-"0",  // #88
-"0",  // #89
-"0",  // #90
-"13c",  // #91
-"0",  // #92
-"0",  // #93
-"0",  // #94
-"0",  // #95
-"G74",  // #96
-"79H",  // #97
-"0",  // #98
-"0",  // #99
-"0",  // #100
-"0",  // #101
-"0",  // #102
-"0",  // #103
-"0",  // #104
-"0",  // #105
-"0",  // #106
-"0",  // #107
-"0",  // #108
-"0",  // #109
-"0",  // #110
-"0",  // #111
-"0",  // #112
-"0",  // #113
-"0",  // #114
-"c05",  // #115
-"0",  // #116
-"0",  // #117
-"0",  // #118
-"0",  // #119
-"D2F",  // #120
-"D0m",  // #121
-"0",  // #122
-"0",  // #123
-"0",  // #124
-"0",  // #125
-"p7J",  // #126
-"t0H",  // #127
-"M5i",  // #128
+    "0",  // #2
+    "r81",  // #3
+    "0",  // #4
+    "76t",  // #5
+    "0",  // #6
+    "k5k",  // #7
+    "h41",  // #8
+    "0",  // #9
+    "0",  // #10
+    "0",  // #11
+    "Q3A",  // #12
+    "03a",  // #13
+    "0",  // #14
+    "0",  // #15
+    "0",  // #16
+    "0",  // #17
+    "p8B",  // #18
+    "91B",  // #19
+    "p75",  // #20
+    "G1E",  // #21
+    "k2L",  // #22
+    "b5p",  // #23
+    "J6C",  // #24
+    "0",  // #25
+    "b8T",  // #26
+    "b6A",  // #27
+    "01c",  // #28
+    "0",  // #29
+    "0",  // #30
+    "E2N",  // #31
+    "G7t",  // #32
+    "L6T",  // #33
+    "C0E",  // #34
+    "t79",  // #35
+    "0",  // #36
+    "0",  // #37
+    "0",  // #38
+    "0",  // #39
+    "0",  // #40
+    "M5p",  // #41
+    "A4a",  // #42
+    "M9J",  // #43
+    "0",  // #44
+    "T5m",  // #45
+    "j1G",  // #46
+    "40G",  // #47
+    "L6n",  // #48
+    "a3F",  // #49
+    "J8d",  // #50
+    "0",  // #51
+    "0",  // #52
+    "0",  // #53
+    "0",  // #54
+    "0",  // #55
+    "0",  // #56
+    "0",  // #57
+    "0",  // #58
+    "0",  // #59
+    "0",  // #60
+    "0",  // #61
+    "0",  // #62
+    "0",  // #63
+    "0",  // #64
+    "0",  // #65
+    "0",  // #66
+    "0",  // #67
+    "0",  // #68
+    "0",  // #69
+    "0",  // #70
+    "0",  // #71
+    "0",  // #72
+    "0",  // #73
+    "0",  // #74
+    "0",  // #75
+    "0",  // #76
+    "0",  // #77
+    "0",  // #78
+    "E7c",  // #79
+    "P1B",  // #80
+    "F2B",  // #81
+    "0",  // #82
+    "D5i",  // #83
+    "m4Q",  // #84
+    "m1k",  // #85
+    "0",  // #86
+    "0",  // #87
+    "D2K",  // #88
+    "65r",  // #89
+    "f3K",  // #90
+    "13c",  // #91
+    "e1a",  // #92
+    "0",  // #93
+    "e6e",  // #94
+    "0",  // #95
+    "G74",  // #96
+    "79H",  // #97
+    "0",  // #98
+    "i1M",  // #99
+    "R3C",  // #100
+    "D98",  // #101
+    "0",  // #102
+    "a66",  // #103
+    "0",  // #104
+    "E8T",  // #105
+    "J8n",  // #106
+    "N0b",  // #107
+    "0",  // #108
+    "0",  // #109
+    "0",  // #110
+    "0",  // #111
+    "0",  // #112
+    "0",  // #113
+    "0",  // #114
+    "c05",  // #115
+    "K20",  // #116
+    "0",  // #117
+    "0",  // #118
+    "0",  // #119
+    "D2F",  // #120
+    "D0m",  // #121
+    "m6B",  // #122
+    "M0j",  // #123
+    "Q8G",  // #124
+    "0",  // #125
+    "p7J",  // #126
+    "t0H",  // #127
+    "M5i",  // #128
+    "j1L",  // #129
+    "e7i",  // #130
+    "T1E",  // #131
+    "85i",  // #132
+    "71H",  // #133
+    "20H",  // #134
+    "T9n",  // #135
+    "58B",  // #136
+    "J4R",  // #137
+    "93N",  // #138
+    "t0F",  // #139
+    "M7G",  // #140
     ];
     match name.parse::<i32>() {
         Ok(n) => {
@@ -190,6 +202,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let mut toio_connected = 0;
     let mut verbose = false;
+    let mut search = false;
+    let mut ordered = false;
+    let mut ordernum = 0;
 
     //read command line arguments
     let args: Vec<String> = env::args().collect();
@@ -203,7 +218,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     opts.optopt("a", "axlab_id", "connect to those cubes only (#1, #2, #3)", "1,2,3");
     opts.optflag("h", "help", "print this help menu");
     opts.optflag("v", "verbose", "print more connection details");
-    
+    opts.optflag("s", "search", "search for toios without specifying IDs");
+    opts.optflag("o", "ordered", "search for toios in order of IDs");
+
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
         Err(f) => { panic!("{}",f.to_string())}
@@ -214,6 +231,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
     if matches.opt_present("v") {
         verbose = true;
+    }
+    if matches.opt_present("s") {
+        search = true;
     }
 
     let port_number = matches.opt_str("p").unwrap_or("3334".to_string());
@@ -242,12 +262,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
             },
             None => {}
         }
-        if res.len() > 0{
+
+        if !search && res.len() == 0 {
+            panic!("Toio IDs must be specified unless in search mode");
+        }
+
+        if res.len() > 0 {
+            ordernum = res.len();
             Some(res)
         } else {
             None
         }
     };
+
+    if matches.opt_present("o") {
+        ordered = true;
+        ordernum = 1;
+    }
 
     //the ID/addresses of the cubes
     //let addresses: Arc<Mutex<Vec<BDAddr>>> = Arc::new(Mutex::new(Vec::new()));
@@ -403,7 +434,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             let services = properties.services;
             let should_connect = if let Some(names) = &possible_names {
-                names.contains(&local_name)
+                if ordernum > names.len() {
+                    ordernum -= 1;
+                }
+                names[0 ..ordernum].contains(&local_name)
             } else {
                 services.contains(&TOIO_SERVICE_UUID)
             };
@@ -411,11 +445,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             //if (services.contains(&TOIO_SERVICE_UUID)) || possible_names.contains(&local_name)  {
             if should_connect {
+                if ordered {
+                    ordernum += 1;
+                }
                 //we kave a toio cube!
                 let tx3 = tx.clone();
                 if !(peripheral.is_connected().await?) {
                     println!("Device Connected: {}", local_name);
-                    toio_connected += 1;
+                    toio_connected  += 1;
                     print_toio_connected(toio_connected);
 
                     // Connect if we aren't already connected.
