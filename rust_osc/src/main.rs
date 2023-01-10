@@ -817,6 +817,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     //println!("Peripheral {} connected: {}", address, is_connected);
 
                     //println!("Discovering peripheral characteristics...");
+                    peripheral.discover_services().await.unwrap();
                     let chars = peripheral.characteristics();
                     for characteristic in chars.into_iter() {
                         if verbose {
