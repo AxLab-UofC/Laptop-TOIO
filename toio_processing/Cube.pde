@@ -19,6 +19,8 @@ class Cube {
   int deg;
   long lastUpdate;
   int count=0;
+  int speed_left = 0;
+  int speed_right = 0;
   float ave_speedX;
   float ave_speedY;
   int aveFrameNum = 10;

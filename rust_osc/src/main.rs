@@ -30,6 +30,7 @@ const SOUND_CHARACTERISTIC_UUID:    Uuid = Uuid::from_u128(0x10B20104_5B3B_4571_
 const MOTION_CHARACTERISTIC_UUID:   Uuid = Uuid::from_u128(0x10B20106_5B3B_4571_9508_CF3EFCD7BBAE);
 const BUTTON_CHARACTERISTIC_UUID:   Uuid = Uuid::from_u128(0x10B20107_5B3B_4571_9508_CF3EFCD7BBAE);
 const BATTERY_CHARACTERISTIC_UUID:  Uuid = Uuid::from_u128(0x10B20108_5B3B_4571_9508_CF3EFCD7BBAE);
+const CONFIGURATION_UUID:           Uuid = Uuid::from_u128(0x10B201FF_5B3B_4571_9508_CF3EFCD7BBAE);
 
 fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} FILE [options]", program);
@@ -334,7 +335,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     tokio::spawn(async move {
         while let Ok((len, addr)) = r.recv_from(&mut buf).await {
-            println!("{:?} bytes received from {:?}", len, addr);
+            //println!("{:?} bytes received from {:?}", len, addr);
             let packet = rosc::decoder::decode(&buf[..len]).unwrap();
             match packet {
                 OscPacket::Message(msg) => {
@@ -343,7 +344,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         if let OscType::Int(i) = msg.args[0] {
                             marg = i;
                         }
-                        println!("Got a message for {}", marg);
+                        //println!("Got a message for {}", marg);
 
                         // find the address
                         let maybe_uuid = {
@@ -362,7 +363,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 //we drop the lock here because we *clone*
                             };
                             if let Some(channel) = sender {
-                                println!("Sending to...");
+                                //println!("Sending to...");
                                 channel.send(msg).await.unwrap();
                             }
                         }
@@ -459,6 +460,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     // Connect if we aren't already connected.
                     if let Err(err) = peripheral.connect().await {
                         eprintln!("Error connecting to peripheral, skipping: {}", err);
+                        toio_connected -= 1;
                         continue;
                     }
                     time::sleep(Duration::from_millis(200)).await;
@@ -495,14 +497,278 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                     let id2 = id;
                     let p2 = peripheral.clone();
+                    
+                    
+                    //let is_connected = peripheral.is_connected().await?;
+                    //println!("Peripheral {} connected: {}", address, is_connected);
+
+                    //println!("Discovering peripheral characteristics...");
+                    //Subscribing to toio characteristics
+                    peripheral.discover_services().await.unwrap();
+                    let chars = peripheral.characteristics();
+                    for characteristic in chars.into_iter() {
+                        if verbose {
+                            println!("Checking {:?}", characteristic);
+                        }
+                        if characteristic.uuid == POSITION_CHARACTERISTIC_UUID
+                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
+                        {
+                            if verbose {
+                                println!(
+                                    "Subscribing to position characteristic {:?}",
+                                    characteristic.uuid
+                                );
+                            }
+                            peripheral.subscribe(&characteristic).await?;
+                        } 
+                        if characteristic.uuid == BUTTON_CHARACTERISTIC_UUID
+                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
+                        {
+                            if verbose {
+                                println!(
+                                    "Subscribing to button characteristic {:?}",
+                                    characteristic.uuid
+                                );
+                            }
+                            peripheral.subscribe(&characteristic).await?;
+                        } 
+                        if characteristic.uuid == MOTION_CHARACTERISTIC_UUID
+                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
+                        {
+                            if verbose {
+                                println!(
+                                    "Subscribing to motion characteristic {:?}",
+                                    characteristic.uuid
+                                );
+                            }
+                            peripheral.subscribe(&characteristic).await?;
+                        }
+                        if characteristic.uuid == BATTERY_CHARACTERISTIC_UUID
+                        && characteristic.properties.contains(CharPropFlags::NOTIFY)
+                        {
+                            if verbose {
+                                println!(
+                                    "Subscribing to battery characteristic {:?}",
+                                    characteristic.uuid
+                                );
+                            }
+                            peripheral.subscribe(&characteristic).await?;
+                        }
+                        if characteristic.uuid == MOTOR_CHARACTERISTIC_UUID
+                        && characteristic.properties.contains(CharPropFlags::NOTIFY)
+                        {
+                            if verbose {
+                                println!(
+                                    "Subscribing to motor characteristic {:?}",
+                                    characteristic.uuid
+                                );
+                            }
+                            peripheral.subscribe(&characteristic).await?;
+                        }
+                    }
+                    //after scanning all chars and subscribing
+                    //we can expect to get notifications as a stream
+                    //TODO figure a way to end the task on disconnect
+                    //toio sending data to rust and rust sending data to processing
+                    let mut notification_stream = peripheral.notifications().await.unwrap();
+                    tokio::spawn(async move {
+                        while let Some(data) = notification_stream.next().await {
+                            match data.uuid {
+                                POSITION_CHARACTERISTIC_UUID => {
+                                    //println!("position");
+                                    //data is
+                                    // data[0] is 1 for read, 3 for off
+                                    // data[1] data[2] is x
+                                    // data[3] data[4] is y
+                                    // data[5] data[6] is angle
+                                    if data.value[0] == 1 {
+                                        let x = (data.value[2] as u32) << 8 | data.value[1] as u32;
+                                        let y = (data.value[4] as u32) << 8 | data.value[3] as u32;
+                                        let angle =
+                                            (data.value[6] as u32) << 8 | data.value[5] as u32;
+                                        let realx =
+                                            (data.value[8] as u32) << 8 | data.value[7] as u32;
+                                        let realy =
+                                            (data.value[10] as u32) << 8 | data.value[9] as u32;
+                                        //println!( "Received data from cube {}: {},{} {}", id, x, y, angle );
+                                        let msg =
+                                            encoder::encode(&OscPacket::Message(OscMessage {
+                                                addr: "/position".to_string(),
+                                                args: vec![
+                                                    OscType::Int(host_id),
+                                                    OscType::Int(id as i32),
+                                                    OscType::Int(x as i32),
+                                                    OscType::Int(y as i32),
+                                                    OscType::Int(angle as i32),
+                                                    OscType::Int(realx as i32),
+                                                    OscType::Int(realy as i32),
+                                                ],
+                                            }))
+                                            .unwrap();
+
+                                        tx3.send((msg, remote_addr)).await.unwrap();
+                                    }
+                                }
+                                BUTTON_CHARACTERISTIC_UUID => {
+                                    let button = data.value[1];
+                                    let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                        addr: "/button".to_string(),
+                                        args: vec![
+                                            OscType::Int(host_id),
+                                            OscType::Int(id as i32),
+                                            OscType::Int(button as i32),
+                                        ],
+                                    }))
+                                    .unwrap();
+
+                                    tx3.send((msg, remote_addr)).await.unwrap();
+                                }
+                                MOTION_CHARACTERISTIC_UUID => {
+                                    if data.value[0] == 0x01 {
+                                        let flatness = data.value[1];
+                                        let hit = data.value[2];
+                                        let double_tap = data.value[3];
+                                        let face_up = data.value[4];
+                                        let shake_level = data.value[5];
+    
+                                        let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                            addr: "/motion".to_string(),
+                                            args: vec![
+                                                OscType::Int(host_id),
+                                                OscType::Int(id as i32),
+                                                OscType::Int(flatness as i32),
+                                                OscType::Int(hit as i32),
+                                                OscType::Int(double_tap as i32),
+                                                OscType::Int(face_up as i32),
+                                                OscType::Int(shake_level as i32),
+                                            ],
+                                        }))
+                                        .unwrap();
+    
+                                        tx3.send((msg, remote_addr)).await.unwrap();
+                                    } else if data.value[0] == 0x02 {
+                                        let state = data.value[1];
+                                        let strength = data.value[2];
+                                        let forcex = data.value[3];
+                                        let forcey = data.value[4];
+                                        let forcez = data.value[5];
+
+                                        let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                            addr: "/magnetic".to_string(),
+                                            args: vec![
+                                                OscType::Int(host_id),
+                                                OscType::Int(id as i32),
+                                                OscType::Int(state as i32),
+                                                OscType::Int(strength as i32),
+                                                OscType::Int(forcex as i32),
+                                                OscType::Int(forcey as i32),
+                                                OscType::Int(forcez as i32) 
+                                            ],
+                                        }))
+                                        .unwrap();
+    
+                                        tx3.send((msg, remote_addr)).await.unwrap();
+                                    } else if data.value[0] == 0x03 {
+                                        if data.value[1] == 0x01 {
+                                            let roll = data.value[2];
+                                            let pitch = data.value[2];
+                                            let yaw = data.value[3];
+
+                                            let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                                addr: "/postureeuler".to_string(),
+                                                args: vec![
+                                                    OscType::Int(host_id),
+                                                    OscType::Int(id as i32),
+                                                    OscType::Int(roll as i32),
+                                                    OscType::Int(pitch as i32),
+                                                    OscType::Int(yaw as i32)
+                                                ],
+                                            }))
+                                            .unwrap();
+        
+                                            tx3.send((msg, remote_addr)).await.unwrap();
+                                        } else {
+                                            let w = data.value[2];
+                                            let x = data.value[2];
+                                            let y = data.value[3];
+                                            let z = data.value[3];
+
+                                            let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                                addr: "/posturequaternion".to_string(),
+                                                args: vec![
+                                                    OscType::Int(host_id),
+                                                    OscType::Int(id as i32),
+                                                    OscType::Int(w as i32),
+                                                    OscType::Int(x as i32),
+                                                    OscType::Int(y as i32),
+                                                    OscType::Int(z as i32)
+                                                ],
+                                            }))
+                                            .unwrap();
+        
+                                            tx3.send((msg, remote_addr)).await.unwrap();
+                                        }
+                                    }
+                                }
+                                BATTERY_CHARACTERISTIC_UUID => {
+                                    let battery = data.value[0];
+                                    let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                        addr: "/battery".to_string(),
+                                        args: vec![
+                                            OscType::Int(host_id),
+                                            OscType::Int(id as i32),
+                                            OscType::Int(battery as i32),
+                                        ],
+                                    }))
+                                    .unwrap();
+
+                                    tx3.send((msg, remote_addr)).await.unwrap();
+                                }
+                                MOTOR_CHARACTERISTIC_UUID => {
+                                    let motor_left = data.value[1];
+                                    let motor_right = data.value[2];
+                                    //println!
+                                    let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                        addr: "/motorspeed".to_string(),
+                                        args: vec![
+                                            OscType::Int(host_id),
+                                            OscType::Int(id as i32),
+                                            OscType::Int(motor_left as i32),
+                                            OscType::Int(motor_right as i32),
+                                        ],
+                                    }))
+                                    .unwrap();
+
+                                    tx3.send((msg, remote_addr)).await.unwrap();
+                                }
+                                _ => {}
+                            }
+                        }
+                    });
+
+                    //Turning a config setting on because it is off by default
+                    let characteristic = Characteristic {
+                        uuid: CONFIGURATION_UUID,
+                        service_uuid: TOIO_SERVICE_UUID,
+                        properties: CharPropFlags::WRITE,
+                    };
+                    let cmd = vec![
+                        0x1c,
+                        0x00,
+                        0x01
+                    ];
+                    p2.write(&characteristic, &cmd, WriteType::WithResponse)
+                        .await
+                        .unwrap();
+                    //Processing sends data to rust, which sends it to the toio
                     tokio::spawn(async move {
                         while let Some(message) = rx.recv().await {
-                            println!("Received {:?} for cube {}", message, id2);
+                            //println!("Received {:?} for cube {}", message, id2);
                             match message.addr.as_ref() {
                                 "/motorbasic" => {
                                     if message.args.len() == 5 {
                                         //we should have 5 args
-                                        println!("Message received");
+                                        //println!("Message received");
                                         let mut marg = [0; 5];
                                         for k in 0..5 {
                                             if let OscType::Int(i) = message.args[k] {
@@ -566,6 +832,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     }
                                 }
                                 "/motortarget" => {
+                                    println!("motor target");
                                     if message.args.len() == 5 {
                                         //we should have 4 args
                                         let mut marg = [0; 5];
@@ -807,222 +1074,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     p2.write(&characteristic, &cmd, WriteType::WithResponse)
                                         .await
                                         .unwrap();
-                                }
-                                _ => {}
-                            }
-                        }
-                    });
-
-                    //let is_connected = peripheral.is_connected().await?;
-                    //println!("Peripheral {} connected: {}", address, is_connected);
-
-                    //println!("Discovering peripheral characteristics...");
-                    peripheral.discover_services().await.unwrap();
-                    let chars = peripheral.characteristics();
-                    for characteristic in chars.into_iter() {
-                        if verbose {
-                            println!("Checking {:?}", characteristic);
-                        }
-                        if characteristic.uuid == POSITION_CHARACTERISTIC_UUID
-                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
-                        {
-                            if verbose {
-                                println!(
-                                    "Subscribing to position characteristic {:?}",
-                                    characteristic.uuid
-                                );
-                            }
-                            peripheral.subscribe(&characteristic).await?;
-                        } 
-                        if characteristic.uuid == BUTTON_CHARACTERISTIC_UUID
-                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
-                        {
-                            if verbose {
-                                println!(
-                                    "Subscribing to button characteristic {:?}",
-                                    characteristic.uuid
-                                );
-                            }
-                            peripheral.subscribe(&characteristic).await?;
-                        } 
-                        if characteristic.uuid == MOTION_CHARACTERISTIC_UUID
-                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
-                        {
-                            if verbose {
-                                println!(
-                                    "Subscribing to motion characteristic {:?}",
-                                    characteristic.uuid
-                                );
-                            }
-                            peripheral.subscribe(&characteristic).await?;
-                        }
-                        if characteristic.uuid == BATTERY_CHARACTERISTIC_UUID
-                        && characteristic.properties.contains(CharPropFlags::NOTIFY)
-                        {
-                            if verbose {
-                                println!(
-                                    "Subscribing to battery characteristic {:?}",
-                                    characteristic.uuid
-                                );
-                            }
-                            peripheral.subscribe(&characteristic).await?;
-                        }
-                    }
-                    //after scanning all chars and subscribing
-                    //we can expect to get notifications as a stream
-                    //TODO figure a way to end the task on disconnect
-                    let mut notification_stream = peripheral.notifications().await.unwrap();
-                    tokio::spawn(async move {
-                        while let Some(data) = notification_stream.next().await {
-                            match data.uuid {
-                                POSITION_CHARACTERISTIC_UUID => {
-                                    //data is
-                                    // data[0] is 1 for read, 3 for off
-                                    // data[1] data[2] is x
-                                    // data[3] data[4] is y
-                                    // data[5] data[6] is angle
-                                    if data.value[0] == 1 {
-                                        let x = (data.value[2] as u32) << 8 | data.value[1] as u32;
-                                        let y = (data.value[4] as u32) << 8 | data.value[3] as u32;
-                                        let angle =
-                                            (data.value[6] as u32) << 8 | data.value[5] as u32;
-                                        let realx =
-                                            (data.value[8] as u32) << 8 | data.value[7] as u32;
-                                        let realy =
-                                            (data.value[10] as u32) << 8 | data.value[9] as u32;
-                                        //println!( "Received data from cube {}: {},{} {}", id, x, y, angle );
-                                        let msg =
-                                            encoder::encode(&OscPacket::Message(OscMessage {
-                                                addr: "/position".to_string(),
-                                                args: vec![
-                                                    OscType::Int(host_id),
-                                                    OscType::Int(id as i32),
-                                                    OscType::Int(x as i32),
-                                                    OscType::Int(y as i32),
-                                                    OscType::Int(angle as i32),
-                                                    OscType::Int(realx as i32),
-                                                    OscType::Int(realy as i32),
-                                                ],
-                                            }))
-                                            .unwrap();
-
-                                        tx3.send((msg, remote_addr)).await.unwrap();
-                                    }
-                                }
-                                BUTTON_CHARACTERISTIC_UUID => {
-                                    let button = data.value[1];
-                                    let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                        addr: "/button".to_string(),
-                                        args: vec![
-                                            OscType::Int(host_id),
-                                            OscType::Int(id as i32),
-                                            OscType::Int(button as i32),
-                                        ],
-                                    }))
-                                    .unwrap();
-
-                                    tx3.send((msg, remote_addr)).await.unwrap();
-                                }
-                                MOTION_CHARACTERISTIC_UUID => {
-                                    if data.value[0] == 0x01 {
-                                        let flatness = data.value[1];
-                                        let hit = data.value[2];
-                                        let double_tap = data.value[3];
-                                        let face_up = data.value[4];
-                                        let shake_level = data.value[5];
-    
-                                        let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                            addr: "/motion".to_string(),
-                                            args: vec![
-                                                OscType::Int(host_id),
-                                                OscType::Int(id as i32),
-                                                OscType::Int(flatness as i32),
-                                                OscType::Int(hit as i32),
-                                                OscType::Int(double_tap as i32),
-                                                OscType::Int(face_up as i32),
-                                                OscType::Int(shake_level as i32),
-                                            ],
-                                        }))
-                                        .unwrap();
-    
-                                        tx3.send((msg, remote_addr)).await.unwrap();
-                                    } else if data.value[0] == 0x02 {
-                                        let state = data.value[1];
-                                        let strength = data.value[2];
-                                        let forcex = data.value[3];
-                                        let forcey = data.value[4];
-                                        let forcez = data.value[5];
-
-                                        let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                            addr: "/magnetic".to_string(),
-                                            args: vec![
-                                                OscType::Int(host_id),
-                                                OscType::Int(id as i32),
-                                                OscType::Int(state as i32),
-                                                OscType::Int(strength as i32),
-                                                OscType::Int(forcex as i32),
-                                                OscType::Int(forcey as i32),
-                                                OscType::Int(forcez as i32) 
-                                            ],
-                                        }))
-                                        .unwrap();
-    
-                                        tx3.send((msg, remote_addr)).await.unwrap();
-                                    } else if data.value[0] == 0x03 {
-                                        if data.value[1] == 0x01 {
-                                            let roll = data.value[2];
-                                            let pitch = data.value[2];
-                                            let yaw = data.value[3];
-
-                                            let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                                addr: "/postureeuler".to_string(),
-                                                args: vec![
-                                                    OscType::Int(host_id),
-                                                    OscType::Int(id as i32),
-                                                    OscType::Int(roll as i32),
-                                                    OscType::Int(pitch as i32),
-                                                    OscType::Int(yaw as i32)
-                                                ],
-                                            }))
-                                            .unwrap();
-        
-                                            tx3.send((msg, remote_addr)).await.unwrap();
-                                        } else {
-                                            let w = data.value[2];
-                                            let x = data.value[2];
-                                            let y = data.value[3];
-                                            let z = data.value[3];
-
-                                            let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                                addr: "/posturequaternion".to_string(),
-                                                args: vec![
-                                                    OscType::Int(host_id),
-                                                    OscType::Int(id as i32),
-                                                    OscType::Int(w as i32),
-                                                    OscType::Int(x as i32),
-                                                    OscType::Int(y as i32),
-                                                    OscType::Int(z as i32)
-                                                ],
-                                            }))
-                                            .unwrap();
-        
-                                            tx3.send((msg, remote_addr)).await.unwrap();
-                                        }
-                                    }
-                                }
-                                BATTERY_CHARACTERISTIC_UUID => {
-                                    let battery = data.value[0];
-                                    let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                        addr: "/battery".to_string(),
-                                        args: vec![
-                                            OscType::Int(host_id),
-                                            OscType::Int(id as i32),
-                                            OscType::Int(battery as i32),
-                                        ],
-                                    }))
-                                    .unwrap();
-
-                                    tx3.send((msg, remote_addr)).await.unwrap();
                                 }
                                 _ => {}
                             }

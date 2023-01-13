@@ -1,5 +1,4 @@
 
-
 void oscEvent(OscMessage msg) {
   if (msg.checkAddrPattern("/position")) {
     int hostId = msg.get(0).intValue();
@@ -12,7 +11,6 @@ void oscEvent(OscMessage msg) {
     //println("Host "+ hostId +" id " + id+" "+posx +" " +posy +" "+degrees);
 
     id = cubesPerHost*hostId + id;
-
     if (id < cubes.length) {
       cubes[id].count++;
           
@@ -118,6 +116,13 @@ void oscEvent(OscMessage msg) {
     int battery = msg.get(2).intValue();
     cubes[id].battery = battery;
     //println("Battery Level for id " + id + ": " + battery);
+  } else if (msg.checkAddrPattern("/motorspeed")) {
+    int hostId = msg.get(0).intValue();
+    int relid = msg.get(1).intValue();
+    int motor_left = msg.get(2).intValue();
+    int motor_right = msg.get(3).intValue();
+    int id = cubesPerHost*hostId + relid;
+    cubes[id].speed_left = motor_left;
+    cubes[id].speed_right = motor_right;
   }
-  
 }

@@ -43,7 +43,6 @@ void setup() {
   for (int i = 0; i< cubes.length; ++i) {
     cubes[i] = new Cube(i, true);
   }
-
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
   frameRate(30);
@@ -71,7 +70,13 @@ void draw() {
       popMatrix();
     }
   }
-  
+  //text("sdasdsadsadsa", 50, 50);
+  for (int i = 0; i < cubes.length; ++i) {
+    fill(0, 0, 0);
+    text("Cube ID: " + String.valueOf(cubes[i].id), 500, 100 + 60 * i);
+    text("Left motor speed: " + String.valueOf(cubes[i].speed_left), 500, 120 + 60 * i);
+    text("Right motor speed: " + String.valueOf(cubes[i].speed_right), 500, 140 + 60 * i);
+  }
   if (chase) {
     cubes[0].targetx = cubes[0].x;
     cubes[0].targety = cubes[0].y;

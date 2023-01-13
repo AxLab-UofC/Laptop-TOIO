@@ -13,6 +13,7 @@ void aimMotorControl(int cubeId, float x, float y) {
 void basicMotor(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
+  System.out.print("Motor basic");
   OscMessage msg = new OscMessage("/motorbasic");
   msg.add(actualcubeid);
   if (leftforwards) {
