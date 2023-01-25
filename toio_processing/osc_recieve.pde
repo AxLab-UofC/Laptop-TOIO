@@ -2,6 +2,7 @@
 
 void oscEvent(OscMessage msg) {
   if (msg.checkAddrPattern("/position")) {
+    //this collects position information 
     int hostId = msg.get(0).intValue();
     int id = msg.get(1).intValue();
     //int matId = msg.get(1).intValue();
@@ -59,6 +60,7 @@ void oscEvent(OscMessage msg) {
       }
     }
   } else if (msg.checkAddrPattern("/button")) {
+    //this collects button information
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
@@ -68,6 +70,7 @@ void oscEvent(OscMessage msg) {
     
     println("Button pressed for id " + id + ":  " + pressValue);
   } else if (msg.checkAddrPattern("/motion")) {
+    //this collects motion sensor information
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
@@ -80,6 +83,7 @@ void oscEvent(OscMessage msg) {
     
     
   } else if (msg.checkAddrPattern("/magnetic")) {
+    //this collects magnetic sensor information
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
@@ -92,6 +96,7 @@ void oscEvent(OscMessage msg) {
     
     
   }else if (msg.checkAddrPattern("/postureeuler")) {
+    //this collects posture sensor information (in eulers)
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
@@ -102,6 +107,7 @@ void oscEvent(OscMessage msg) {
     
     
   } else if (msg.checkAddrPattern("/posturequaternion")) {
+    //this collects posture sensor information (in quaternion)
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
@@ -112,6 +118,7 @@ void oscEvent(OscMessage msg) {
     println("Posture for id "+id +": " + w +", "+ x+", "+ y +", " + z);
     
   } else if (msg.checkAddrPattern("/battery")) {
+    //this collects battery value information
     int hostId = msg.get(0).intValue();
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;

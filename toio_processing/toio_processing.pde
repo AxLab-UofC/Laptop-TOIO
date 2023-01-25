@@ -50,6 +50,8 @@ void setup() {
 }
 
 void draw() {
+  //START DO NOT EDIT
+  
   //the motion function sends a constant request for motion data from a toio ID
   //motion(0);
   background(255);
@@ -71,6 +73,7 @@ void draw() {
       popMatrix();
     }
   }
+  //END DO NOT EDIT
   
   if (chase) {
     cubes[0].targetx = cubes[0].x;
@@ -120,6 +123,7 @@ void draw() {
   }
 
 
+  //START DO NOT EDIT
   //did we lost some cubes?
   for (int i=0; i<nCubes; ++i) {
     // 500ms since last update
@@ -128,4 +132,5 @@ void draw() {
       cubes[i].isLost= true;
     }
   }
+  //END DO NOT EDIT
 }
