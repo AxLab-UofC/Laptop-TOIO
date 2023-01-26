@@ -141,7 +141,7 @@ void midi(int cubeId, int noteID, int volume, int duration) {
 
 //request for motion detection information, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_sensor
-void motion(int cubeId) {
+void motionRequest(int cubeId) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/motion");
@@ -151,7 +151,7 @@ void motion(int cubeId) {
 
 //request for magnetic sensor information, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_magnetic_sensor
-void magnetic(int cubeId) {
+void magneticRequest(int cubeId) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/magnetic");
@@ -161,7 +161,7 @@ void magnetic(int cubeId) {
 
 //request for cube rotation information, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor
-void posture(int cubeId, boolean euler) {
+void postureRequest(int cubeId, boolean euler) {
     int hostId = cubeId/cubesPerHost;
     int actualcubeid = cubeId % cubesPerHost;
     OscMessage msg;

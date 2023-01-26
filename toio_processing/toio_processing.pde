@@ -53,7 +53,7 @@ void draw() {
   //START DO NOT EDIT
   
   //the motion function sends a constant request for motion data from a toio ID
-  //motion(0);
+  //motionRequest(0);
   background(255);
   stroke(0);
   long now = System.currentTimeMillis();

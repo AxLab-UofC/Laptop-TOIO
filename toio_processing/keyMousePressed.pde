@@ -29,7 +29,7 @@ void keyPressed() {
     break;
   case 'm':
     //motorTarget(1, 0, 700, 286, 90);
-    magnetic(0);
+    magneticRequest(0);
     break;
   
   //case 'a':
@@ -46,12 +46,20 @@ void keyPressed() {
     basicMotor(0, true, 0, true, 0);
     break;
     
+   case 'z':
+    for (int i = 0; i< nCubes; ++i) {
+      if (cubes[i].isLost==false) {
+        motorTarget(i, 0, 0, 0, 0);
+      }
+    }
+    break;
+    
   case 'p':
-    posture(0, true);
+    postureRequest(0, true);
     break;
    
    case 'o':
-     posture(0, false);
+     postureRequest(0, false);
      break;
   
   case '`':
@@ -110,7 +118,7 @@ void keyPressed() {
     
   case 'a':
     for (int i=0; i < nCubes; ++i) {
-      aimMotorControl(i, 380, 260);
+      //aimMotorControl(i, 380, 260)
     }
     break;
     
