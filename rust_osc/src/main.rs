@@ -650,8 +650,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             0x05,                               //motor control with acceleration
                                             marg[1].abs() as u8,                //translational speed
                                             marg[2].abs() as u8,                //acceleration
-                                            (marg[3].abs() >> 8) as u8,         //rotational velocity
-                                            (marg[3].abs() & 0x00FF) as u8, 
+                                            (marg[3].abs() & 0x00FF) as u8,     //rotational velocity
+                                            ((marg[3].abs() & 0xFF00) >> 8) as u8, 
                                             marg[4].abs() as u8,                //rotational direction
                                             marg[5].abs() as u8,                //direction
                                             marg[6].abs() as u8,                //Priority designation
