@@ -567,7 +567,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 }
                                 "/motortarget" => {
                                     if message.args.len() == 5 {
-                                        //we should have 4 args
+                                        //we should have 5 args
                                         let mut marg = [0; 5];
                                         for k in 0..5 {
                                             if let OscType::Int(i) = message.args[k] {
@@ -587,12 +587,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             0x50,                               //maximum motor speed
                                             0x00,                               //motor speed changes
                                             0x00,                               //reserved
-                                            (marg[2].abs() >> 8) as u8,         //x value of target
-                                            (marg[2].abs() & 0x00FF) as u8, 
-                                            (marg[3].abs() >> 8) as u8,         //y value of target
-                                            (marg[3].abs() & 0x00FF) as u8,
-                                            (marg[4].abs() >> 8) as u8,
-                                            (marg[4].abs() & 0x00FF) as u8      //θ value of target
+                                            (marg[2].abs() & 0x00FF) as u8,     //x value of target
+                                            ((marg[2].abs() & 0xFF00) >> 8) as u8, 
+                                            (marg[3].abs() & 0x00FF) as u8,     //y value of target
+                                            ((marg[3].abs() & 0xFF00) >> 8) as u8, 
+                                            (marg[4].abs() & 0x00FF) as u8,     //θ value of target
+                                            ((marg[4].abs() & 0xFF00) >> 8) as u8, 
                                         ];
                                         p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
                                             .await
@@ -618,11 +618,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             marg[4].abs() as u8,    //maximum motor speed
                                             marg[5].abs() as u8,    //motor speed changes
                                             0x00,                   //reserved
-                                            (marg[6].abs() >> 8) as u8,         //x value of target
+                                            ((marg[6].abs() & 0xFF00) >> 8) as u8,         //x value of target
                                             (marg[6].abs() & 0x00FF) as u8, 
-                                            (marg[7].abs() >> 8) as u8,         //y value of target
+                                            ((marg[7].abs() & 0xFF00) >> 8) as u8,         //y value of target
                                             (marg[7].abs() & 0x00FF) as u8,
-                                            (marg[8].abs() >> 8) as u8,
+                                            ((marg[8].abs() & 0xFF00) >> 8) as u8,
                                             (marg[8].abs() & 0x00FF) as u8      //θ value of target
                                         ];
                                         p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
