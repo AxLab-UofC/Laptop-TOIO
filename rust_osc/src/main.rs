@@ -155,7 +155,7 @@ fn return_toio_id(name: &str) -> &str{
         "586",  // #108
         "p50",  // #109
         "c9k",  // #110
-        "0",  // #111
+        "N0N",  // #111
         "0",  // #112
         "B1m",  // #113
         "h7E",  // #114
@@ -185,6 +185,58 @@ fn return_toio_id(name: &str) -> &str{
         "93N",  // #138
         "t0F",  // #139
         "M7G",  // #140
+        "r4P",  // #141
+        "i1d",  // #142
+        "a22",  // #143
+        "M39",  // #144
+        "C23",  // #145
+        "816",  // #146
+        "E0M",  // #147
+        "T4b",  // #148
+        "L1L",  // #149
+        "i5m",  // #150
+        "P2R",  // #151
+        "t77",  // #152
+        "A5E",  // #153
+        "88e",  // #154
+        "k1b",  // #155
+        "m04",  // #156
+        "41b",  // #157
+        "B4k",  // #158
+        "J1M",  // #159
+        "H4M",  // #160
+        "C1D",  // #161
+        "12K",  // #162
+        "822",  // #163
+        "E1T",  // #164
+        "Q4H",  // #165
+        "k4d",  // #166
+        "k4J",  // #167
+        "L70",  // #168
+        "31f",  // #169
+        "G1P",  // #170
+        "34e",  // #171
+        "939",  // #172
+        "24F",  // #173
+        "43r",  // #174
+        "M81",  // #175
+        "01E",  // #176
+        "A0N",  // #177
+        "65f",  // #178
+        "Q6p",  // #179
+        "93R",  // #180
+        "r0i",  // #181
+        "A35",  // #182
+        "P40",  // #183
+        "G9R",  // #184
+        "c7C",  // #185
+        "P17",  // #186
+        "76f",  // #187
+        "99p",  // #188
+        "96E",  // #189
+        "p3E",  // #190
+        "h6t",  // #191
+        "n2L",  // #192
     ];
     match name.parse::<i32>() {
         Ok(n) => {
@@ -618,12 +670,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             marg[4].abs() as u8,    //maximum motor speed
                                             marg[5].abs() as u8,    //motor speed changes
                                             0x00,                   //reserved
-                                            ((marg[6].abs() & 0xFF00) >> 8) as u8,         //x value of target
-                                            (marg[6].abs() & 0x00FF) as u8, 
-                                            ((marg[7].abs() & 0xFF00) >> 8) as u8,         //y value of target
-                                            (marg[7].abs() & 0x00FF) as u8,
-                                            ((marg[8].abs() & 0xFF00) >> 8) as u8,
-                                            (marg[8].abs() & 0x00FF) as u8      //θ value of target
+                                            (marg[6].abs() & 0x00FF) as u8,     //x value of target
+                                            ((marg[6].abs() & 0xFF00) >> 8) as u8, 
+                                            (marg[7].abs() & 0x00FF) as u8,     //y value of target
+                                            ((marg[7].abs() & 0xFF00) >> 8) as u8, 
+                                            (marg[8].abs() & 0x00FF) as u8,     //θ value of target
+                                            ((marg[8].abs() & 0xFF00) >> 8) as u8, 
                                         ];
                                         p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
                                             .await
