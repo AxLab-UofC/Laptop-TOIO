@@ -43,7 +43,7 @@ fn print_toio_connected(toio_connected: i32){
 
 fn return_toio_id(name: &str) -> &str{
     //list of toio ids
-    const IDARR : [&str; 141] = [
+    const IDARR : [&str; 193] = [
         "Individual ID",  //TOIO Num
         "0",  // #1
         "j1c",  // #2
@@ -80,11 +80,11 @@ fn return_toio_id(name: &str) -> &str{
         "L6T",  // #33
         "C0E",  // #34
         "t79",  // #35
-        "0",  // #36
-        "0",  // #37
+        "J6k",  // #36
+        "d6f",  // #37
         "0",  // #38
-        "0",  // #39
-        "0",  // #40
+        "M75",  // #39
+        "310",  // #40
         "M5p",  // #41
         "A4a",  // #42
         "M9J",  // #43
@@ -95,11 +95,11 @@ fn return_toio_id(name: &str) -> &str{
         "L6n",  // #48
         "a3F",  // #49
         "J8d",  // #50
-        "0",  // #51
-        "0",  // #52
-        "0",  // #53
-        "0",  // #54
-        "0",  // #55
+        "227",  // #51
+        "k4i",  // #52
+        "J68",  // #53
+        "90J",  // #54
+        "k96",  // #55
         "0",  // #56
         "0",  // #57
         "0",  // #58
