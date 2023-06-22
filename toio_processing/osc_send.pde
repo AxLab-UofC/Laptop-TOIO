@@ -128,7 +128,7 @@ void sound(int cubeId, int soundeffect, int volume) {
 
 //id for different midi notes can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
-void midi(int cubeId, int noteID, int volume, int duration) {
+void midi(int cubeId, int duration, int noteID, int volume) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/midi");

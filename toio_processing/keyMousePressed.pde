@@ -1,27 +1,46 @@
 void keyPressed() {
   
   switch(key) {
+  case 'r':
+    try {
+      basicMotor(1, true, 200, false, 200);
+      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(720);
+      basicMotor(1, true, 0, true, 0);
+      } catch(InterruptedException e) {
+        System.out.println("got interrupted!");
+      }
+      break;
+  case 'l':
+  try {
+    basicMotor(1, false, 200, true, 200);
+    java.util.concurrent.TimeUnit.MILLISECONDS.sleep(720);
+    basicMotor(1, false, 0, true, 0);
+    } catch(InterruptedException e) {
+      System.out.println("got interrupted!");
+    }
+    break;
+    
   case 'f':
     try {
-      midi(0, 64, 255, 10);
+      midi(0, 10, 64, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 63, 255, 10);
+      midi(0, 10, 63, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 64, 255, 10);
+      midi(0, 10, 64, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 63, 255, 10);
+      midi(0, 10, 63, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 64, 255, 10);
+      midi(0, 10, 64, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 63, 255, 10);
+      midi(0, 10, 63, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 59, 255, 10);
+      midi(0, 10, 59, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 62, 255, 10);
+      midi(0, 10, 62, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 60, 255, 10);
+      midi(0, 10, 60, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 57, 255, 10);
+      midi(0, 10, 57, 255);
       
     } catch(InterruptedException e) {
       System.out.println("got interrupted!");

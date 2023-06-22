@@ -10,7 +10,7 @@ void oscEvent(OscMessage msg) {
     int posy = msg.get(3).intValue();
 
     int degrees = msg.get(4).intValue();
-    //println("Host "+ hostId +" id " + id+" "+posx +" " +posy +" "+degrees);
+    println("Host "+ hostId +" id " + id+" "+posx +" " +posy +" "+degrees);
 
     id = cubesPerHost*hostId + id;
 
