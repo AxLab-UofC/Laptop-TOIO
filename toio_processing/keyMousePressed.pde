@@ -142,7 +142,7 @@ void keyPressed() {
     break;
     
   case 'k':
-    light(0, 100, 255, 0, 0);
+    led(0, 100, 255, 0, 0);
     break;
     
   //case 'm':

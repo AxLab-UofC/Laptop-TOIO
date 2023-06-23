@@ -65,6 +65,13 @@ void draw() {
   //draw the cubes
   for (int i = 0; i < cubes.length; ++i) {
     if (cubes[i].isLost==false) {
+      if (cubes[i].onFloor) {
+        stroke(255,0,0);
+      } 
+      else {
+        stroke(0, 0, 255);
+      }
+      
       pushMatrix();
       translate(cubes[i].x, cubes[i].y);
       rotate(cubes[i].deg * PI/180);

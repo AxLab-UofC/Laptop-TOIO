@@ -66,6 +66,11 @@ void oscEvent(OscMessage msg) {
     int id = cubesPerHost*hostId + relid;
     int pressValue = msg.get(2).intValue();
     
+    if (pressValue == 0) {
+      cubes[id].onFloor = !cubes[id].onFloor;
+    }
+    
+    
 
     
     println("Button pressed for id " + id + ":  " + pressValue);
