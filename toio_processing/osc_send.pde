@@ -101,7 +101,7 @@ void motorAcceleration(int cubeId, int speed, int a, int rotateVelocity, int rot
 
 //activating LED on bottom of toio, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_light
-void light(int cubeId, int duration, int red, int green, int blue) {
+void led(int cubeId, int duration, int red, int green, int blue) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/led");
