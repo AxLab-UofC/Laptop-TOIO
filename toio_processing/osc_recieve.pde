@@ -68,6 +68,12 @@ void oscEvent(OscMessage msg) {
     
     if (pressValue == 0) {
       cubes[id].onFloor = !cubes[id].onFloor;
+      
+      if (cubes[id].onFloor) {
+        led(id, 100, 255, 0, 0);
+      } else {
+        led(id, 100, 0, 0, 255);
+      }
     }
     
     

@@ -60,20 +60,22 @@ void draw() {
 
   //draw the "mat"
   fill(255);
-  rect(45, 45, 410, 410);
+  rect(45, 45, 600, 410);
 
   //draw the cubes
   for (int i = 0; i < cubes.length; ++i) {
-    if (cubes[i].isLost==false) {
+    if (cubes[i].isLost==false) {      
+      pushMatrix();
       if (cubes[i].onFloor) {
         stroke(255,0,0);
+        translate(cubes[i].x, cubes[i].y);
       } 
       else {
         stroke(0, 0, 255);
+        translate(cubes[i].x, 410 + cubes[i].y);
       }
       
-      pushMatrix();
-      translate(cubes[i].x, cubes[i].y);
+      
       rotate(cubes[i].deg * PI/180);
       rect(-10, -10, 20, 20);
       rect(0, -5, 20, 10);
