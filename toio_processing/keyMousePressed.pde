@@ -65,14 +65,6 @@ void keyPressed() {
     basicMotor(0, true, 0, true, 0);
     break;
     
-   case 'z':
-    for (int i = 0; i< nCubes; ++i) {
-      if (cubes[i].isLost==false) {
-        motorTarget(i, 0, 0, 0, 0);
-      }
-    }
-    break;
-    
   case 'p':
     postureRequest(0, true);
     break;
@@ -148,6 +140,16 @@ void keyPressed() {
   //case 'm':
   //  motion(0);
   //  break;
+  
+  case 'x':
+    motorTarget(0, 1, 400, 400, 90);
+    motorTarget(1, 1, 400, 400, 90);
+    break;
+    
+  case 'z':
+    motorTarget(0, 1, 200, 200 , 90);
+    motorTarget(1, 1, 200, 200 , 90);
+    break;
     
   default:
     break;

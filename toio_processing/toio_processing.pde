@@ -67,12 +67,12 @@ void draw() {
     if (cubes[i].isLost==false) {      
       pushMatrix();
       if (cubes[i].onFloor) {
-        stroke(255,0,0);
+        stroke(0,0,255);
         translate(cubes[i].x, cubes[i].y);
       } 
       else {
-        stroke(0, 0, 255);
-        translate(cubes[i].x, 410 + cubes[i].y);
+        stroke(255, 0, 0);
+        translate(cubes[i].x, 455 - cubes[i].y);
       }
       
       

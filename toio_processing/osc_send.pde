@@ -54,6 +54,11 @@ void basicMotor(int cubeId, boolean leftforwards, int leftspeed, boolean rightfo
 void motorTarget(int cubeId, int mode, int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
+  
+   if (!cubes[actualcubeid].onFloor) {
+    y = ymax - y;
+  }
+  
   OscMessage msg = new OscMessage("/motortarget");
   msg.add(actualcubeid);
   msg.add(mode);
@@ -68,6 +73,11 @@ void motorTarget(int cubeId, int mode, int x, int y, int theta){
 void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
+  
+  if (!cubes[actualcubeid].onFloor) {
+    y = ymax - y;
+  }
+  
   OscMessage msg = new OscMessage("/motortarget");
   msg.add(actualcubeid);
   msg.add(control);
