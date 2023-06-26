@@ -60,7 +60,7 @@ void draw() {
 
   //draw the "mat"
   fill(255);
-  rect(45, 45, 600, 410);
+  rect(45, 45, 644, 466);
 
   //draw the cubes
   for (int i = 0; i < cubes.length; ++i) {

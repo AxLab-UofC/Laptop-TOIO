@@ -15,6 +15,7 @@
 //basic motor control (simplified), specification found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
 //this controls the speed of the left motor, the the speed of the right motor, and the duration of the movement
+//setting value to negative will move motor backwards
 void motorControl(int cubeId, float leftspeed, float rightspeed, int duration) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
@@ -31,6 +32,17 @@ void motorControl(int cubeId, float leftspeed, float rightspeed, int duration) {
 void basicMotor(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
+  
+  if (!cubes[actualcubeid].onFloor) {
+    int tempspeed = rightspeed;
+    rightspeed = leftspeed;
+    leftspeed = tempspeed;
+    
+    boolean tempforwards = rightforwards;
+    rightforwards = leftforwards;
+    leftforwards = tempforwards;
+  }
+  
   OscMessage msg = new OscMessage("/motorbasic");
   msg.add(actualcubeid);
   if (leftforwards) {
