@@ -141,6 +141,17 @@ void keyPressed() {
   //  motion(0);
   //  break;
   
+   case 't':
+     motorControl(0, 45, 30, 250);
+     motorControl(1, 45, 30, 250);
+     break; 
+  
+  case 'y':
+     basicMotor(0, true, 45, true, 30);
+     basicMotor(1, true, 45, true, 30);
+     break; 
+
+  
   case 'x':
     motorTarget(0, 1, 400, 400, 90);
     motorTarget(1, 1, 400, 400, 90);

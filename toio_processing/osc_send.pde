@@ -17,8 +17,18 @@
 //this controls the speed of the left motor, the the speed of the right motor, and the duration of the movement
 //setting value to negative will move motor backwards
 void motorControl(int cubeId, float leftspeed, float rightspeed, int duration) {
+
+
+
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
+  
+   if (!cubes[actualcubeid].onFloor) {
+    float tempspeed = rightspeed;
+    rightspeed = leftspeed;
+    leftspeed = tempspeed;
+  }
+  
   OscMessage msg = new OscMessage("/motor");
   msg.add(actualcubeid);
   msg.add((int)leftspeed);
@@ -103,6 +113,7 @@ void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
   oscP5.send(msg, server[hostId]);
 }
 
+//would need to change rotational velocity for threading space project, can be done if we need this function
 //motor control with acceleration specified, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
 void motorAcceleration(int cubeId, int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration){
