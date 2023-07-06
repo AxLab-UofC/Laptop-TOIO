@@ -199,6 +199,14 @@ impl CubeReceiver {
             match packet{
                 OscPacket::Message(msg) => {
                     match msg.addr.as_ref(){
+                        "/motorbasic" => {
+                            let mut marg = [0; 5];
+                            for k in 0..5 {
+                                if let OscType::Int(i) = message.args[k] {
+                                    marg[k] = i;
+                                }
+                            }
+                        }
                         "/motortarget" => {
                             let mut marg = [0; 6];
                             for k in 0..6{
