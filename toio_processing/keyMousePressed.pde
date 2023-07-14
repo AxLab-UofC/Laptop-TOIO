@@ -153,13 +153,11 @@ void keyPressed() {
 
   
   case 'x':
-    motorTarget(0, 1, 400, 400, 90);
-    motorTarget(1, 1, 400, 400, 90);
+    pair.target(1, 400, 400, 90);
     break;
     
   case 'z':
-    motorTarget(0, 1, 200, 200 , 90);
-    motorTarget(1, 1, 200, 200 , 90);
+    pair.target(1, 200, 200 , 90);
     break;
     
   default:

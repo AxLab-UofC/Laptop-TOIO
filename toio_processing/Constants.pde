@@ -6,3 +6,5 @@ int appFrameRate = 50;
 
 int xmax = 644;
 int ymax = 466;
+
+Pair pair = new Pair(0, 1);
