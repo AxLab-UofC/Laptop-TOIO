@@ -2,22 +2,11 @@ void keyPressed() {
   
   switch(key) {
   case 'r':
-    try {
-      basicMotor(1, true, 200, false, 200);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(720);
-      basicMotor(1, true, 0, true, 0);
-      } catch(InterruptedException e) {
-        System.out.println("got interrupted!");
-      }
-      break;
+    motorBasic(0, 200, 200);
+    break;
+
   case 'l':
-  try {
-    basicMotor(1, false, 200, true, 200);
-    java.util.concurrent.TimeUnit.MILLISECONDS.sleep(720);
-    basicMotor(1, false, 0, true, 0);
-    } catch(InterruptedException e) {
-      System.out.println("got interrupted!");
-    }
+    motorDuration(0, 200, 200, 10);
     break;
     
   case 'f':
@@ -59,10 +48,10 @@ void keyPressed() {
      //for (int i = 0; i < cubes.length; i++) {
      //  println("Battery level of cube " + i + ": " + cubes[i].battery);
      //}
-     basicMotor(0, true, 20, true, 20);
+     motorBasic(0, true, 20, true, 20);
      break;
   case 's':
-    basicMotor(0, true, 0, true, 0);
+    motorBasic(0, true, 0, true, 0);
     break;
     
    case 'z':
@@ -129,17 +118,6 @@ void keyPressed() {
     midi(0, 68, 255, 10);
     break;
     
-  case 'd':
-    chase = false;
-    spin = false;
-    mouseDrive = false;
-    break;
-    
-  case 'a':
-    for (int i=0; i < nCubes; ++i) {
-      //aimMotorControl(i, 380, 260)
-    }
-    break;
     
   case 'k':
     led(0, 100, 255, 0, 0);
@@ -156,11 +134,7 @@ void keyPressed() {
 }
 
 void mousePressed() {
-  chase = false;
-  spin = false;
-  mouseDrive=true;
 }
 
 void mouseReleased() {
-  mouseDrive=false;
 }

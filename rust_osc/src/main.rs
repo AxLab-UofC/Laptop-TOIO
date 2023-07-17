@@ -583,17 +583,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         //error
                                     }
                                 }
-                                "/motor" => {
-                                    if message.args.len() == 4 {
-                                        //we should have 4 args
-                                        let mut marg = [0; 4];
-                                        for k in 0..4 {
+                                "/motorduration" => {
+                                    if message.args.len() == 6 {
+                                        //we should have 5 args
+                                        println!("Message received");
+                                        let mut marg = [0; 6];
+                                        for k in 0..6 {
                                             if let OscType::Int(i) = message.args[k] {
                                                 marg[k] = i;
                                             }
                                         }
-                                        let leftdirection = if marg[1] < 0 { 0x02 } else { 0x01 };
-                                        let rightdirection = if marg[2] < 0 { 0x02 } else { 0x01 };
 
                                         let characteristic = Characteristic {
                                             uuid: MOTOR_CHARACTERISTIC_UUID,
@@ -603,12 +602,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         let cmd = vec![
                                             0x02,                 //motor
                                             0x01,                 //left
-                                            leftdirection,        //direction
-                                            marg[1].abs() as u8,  //speed
-                                            0x02,                 //right
-                                            rightdirection,       //direction
+                                            marg[1].abs() as u8,  //forwards or backwards
                                             marg[2].abs() as u8,  //speed
-                                            (marg[3] / 10) as u8, //length
+                                            0x02,                 //right
+                                            marg[3].abs() as u8,  //forwards or backwards
+                                            marg[4].abs() as u8,  //speed
+                                            marg[5].abs() as u8,  //duration
                                         ];
                                         p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
                                             .await

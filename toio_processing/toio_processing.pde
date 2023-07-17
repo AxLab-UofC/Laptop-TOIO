@@ -14,11 +14,6 @@ NetAddress[] server;
 //we'll keep the cubes here
 Cube[] cubes;
 
-boolean mouseDrive = false;
-boolean chase = false;
-boolean spin = false;
-
-
 void settings() {
   size(1000, 1000, P3D);
 }
@@ -75,53 +70,6 @@ void draw() {
   }
   //END DO NOT EDIT
   
-  if (chase) {
-    cubes[0].targetx = cubes[0].x;
-    cubes[0].targety = cubes[0].y;
-    cubes[1].targetx = cubes[0].x;
-    cubes[1].targety = cubes[0].y;
-  }
-  //makes a circle with n cubes
-  if (mouseDrive) {
-    float mx = (mouseX);
-    float my = (mouseY);
-    float cx = 45+410/2;
-    float cy = 45+410/2;
-
-    float mulr = 180.0;
-
-    float aMouse = atan2( my-cy, mx-cx);
-    float r = sqrt ( (mx - cx)*(mx-cx) + (my-cy)*(my-cy));
-    r = min(mulr, r);
-    for (int i = 0; i< nCubes; ++i) {
-      if (cubes[i].isLost==false) {
-        float angle = TWO_PI*i/nCubes;
-        float na = aMouse+angle;
-        float tax = cx + r*cos(na);
-        float tay = cy + r*sin(na);
-        fill(255, 0, 0);
-        ellipse(tax, tay, 10, 10);
-        cubes[i].targetx = tax;
-        cubes[i].targety = tay;
-      }
-    }
-  }
-
-  if (spin) {
-    motorControl(0, -100, 100, 30);
-  }
-
-  if (chase || mouseDrive) {
-    //do the actual aim
-    for (int i = 0; i< nCubes; ++i) {
-      if (cubes[i].isLost==false) {
-        fill(0, 255, 0);
-        ellipse(cubes[i].targetx, cubes[i].targety, 10, 10);
-        aimCubeSpeed(i, cubes[i].targetx, cubes[i].targety);
-      }
-    }
-  }
-
 
   //START DO NOT EDIT
   //did we lost some cubes?
