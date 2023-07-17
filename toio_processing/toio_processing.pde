@@ -75,7 +75,7 @@ void draw() {
       } 
       else {
         stroke(255, 0, 0);
-        translate(cubes[i].x, 455 - cubes[i].y);
+        translate(cubes[i].x, ymax - cubes[i].y);
       }
       
       

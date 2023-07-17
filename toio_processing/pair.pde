@@ -1,4 +1,3 @@
-
 class Half {
   int id;
   

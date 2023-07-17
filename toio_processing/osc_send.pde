@@ -17,9 +17,6 @@
 //this controls the speed of the left motor, the the speed of the right motor, and the duration of the movement
 //setting value to negative will move motor backwards
 void motorControl(int cubeId, float leftspeed, float rightspeed, int duration) {
-
-
-
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
   
