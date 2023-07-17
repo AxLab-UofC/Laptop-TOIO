@@ -13,6 +13,7 @@ NetAddress[] server;
 
 //we'll keep the cubes here
 Cube[] cubes;
+int cubesCount;
 
 boolean mouseDrive = false;
 boolean chase = false;
@@ -60,11 +61,13 @@ void draw() {
 
   //draw the "mat"
   fill(255);
-  rect(45, 45, 644, 466);
+  rect(45, 45, xmax, ymax);
 
   //draw the cubes
+  cubesCount = 0;
   for (int i = 0; i < cubes.length; ++i) {
-    if (cubes[i].isLost==false) {      
+    if (cubes[i].isLost==false) {   
+      cubesCount++;
       pushMatrix();
       if (cubes[i].onFloor) {
         stroke(0,0,255);

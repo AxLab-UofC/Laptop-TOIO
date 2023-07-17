@@ -22,30 +22,31 @@ void keyPressed() {
     
   case 'f':
     try {
-      midi(0, 10, 64, 255);
+      midiAll(10, 64, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 63, 255);
+      midiAll(10, 63, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 64, 255);
+      midiAll(10, 64, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 63, 255);
+      midiAll(10, 63, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 64, 255);
+      midiAll(10, 64, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 63, 255);
+      midiAll(10, 63, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 59, 255);
+      midiAll(10, 59, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 62, 255);
+      midiAll(10, 62, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 60, 255);
+      midiAll(10, 60, 255);
       java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midi(0, 10, 57, 255);
+      midiAll(10, 57, 255);
       
     } catch(InterruptedException e) {
       System.out.println("got interrupted!");
     } 
     break;
+    
   case 'm':
     //motorTarget(1, 0, 700, 286, 90);
     magneticRequest(0);
@@ -74,51 +75,51 @@ void keyPressed() {
      break;
   
   case '`':
-    midi(0, 57, 255, 10);
+    midiAll(57, 255, 10);
     break;
     
   case '1':
-    midi(0, 58, 255, 10);
+    midiAll(58, 255, 10);
     break;
     
   case '2':
-    midi(0, 59, 255, 10);
+    midiAll(59, 255, 10);
     break;
     
   case '3':
-    midi(0, 60, 255, 10);
+    midiAll(60, 255, 10);
     break;
     
   case '4':
-    midi(0, 61, 255, 10);
+    midiAll(61, 255, 10);
     break;
     
   case '5':
-    midi(0, 62, 255, 10);
+    midiAll(62, 255, 10);
     break;
     
   case '6':
-    midi(0, 63, 255, 10);
+    midiAll(63, 255, 10);
     break;
     
   case '7':
-    midi(0, 64, 255, 10);
+    midiAll(64, 255, 10);
     break;
     
   case '8':
-    midi(0, 65, 255, 10);
+    midiAll(65, 255, 10);
     break;
     
   case '9':
-    midi(0, 66, 255, 10);
+    midiAll(66, 255, 10);
     break;
     
   case '0':
-    midi(0, 67, 255, 10);
+    midiAll(67, 255, 10);
     break;
     
   case '-':
-    midi(0, 68, 255, 10);
+    midiAll(68, 255, 10);
     break;
     
   case 'd':
@@ -151,7 +152,6 @@ void keyPressed() {
      basicMotor(1, true, 45, true, 30);
      break; 
 
-  
   case 'x':
     pair.target(1, 400, 400, 90);
     break;
@@ -160,11 +160,20 @@ void keyPressed() {
     pair.target(1, 200, 200 , 90);
     break;
     
+    
+  case 'c':
+    moveCircle(xmax / 2, ymax / 2, 3 * min(xmax, ymax) / 8, offset);
+    offset = (offset + 1) % 12;
+    break;
+    
+    
   default:
     break;
     
   }
 }
+
+int offset = 0;
 
 void mousePressed() {
   chase = false;

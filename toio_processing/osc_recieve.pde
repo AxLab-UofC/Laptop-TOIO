@@ -10,7 +10,7 @@ void oscEvent(OscMessage msg) {
     int posy = msg.get(3).intValue();
 
     int degrees = msg.get(4).intValue();
-    println("Host "+ hostId +" id " + id+" "+posx +" " +posy +" "+degrees);
+    //println("Host "+ hostId +" id " + id+" "+posx +" " +posy +" "+degrees);
 
     id = cubesPerHost*hostId + id;
 
@@ -90,7 +90,7 @@ void oscEvent(OscMessage msg) {
     int double_tap = msg.get(4).intValue();
     int face_up = msg.get(5).intValue();
     int shake_level = msg.get(6).intValue();
-    println("Motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
+    //println("Motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
     
     
   } else if (msg.checkAddrPattern("/magnetic")) {
