@@ -71,10 +71,11 @@ void oscEvent(OscMessage msg) {
       
       if (cubes[id].onFloor) {
         led(id, 100, 0, 0, 255);
-        midi(id, 10, 64, 255);
+        midi(id, 10, 57, 255);
       } else {
         led(id, 100, 255, 0, 0);
-        midi(id, 10, 57, 255);
+        midi(id, 10, 64, 255);
+        
       }
     }
     

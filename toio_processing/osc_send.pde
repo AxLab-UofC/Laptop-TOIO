@@ -76,6 +76,7 @@ void motorTarget(int cubeId, int mode, int x, int y, int theta){
   
    if (!cubes[actualcubeid].onFloor) {
     y = ymax - y;
+    theta = 360 - theta;
   }
   
   OscMessage msg = new OscMessage("/motortarget");
@@ -95,6 +96,7 @@ void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
   
   if (!cubes[actualcubeid].onFloor) {
     y = ymax - y;
+    theta = 360 - theta;
   }
   
   OscMessage msg = new OscMessage("/motortarget");

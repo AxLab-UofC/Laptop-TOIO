@@ -11,13 +11,7 @@ void keyPressed() {
       }
       break;
   case 'l':
-  try {
-    basicMotor(1, false, 200, true, 200);
-    java.util.concurrent.TimeUnit.MILLISECONDS.sleep(720);
-    basicMotor(1, false, 0, true, 0);
-    } catch(InterruptedException e) {
-      System.out.println("got interrupted!");
-    }
+    moveLine(6);
     break;
     
   case 'f':
