@@ -41,8 +41,24 @@ void moveCircle(int x, int y, int r, int offset) {
   moveTargets(spots);
 }
 
+void moveLine(int count) {
+  float spots[][] = new float[count][3];
+  
+  for (int i = 0; i < count; i++) {
+    spots[i][0] = int(xmax / 2);
+    spots[i][1] = int(ymax * (((80 * i)/count) + 10));
+    spots[i][2] = 90;
+  }
+}
+
 void midiAll(int duration, int noteID, int volume) {
   for (int i = 0; i < cubes.length; i++) {
     midi(i, duration, noteID, volume);
+  }
+}
+
+void ledAll(int duration, int red, int green, int blue) {
+  for (int i = 0; i < cubes.length; i++) {
+    led(i, duration, red, green, blue);
   }
 }

@@ -135,7 +135,7 @@ void keyPressed() {
     break;
     
   case 'k':
-    led(0, 100, 255, 0, 0);
+    ledAll(100, 0, 255, 0);
     break;
     
   //case 'm':
