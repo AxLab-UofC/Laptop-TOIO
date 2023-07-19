@@ -6,7 +6,7 @@ class Half {
   }
   
   void motor(boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
-    basicMotor(id, leftforwards, leftspeed, rightforwards, rightspeed);
+    motorBasic(id, leftforwards, leftspeed, rightforwards, rightspeed);
   }
   
   void target(int mode, int x, int y, int theta) {
@@ -30,6 +30,7 @@ class Pair {
   Pair(int top, int bottom) {
     t = new Half(top);
     b = new Half(bottom);
+    cubes[bottom].onFloor = false;
   }
   
     void motor(boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {

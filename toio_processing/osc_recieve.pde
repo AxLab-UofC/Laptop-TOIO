@@ -66,18 +66,17 @@ void oscEvent(OscMessage msg) {
     int id = cubesPerHost*hostId + relid;
     int pressValue = msg.get(2).intValue();
     
-    if (pressValue == 0) {
-      cubes[id].onFloor = !cubes[id].onFloor;
+    //if (pressValue == 0) {
+    //  cubes[id].onFloor = !cubes[id].onFloor;
       
-      if (cubes[id].onFloor) {
-        led(id, 100, 0, 0, 255);
-        midi(id, 10, 57, 255);
-      } else {
-        led(id, 100, 255, 0, 0);
-        midi(id, 10, 64, 255);
-        
-      }
-    }
+    //  if (cubes[id].onFloor) {
+    //    led(id, 100, 0, 0, 255);
+    //    midi(id, 10, 57, 255);
+    //  } else {
+    //    led(id, 100, 255, 0, 0);
+    //    midi(id, 10, 64, 255);
+    //  }
+    //}
     
     
 

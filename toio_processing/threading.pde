@@ -50,6 +50,19 @@ void moveLine(int count) {
     spots[i][2] = 90;
   }
   
+  moveTargets(spots);
+}
+
+void moveLine(int count, int offset) {
+  float spots[][] = new float[count + 1][3];
+  
+  for (int i = 0; i <= count; i++) {
+    int j = (i + offset) % count;
+    spots[i][0] = int(xmax / 2);
+    spots[i][1] = int(ymax * (((.8 * j)/count) + .1));
+    spots[i][2] = 90;
+  }
+  
   offset = 0;
   moveTargets(spots);
 }
@@ -66,8 +79,19 @@ void ledAll(int duration, int red, int green, int blue) {
   }
 }
 
+void ledAll() {
+  for (int i = 0; i < cubes.length; i++) {
+    if (!cubes[i].onFloor) {
+      led(i, 100, 255, 0, 0);
+    }
+    else {
+      led(i, 100, 0, 0, 255);
+    }
+  }
+}
+
 void stop() {
    for (int i = 0; i < cubes.length; i++) {
-    motorControl(i, 0, 0, 0);
+    motorBasic(i, 0, 0);
   }
 }
