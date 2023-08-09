@@ -1,17 +1,9 @@
 //basic motor control (simplified), specification found at:
 //can use negative numbers to move toio backwards
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
-//setting value to negative will move motor backwards
 void motorBasic(int cubeId, int leftspeed, int rightspeed) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  
-   if (!cubes[actualcubeid].onFloor) {
-    int tempspeed = rightspeed;
-    rightspeed = leftspeed;
-    leftspeed = tempspeed;
-  }
-  
   OscMessage msg = new OscMessage("/motorbasic");
   msg.add(actualcubeid);
   if (leftspeed < 0) {
@@ -34,17 +26,17 @@ void motorBasic(int cubeId, int leftspeed, int rightspeed) {
 void motorBasic(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  
+
   if (!cubes[actualcubeid].onFloor) {
     int tempspeed = rightspeed;
     rightspeed = leftspeed;
     leftspeed = tempspeed;
-    
+
     boolean tempforwards = rightforwards;
     rightforwards = leftforwards;
     leftforwards = tempforwards;
   }
-  
+
   OscMessage msg = new OscMessage("/motorbasic");
   msg.add(actualcubeid);
   if (leftforwards) {
@@ -115,12 +107,12 @@ void motorDuration(int cubeId, boolean leftforwards, int leftspeed, boolean righ
 void motorTarget(int cubeId, int mode, int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  
+
    if (!cubes[actualcubeid].onFloor) {
     y = ymax - y;
     theta = 360 - theta;
   }
-  
+
   OscMessage msg = new OscMessage("/motortarget");
   msg.add(actualcubeid);
   msg.add(mode);
@@ -135,12 +127,12 @@ void motorTarget(int cubeId, int mode, int x, int y, int theta){
 void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  
+
   if (!cubes[actualcubeid].onFloor) {
     y = ymax - y;
     theta = 360 - theta;
   }
-  
+
   OscMessage msg = new OscMessage("/motortarget");
   msg.add(actualcubeid);
   msg.add(control);
