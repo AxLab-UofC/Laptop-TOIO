@@ -105,7 +105,7 @@ void motorTarget(int cubeId, int mode, int x, int y, int theta){
   oscP5.send(msg, server[hostId]);
 }
 
-//motor control with target advanced (simplified), specification found at:
+//motor control with target specified (advanced), specification found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
 void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
@@ -199,6 +199,16 @@ void magneticRequest(int cubeId) {
   OscMessage msg = new OscMessage("/magnetic");
   msg.add(actualcubeid);
   oscP5.send(msg, server[hostId]);
+}
+
+//request for cube rotation information (in Eulers), specification can be found at:
+//https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor
+void postureRequest(int cubeId) {
+    int hostId = cubeId/cubesPerHost;
+    int actualcubeid = cubeId % cubesPerHost;
+    OscMessage msg = new OscMessage("/postureeuler");
+    msg.add(actualcubeid);
+    oscP5.send(msg, server[hostId]);
 }
 
 //request for cube rotation information, specification can be found at:
