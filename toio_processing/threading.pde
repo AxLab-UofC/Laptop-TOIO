@@ -8,7 +8,15 @@ void moveTargets(int[][] spots) {
 void moveTargets(float[][] spots) {
    for (int i = 0; i < spots.length; i++) {
     circle(spots[i][0], spots[i][1], 20);
-    motorTarget(i, 0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
+    motorTarget(i, 0, 0, 0, 115, 0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
+    println(i, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
+  }
+}
+
+void movePairs(int[][] spots) {
+  for(int i = 0;i < spots.length; i++) {
+    circle(spots[i][0], spots[i][1], 20);
+    pairs[i].target(0, 0, 0, 115, 0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
   }
 }
 
@@ -44,7 +52,7 @@ void moveCircle(int x, int y, int r, int offset) {
 void moveLine(int count) {
   float spots[][] = new float[count + 1][3];
   
-  for (int i = 0; i <= count; i++) {
+  for (int i = 0; i < count; i++) {
     spots[i][0] = int(xmax / 2);
     spots[i][1] = int(ymax * (((.8 * i)/count) + .1));
     spots[i][2] = 90;
@@ -56,7 +64,7 @@ void moveLine(int count) {
 void moveLine(int count, int offset) {
   float spots[][] = new float[count + 1][3];
   
-  for (int i = 0; i <= count; i++) {
+  for (int i = 0; i < count; i++) {
     int j = (i + offset) % count;
     spots[i][0] = int(xmax / 2);
     spots[i][1] = int(ymax * (((.8 * j)/count) + .1));
@@ -82,10 +90,10 @@ void ledAll(int duration, int red, int green, int blue) {
 void ledAll() {
   for (int i = 0; i < cubes.length; i++) {
     if (!cubes[i].onFloor) {
-      led(i, 100, 255, 0, 0);
+      led(i, 0, 255, 0, 0);
     }
     else {
-      led(i, 100, 0, 0, 255);
+      led(i, 0, 0, 0, 255);
     }
   }
 }

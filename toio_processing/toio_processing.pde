@@ -90,6 +90,7 @@ void draw() {
     cubes[i].p_isLost = cubes[i].isLost;
     if (cubes[i].lastUpdate < now - 1500 && cubes[i].isLost==false) {
       cubes[i].isLost= true;
+      led(i,0, 255, 255, 255);
     }
   }
   //END DO NOT EDIT

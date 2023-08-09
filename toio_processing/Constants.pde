@@ -1,4 +1,4 @@
-int nCubes =  11;
+int nCubes =  13;
 int frameNum = 5;
 int cubesPerHost = 145; // each BLE bridge can have up to 4 cubes
 int maxMotorSpeed = 115;
@@ -8,8 +8,8 @@ int xmax = 949;
 int ymax = 898;
 
 Pair[] makePairs() {
-  Pair[] pairs = new Pair[5];
-  for (int i = 0; i < 5; i++) {
+  Pair[] pairs = new Pair[6];
+  for (int i = 0; i < 6; i++) {
      pairs[i] = new Pair((i * 2), (i * 2) + 1);
      println((i * 2), (i * 2) + 1);
   }
