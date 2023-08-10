@@ -8,6 +8,9 @@ import netP5.*;
 int nCubes = 12;
 int cubesPerHost = 12;
 
+int xmax = 949;
+int ymax = 898;
+
 
 //for OSC
 OscP5 oscP5;
@@ -57,11 +60,11 @@ void draw() {
     if (cubes[i].isActive) {
       pushMatrix();
       if (cubes[i].onFloor) {
-        stroke(0,0,255);
+        stroke(255, 0, 0);
         translate(cubes[i].x, cubes[i].y);
       } 
       else {
-        stroke(255, 0, 0);
+        stroke(0, 0, 255);
         translate(cubes[i].x, ymax - cubes[i].y);
       }
       

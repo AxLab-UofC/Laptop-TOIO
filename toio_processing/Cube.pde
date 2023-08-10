@@ -47,7 +47,7 @@ class Cube {
   void checkActive(long now) {
     if (lastUpdate < now - 1500 && isActive) {
       isActive = false;
-      led(i,0, 255, 255, 255);
+      led(id, 0, 255, 255, 255);
     }
   }
   

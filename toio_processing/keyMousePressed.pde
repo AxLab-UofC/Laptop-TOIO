@@ -111,7 +111,7 @@ void keyPressed() {
     break;
     
   case 'l':
-    moveLine(6);
+    moveLine(6, offset);
     break;
     
   case 'p':
