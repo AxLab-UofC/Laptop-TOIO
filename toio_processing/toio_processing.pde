@@ -2,14 +2,17 @@ import oscP5.*;
 import netP5.*;
 
 
-
+//constants
+//The soft limit on how many toios a laptop can handle is in the 10-12 range
+//the more toios you connect to, the more difficult it becomes to sustain the connection
+int nCubes = 12;
+int cubesPerHost = 12;
 
 
 //for OSC
 OscP5 oscP5;
 //where to send the commands to
 NetAddress[] server;
-
 
 //we'll keep the cubes here
 Cube[] cubes;
@@ -21,23 +24,15 @@ void settings() {
 
 
 void setup() {
-  // for OSC
-  // receive messages on port 3333
+  //launch OSC sercer
   oscP5 = new OscP5(this, 3333);
-
-  //send back to the BLE interface
-  //we can actually have multiple BLE bridges
-  server = new NetAddress[1]; //only one for now
-  //send on port 3334
+  server = new NetAddress[1];
   server[0] = new NetAddress("127.0.0.1", 3334);
-  //server[1] = new NetAddress("192.168.0.103", 3334);
-  //server[2] = new NetAddress("192.168.200.12", 3334);
-
 
   //create cubes
   cubes = new Cube[nCubes];
   for (int i = 0; i< cubes.length; ++i) {
-    cubes[i] = new Cube(i, true);
+    cubes[i] = new Cube(i);
   }
 
   //do not send TOO MANY PACKETS
@@ -47,9 +42,6 @@ void setup() {
 
 void draw() {
   //START DO NOT EDIT
-  
-  //the motion function sends a constant request for motion data from a toio ID
-  //motionRequest(0);
   background(255);
   stroke(0);
   long now = System.currentTimeMillis();
@@ -59,10 +51,10 @@ void draw() {
   rect(45, 45, xmax, ymax);
 
   //draw the cubes
-  cubesCount = 0;
-  for (int i = 0; i < cubes.length; ++i) {
-    if (cubes[i].isLost==false) {   
-      cubesCount++;
+  for (int i = 0; i < nCubes; i++) {
+    cubes[i].checkActive(now);
+    
+    if (cubes[i].isActive) {
       pushMatrix();
       if (cubes[i].onFloor) {
         stroke(0,0,255);
@@ -74,23 +66,10 @@ void draw() {
       }
       
       
-      rotate(cubes[i].deg * PI/180);
+      rotate(cubes[i].theta * PI/180);
       rect(-10, -10, 20, 20);
-      rect(0, -5, 20, 10);
+      line(0, 0, 20, 0);
       popMatrix();
-    }
-  }
-  //END DO NOT EDIT
-  
-
-  //START DO NOT EDIT
-  //did we lost some cubes?
-  for (int i=0; i<nCubes; ++i) {
-    // 500ms since last update
-    cubes[i].p_isLost = cubes[i].isLost;
-    if (cubes[i].lastUpdate < now - 1500 && cubes[i].isLost==false) {
-      cubes[i].isLost= true;
-      led(i,0, 255, 255, 255);
     }
   }
   //END DO NOT EDIT

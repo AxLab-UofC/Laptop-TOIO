@@ -22,6 +22,17 @@ class Half {
   }
 }
 
+Pair[] makePairs() {
+  Pair[] pairs = new Pair[6];
+  for (int i = 0; i < 6; i++) {
+     pairs[i] = new Pair((i * 2), (i * 2) + 1);
+     println((i * 2), (i * 2) + 1);
+  }
+  return pairs;
+}
+
+Pair[] pairs;
+
 
 class Pair {
   Half t;
