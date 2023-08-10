@@ -29,8 +29,8 @@ class Pair {
   
   Pair(int top, int bottom) {
     t = new Half(top);
-    b = new Half(bottom);
     cubes[top].onFloor = false;
+    b = new Half(bottom);
   }
   
     void motor(boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
