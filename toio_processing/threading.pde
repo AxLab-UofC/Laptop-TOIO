@@ -16,12 +16,19 @@ void moveTargets(float[][] spots) {
 void movePairs(int[][] spots) {
   for(int i = 0;i < spots.length; i++) {
     circle(spots[i][0], spots[i][1], 20);
-    pairs[i].target(0, 0, 0, 115, 0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
+    pairs[i].target(0, spots[i][0], spots[i][1], spots[i][2]);
   }
 }
 
+void movePairs(float[][] spots) {
+  for(int i = 0;i < spots.length; i++) {
+    circle(spots[i][0], spots[i][1], 20);
+    pairs[i].target(0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
+  }
+}
+  
 void moveCircle(int x, int y, int r) {
-  int count = cubes.length;
+  int count = 6;
   float angle = 2 * PI/count;
   float spots[][] = new float[count][3];
   
@@ -31,11 +38,11 @@ void moveCircle(int x, int y, int r) {
     spots[i][2] = (360 * i * angle / (2 * PI)) + 90;
   }
   
-  moveTargets(spots);
+  movePairs(spots);
 }
 
 void moveCircle(int x, int y, int r, int offset) {
-  int count = cubes.length;
+  int count = 6;
   float angle = 2 * PI/count;
   float spots[][] = new float[count][3];
   
@@ -46,11 +53,11 @@ void moveCircle(int x, int y, int r, int offset) {
     spots[i][2] = (360 * j * angle / (2 * PI)) + 90;
   }
 
-  moveTargets(spots);
+  movePairs(spots);
 }
 
 void moveLine(int count) {
-  float spots[][] = new float[count + 1][3];
+  float spots[][] = new float[count][3];
   
   for (int i = 0; i < count; i++) {
     spots[i][0] = int(xmax / 2);
@@ -58,11 +65,11 @@ void moveLine(int count) {
     spots[i][2] = 90;
   }
   
-  moveTargets(spots);
+  movePairs(spots);
 }
 
 void moveLine(int count, int offset) {
-  float spots[][] = new float[count + 1][3];
+  float spots[][] = new float[count][3];
   
   for (int i = 0; i < count; i++) {
     int j = (i + offset) % count;
@@ -72,7 +79,7 @@ void moveLine(int count, int offset) {
   }
   
   offset = 0;
-  moveTargets(spots);
+  movePairs(spots);
 }
 
 void midiAll(int duration, int noteID, int volume) {
@@ -90,10 +97,10 @@ void ledAll(int duration, int red, int green, int blue) {
 void ledAll() {
   for (int i = 0; i < cubes.length; i++) {
     if (!cubes[i].onFloor) {
-      led(i, 0, 255, 0, 0);
+      led(i, 0, 0, 0, 255);
     }
     else {
-      led(i, 0, 0, 0, 255);
+      led(i, 0, 255, 0, 0);
     }
   }
 }

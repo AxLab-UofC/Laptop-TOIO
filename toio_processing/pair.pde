@@ -30,7 +30,7 @@ class Pair {
   Pair(int top, int bottom) {
     t = new Half(top);
     b = new Half(bottom);
-    cubes[bottom].onFloor = false;
+    cubes[top].onFloor = false;
   }
   
     void motor(boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {

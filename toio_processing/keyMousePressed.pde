@@ -103,7 +103,7 @@ void keyPressed() {
     
   case 'c':
     moveCircle(xmax / 2, ymax / 2, 3 * min(xmax, ymax) / 8, offset);
-    offset = (offset + 1) % 12;
+    offset = (offset + 1) % 6;
     break;
     
   case 's':
@@ -111,7 +111,7 @@ void keyPressed() {
     break;
     
   case 'l':
-    moveLine(12);
+    moveLine(6);
     break;
     
   case 'p':

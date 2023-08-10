@@ -57,6 +57,12 @@ void oscEvent(OscMessage msg) {
           //println(cubes[id].ave_speedX, cubes[id].ave_speedY);
       if (cubes[id].isLost == true) {
         cubes[id].isLost = false;
+        if (!cubes[id].onFloor) {
+          led(id, 0, 255, 0, 0);
+        }
+        else {
+          led(id, 0, 0, 0, 255);
+        }
       }
     }
   } else if (msg.checkAddrPattern("/button")) {
