@@ -114,12 +114,6 @@ void keyPressed() {
     moveLine(6, offset);
     break;
     
-  case 'p':
-    pairs = makePairs();
-    break;
-    
-    
-    
   default:
     break;
     

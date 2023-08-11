@@ -56,9 +56,16 @@ class Cube {
     x = upx;
     y = upy;
     theta = uptheta; 
-    
     lastUpdate = System.currentTimeMillis();
-    isActive = true;
+    
+    if(!isActive) {
+      isActive = true;
+      if (onFloor) {
+        led(id, 0, 255, 0, 0);
+      } else {
+        led(id, 0, 0, 0, 255);
+      }
+    }
   }
   
   // Updates battery values

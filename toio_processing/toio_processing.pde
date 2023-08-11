@@ -19,7 +19,7 @@ NetAddress[] server;
 
 //we'll keep the cubes here
 Cube[] cubes;
-int cubesCount;
+Pair[] pairs;
 
 void settings() {
   size(1000, 1000, P3D);
@@ -37,6 +37,13 @@ void setup() {
   for (int i = 0; i< cubes.length; ++i) {
     cubes[i] = new Cube(i);
   }
+  
+  pairs = new Pair[6];
+  for (int i = 0; i < 6; i++) {
+     pairs[i] = new Pair((i * 2), (i * 2) + 1);
+     println((i * 2), (i * 2) + 1);
+  }
+
 
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
