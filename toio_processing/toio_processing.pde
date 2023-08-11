@@ -98,57 +98,82 @@ void draw() {
   pushMatrix();
   fill(floorCol);
   translate(0, 0, -vert);
-  rect(0, 0, xmax + 500, ymax + 500);
+  rect(0, 0, xmax, ymax);
   popMatrix();
   
   pushMatrix();
   fill(ceilingCol);
   translate(0, 0, vert);
-  rect(0, 0, xmax + 500, ymax + 500);
+  rect(0, 0, xmax, ymax);
   popMatrix();
   
-  for (int i = 0; i < nPairs; i++) {
-    pairs[i].checkActive(now);
-    boolean topActive = pairs[i].t.isActive;
-    boolean bottomActive = pairs[i].b.isActive;
+  for (int i = 0; i < nCubes; i++) {
+    cubes[i].checkActive(now);
     
+    pushMatrix();
+    stroke(200);
+    fill(255);
+    strokeWeight(1);
     
-    //Draw Top Toio
-    if (topActive) {
-      pushMatrix();
-        translate(pairs[i].t.x, pairs[i].t.y, vert - 4);
-        rotate(pairs[i].t.theta * PI/180);
-        stroke(200);
-        fill(255);
-        strokeWeight(1);
+    if (cubes[i].isActive){
+      if (cubes[i].onFloor) {
+        pushMatrix();
+        translate(cubes[i].x, cubes[i].y, -vert+4);
         box(12, 12, 7);
-      popMatrix();
-    }
-
-    
-    //Draw Bottom Toio
-    if (bottomActive) {
-      pushMatrix();
-        translate(pairs[i].b.x, pairs[i].b.y, -vert + 4);
-        rotate(pairs[i].b.theta * PI/180);
-        stroke(200);
-        fill(255);
-        strokeWeight(1);
+        popMatrix();
+      } else {
+        pushMatrix();
+        translate(cubes[i].x, cubes[i].y, vert-4);
         box(12, 12, 7);
-      popMatrix();
+        popMatrix();
+      }
     }
-
     
-    //Draw strings
-    if (topActive && bottomActive) {
-          stroke(StringCol);
-      strokeWeight(stringWeight);
-      line(pairs[i].t.x, pairs[i].t.y, vert, pairs[i].b.x, pairs[i].b.y, -vert);
-    }
-
-    cam.beginHUD();
-    cam.endHUD();
+    popMatrix();
   }
+  
+  //for (int i = 0; i < nPairs; i++) {
+  //  pairs[i].checkActive(now);
+  //  boolean topActive = pairs[i].t.isActive;
+  //  boolean bottomActive = pairs[i].b.isActive;
+    
+    
+  //  //Draw Top Toio
+  //  //if (topActive) {
+  //    pushMatrix();
+  //      translate(pairs[i].t.x, pairs[i].t.y, vert - 4);
+  //      rotate(pairs[i].t.theta * PI/180);
+  //      stroke(200);
+  //      fill(255);
+  //      strokeWeight(1);
+  //      box(12, 12, 7);
+  //    popMatrix();
+  //  //}
+
+    
+  //  //Draw Bottom Toio
+  //  //if (bottomActive) {
+  //    pushMatrix();
+  //      translate(pairs[i].b.x, pairs[i].b.y, -vert + 4);
+  //      rotate(pairs[i].b.theta * PI/180);
+  //      stroke(200);
+  //      fill(255);
+  //      strokeWeight(1);
+  //      box(12, 12, 7);
+  //    popMatrix();
+  //  //}
+
+    
+  //  //Draw strings
+  //  //if (topActive && bottomActive) {
+  //        stroke(StringCol);
+  //    strokeWeight(stringWeight);
+  //    line(pairs[i].t.x, pairs[i].t.y, vert, pairs[i].b.x, pairs[i].b.y, -vert);
+  //  //}
+
+  //  cam.beginHUD();
+  //  cam.endHUD();
+  //}
   
   
   //END DO NOT EDIT
