@@ -1,0 +1,6 @@
+.DS_Store
+
+rust_osc/target/
+rust_bridge/target/
+
+env/
