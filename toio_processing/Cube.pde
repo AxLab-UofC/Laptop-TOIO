@@ -134,7 +134,6 @@ class Cube {
   //Execute this code on button press
   void buttonDown() {
     println("Button Pressed!");
-    
   }
   
   //Execute this code on button release
