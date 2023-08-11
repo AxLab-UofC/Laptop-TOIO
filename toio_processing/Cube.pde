@@ -51,6 +51,22 @@ class Cube {
     }
   }
   
+  void motor(boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
+    motorBasic(id, leftforwards, leftspeed, rightforwards, rightspeed);
+  }
+  
+  void target(int mode, int x, int y, int theta) {
+    motorTarget(id, mode, x, y, theta);
+  }
+  
+  void target(int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta) {
+    motorTarget(id, control, timeout, mode, maxspeed, speedchange, x, y, theta);
+  }
+  
+  void acceleration(int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration) {
+    motorAcceleration(id, speed, a, rotateVelocity, rotateDir, dir, priority, duration);
+  }
+  
     // Updates position values
   void positionUpdate(int upx, int upy, int uptheta) {    
     x = upx;

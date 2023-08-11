@@ -1,60 +1,3 @@
-void moveTargets(int[][] spots) {
-   for (int i = 0; i < spots.length; i++) {
-    circle(spots[i][1], spots[i][0], 20);
-    motorTarget(i, 0, spots[i][0], spots[i][1], spots[i][2]);
-  }
-}
-
-void moveTargets(float[][] spots) {
-   for (int i = 0; i < spots.length; i++) {
-    circle(spots[i][0], spots[i][1], 20);
-    motorTarget(i, 0, 0, 0, 115, 0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
-    println(i, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
-  }
-}
-
-void movePairs(int[][] spots) {
-  for(int i = 0;i < spots.length; i++) {
-    circle(spots[i][0], spots[i][1], 20);
-    pairs[i].target(0, spots[i][0], spots[i][1], spots[i][2]);
-  }
-}
-
-void movePairs(float[][] spots) {
-  for(int i = 0;i < spots.length; i++) {
-    circle(spots[i][0], spots[i][1], 20);
-    pairs[i].target(0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
-  }
-}
-
-void moveTop(int[][] spots) {
-  for(int i = 0;i < spots.length; i++) {
-    circle(spots[i][0], spots[i][1], 20);
-    pairs[i].t.target(0, spots[i][0], spots[i][1], spots[i][2]);
-  }
-}
-
-void moveTop(float[][] spots) {
-  for(int i = 0;i < spots.length; i++) {
-    circle(spots[i][0], spots[i][1], 20);
-    pairs[i].t.target(0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
-  }
-}
-
-void moveBottom(int[][] spots) {
-  for(int i = 0;i < spots.length; i++) {
-    circle(spots[i][0], spots[i][1], 20);
-    pairs[i].b.target(0, spots[i][0], spots[i][1], spots[i][2]);
-  }
-}
-
-void moveBottom(float[][] spots) {
-  for(int i = 0;i < spots.length; i++) {
-    circle(spots[i][0], spots[i][1], 20);
-    pairs[i].b.target(0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
-  }
-}
-  
 void moveCircle(int x, int y, int r) {
   int count = 6;
   float angle = 2 * PI/count;
@@ -130,11 +73,5 @@ void ledAll() {
     else {
       led(i, 0, 255, 0, 0);
     }
-  }
-}
-
-void stop() {
-   for (int i = 0; i < cubes.length; i++) {
-    motorBasic(i, 0, 0);
   }
 }
