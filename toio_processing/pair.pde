@@ -8,7 +8,12 @@ class Pair {
     b = new Cube(bottom);
   }
   
-    void motor(boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
+  void checkActive(long now) {
+    t.checkActive(now);
+    b.checkActive(now);
+  }
+  
+  void motor(boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
     t.motor(leftforwards, leftspeed, rightforwards, rightspeed);
     b.motor(leftforwards, leftspeed, rightforwards, rightspeed);
   }

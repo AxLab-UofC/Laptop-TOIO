@@ -1,4 +1,20 @@
 void keyPressed() {
+  if (key == CODED) {
+    switch (keyCode) {
+      case UP:
+        cam.rotateX(PI/2);  
+        break;
+      case DOWN:
+        cam.rotateX(-PI/2);
+        break;
+      case LEFT:
+        cam.rotateY(PI/4); 
+        break;
+      case RIGHT:
+        cam.rotateY(-PI/4);  
+        break;
+    }
+  }
   
   switch(key) {
 
