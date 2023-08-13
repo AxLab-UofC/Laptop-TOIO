@@ -60,8 +60,9 @@ void keyPressed() {
       break;
       
     case 'n':
-    //int[][] notes = {{}{}};
-    //  midi(0, 10, )
+    int[][] notes = {{10, 67}, {10, 68}};
+    midi(0, 10, notes);
+    break;
       
     default:
       break;
