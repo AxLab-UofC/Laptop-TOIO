@@ -53,6 +53,12 @@ void keyPressed() {
       led(0, 100, 255, 0, 0);
       break;
       
+    case 'm':
+      int[][] targets = {{200, 200}, {300, 300}};
+      //multiTarget(0, 0, 0, 0, 80, 0, targets);
+      multiTarget(0, 0, targets);
+      break;
+      
     default:
       break;
   }
