@@ -854,7 +854,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
                                         };
                                         let cmd = vec![
-                                            0x03,                 //light
+                                            0x03,                 //midi
                                             0x01,                 //repetitions
                                             0x01,                 //operations
                                             marg[1].abs() as u8,  //duration
