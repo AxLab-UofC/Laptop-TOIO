@@ -50,7 +50,7 @@ void keyPressed() {
       break;
       
     case 'k':
-      led(0, 100, 255, 0, 0);
+      led(0, 100, 255, 255, 255);
       break;
       
     case 'm':
@@ -63,6 +63,10 @@ void keyPressed() {
     int[][] notes = {{30, 64, 20}, {30, 63, 20}, {30, 64, 20}, {30, 63, 20}, {30, 64, 20}, {30, 63, 20}, {30, 59, 20}, {30, 62, 20}, {30, 60, 20}, {30, 57, 20}};
     midi(0, 1, notes);
     break;
+    
+    case 'l':
+    int[][] lights = {{30, 0, 255, 0}, {30, 0, 0, 255}};
+    led(0, 5, lights);
       
     default:
       break;

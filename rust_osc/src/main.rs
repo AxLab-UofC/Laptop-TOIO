@@ -797,7 +797,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         };
                                         let cmd = vec![
                                             0x03,                 //light
-                                            (marg[1] / 10) as u8, //length
+                                            marg[1] as u8,        //length
                                             0x01,                 //led
                                             0x01,                 //reserved
                                             marg[2].abs() as u8,  //red
@@ -809,7 +809,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             .await
                                             .unwrap();
                                     } else {
-                                        //error
+                                        let mut marg = [0; 3];
+                                        for k in 0..3 {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                marg[k] = i;
+                                            }
+                                        }
+                                        let characteristic = Characteristic {
+                                            uuid: LIGHT_CHARACTERISTIC_UUID,
+                                            service_uuid: TOIO_SERVICE_UUID,
+                                            properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                        };
+                                        let mut cmd = vec![
+                                            0x04,                 //midi
+                                            marg[1].abs() as u8,  //repetitions
+                                            marg[2].abs() as u8,  //operations
+                                        ];
+
+                                        for k in 3..message.args.len() {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                cmd.push(i.abs() as u8);
+                                            }
+                                        }
+
+                                        println!("{:?}", cmd);
+                                        p2.write(&characteristic, &cmd, WriteType::WithResponse)
+                                            .await
+                                            .unwrap();
                                     }
                                 }
                                 "/sound" => {

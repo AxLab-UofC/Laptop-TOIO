@@ -202,6 +202,29 @@ void led(int cubeId, int duration, int red, int green, int blue) {
   oscP5.send(msg, server[hostId]);
 }
 
+//activating LED sequence on bottom of toio, specification can be found at:
+//https://toio.github.io/toio-spec/en/docs/ble_light
+//lights should be formatted as {duration, red, green, blue}
+void led(int cubeId, int repetitions, int[][] lights) {
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/led");
+  msg.add(actualcubeid);
+  msg.add(repetitions);
+  msg.add(lights.length);
+
+  for (int i = 0; i < lights.length; i++) {
+    msg.add(lights[i][0]);
+    msg.add(1);
+    msg.add(1);
+     
+    for (int j = 1; j < lights[i].length; j++) {
+       msg.add(lights[i][j]);
+    }
+  } 
+  oscP5.send(msg, server[hostId]);
+}
+
 
 //play sound effects, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_sound
