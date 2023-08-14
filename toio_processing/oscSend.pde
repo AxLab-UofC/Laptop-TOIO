@@ -146,6 +146,100 @@ void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
   oscP5.send(msg, server[hostId]);
 }
 
+//motor control with multiple targets specified (simplified), specification found at:
+//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
+void multiTarget(int cubeId, int mode, int[][] targets){
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/multitargetsimple");
+  msg.add(actualcubeid);
+  msg.add(mode);
+  for (int i = 0; i < targets.length; i++) {
+    for (int j = 0; j < targets[i].length; j++) {
+      msg.add(targets[i][j]);
+    }
+    
+    if (targets[i].length == 2) {
+      msg.add(0);
+    }
+  }
+  oscP5.send(msg, server[hostId]);
+}
+
+//motor control with multiple targets specified (advanced), specification found at:
+//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
+void multiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets){
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/multitarget");
+  msg.add(actualcubeid);
+  msg.add(control);
+  msg.add(timeout);
+  msg.add(mode);
+  msg.add(maxspeed);
+  msg.add(speedchange);
+  
+  for (int i = 0; i < targets.length; i++) {
+    for (int j = 0; j < targets[i].length; j++) {
+      msg.add(targets[i][j]);
+    }
+    
+    if (targets[i].length == 2) {
+      msg.add(0);
+    }
+  }
+  oscP5.send(msg, server[hostId]);
+}
+
+//motor control with multiple targets specified (simplified), specification found at:
+//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
+void multiTarget(int cubeId, int mode, int[][] targets){
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/multitargetsimple");
+  msg.add(actualcubeid);
+  msg.add(mode);
+  for (int i = 0; i < targets.length; i++) {
+    for (int j = 0; j < targets[i].length; j++) {
+      msg.add(targets[i][j]);
+    }
+    
+    if (targets[i].length == 2) {
+      msg.add(0);
+    }
+  }
+  oscP5.send(msg, server[hostId]);
+}
+
+//motor control with multiple targets specified (advanced), specification found at:
+//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
+void multiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets){
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/multitarget");
+  msg.add(actualcubeid);
+  msg.add(control);
+  msg.add(timeout);
+  msg.add(mode);
+  msg.add(maxspeed);
+  msg.add(speedchange);
+  
+  for (int i = 0; i < targets.length; i++) {
+    for (int j = 0; j < targets[i].length; j++) {
+      msg.add(targets[i][j]);
+    }
+    
+    if (targets[i].length == 2) {
+      msg.add(0);
+    }
+  }
+  oscP5.send(msg, server[hostId]);
+}
+
 //would need to change rotational velocity for threading space project, can be done if we need this function
 //motor control with acceleration specified, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
@@ -179,8 +273,31 @@ void led(int cubeId, int duration, int red, int green, int blue) {
   oscP5.send(msg, server[hostId]);
 }
 
+//activating LED sequence on bottom of toio, specification can be found at:
+//https://toio.github.io/toio-spec/en/docs/ble_light
+//lights should be formatted as {duration, red, green, blue}
+void led(int cubeId, int repetitions, int[][] lights) {
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/led");
+  msg.add(actualcubeid);
+  msg.add(repetitions);
+  msg.add(lights.length);
 
-//id of different sound effects can be found at:
+  for (int i = 0; i < lights.length; i++) {
+    msg.add(lights[i][0]);
+    msg.add(1);
+    msg.add(1);
+     
+    for (int j = 1; j < lights[i].length; j++) {
+       msg.add(lights[i][j]);
+    }
+  } 
+  oscP5.send(msg, server[hostId]);
+}
+
+
+//play sound effects, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_sound
 void sound(int cubeId, int soundeffect, int volume) {
   int hostId = cubeId/cubesPerHost;
@@ -192,7 +309,7 @@ void sound(int cubeId, int soundeffect, int volume) {
   oscP5.send(msg, server[hostId]);
 }
 
-//id for different midi notes can be found at:
+//play Midi Note (single), specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
 void midi(int cubeId, int duration, int noteID, int volume) {
   int hostId = cubeId/cubesPerHost;
@@ -202,6 +319,29 @@ void midi(int cubeId, int duration, int noteID, int volume) {
   msg.add(duration);
   msg.add(noteID);
   msg.add(volume);
+  oscP5.send(msg, server[hostId]);
+}
+
+//play Midi Notes (advanced), specification can be found at:
+//https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
+//targets should be formatted as {duration, noteID, volume} or {duration, noteID}. Unless specified, volume = 255
+void midi(int cubeId, int repetitions, int[][] notes) {
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/midi");
+  msg.add(actualcubeid);
+  msg.add(repetitions);
+  msg.add(notes.length);
+  
+  for (int i = 0; i < notes.length; i++) {
+    for (int j = 0; j < notes[i].length; j++) {
+      msg.add(notes[i][j]);
+    }
+    
+    if (notes[i].length == 2) {
+      msg.add(255);
+    }
+  }
   oscP5.send(msg, server[hostId]);
 }
 

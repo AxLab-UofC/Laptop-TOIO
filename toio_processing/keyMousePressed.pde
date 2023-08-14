@@ -19,80 +19,58 @@ void keyPressed() {
   switch(key) {
 
   case 'f':
-    try {
-      midiAll(10, 64, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 63, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 64, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 63, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 64, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 63, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 59, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 62, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 60, 255);
-      java.util.concurrent.TimeUnit.MILLISECONDS.sleep(500);
-      midiAll(10, 57, 255);
-      
-    } catch(InterruptedException e) {
-      System.out.println("got interrupted!");
-    } 
+    int[][] notes = {{30, 64, 20}, {30, 63, 20}, {30, 64, 20}, {30, 63, 20}, {30, 64, 20}, {30, 63, 20}, {30, 59, 20}, {30, 62, 20}, {30, 60, 20}, {30, 57, 20}};
+    midi(0, 1, notes);
     break;
     
   
-  case '`':
-    midiAll(57, 255, 10);
-    break;
-    
-  case '1':
-    midiAll(58, 255, 10);
-    break;
-    
-  case '2':
-    midiAll(59, 255, 10);
-    break;
-    
-  case '3':
-    midiAll(60, 255, 10);
-    break;
-    
-  case '4':
-    midiAll(61, 255, 10);
-    break;
-    
-  case '5':
-    midiAll(62, 255, 10);
-    break;
-    
-  case '6':
-    midiAll(63, 255, 10);
-    break;
-    
-  case '7':
-    midiAll(64, 255, 10);
-    break;
-    
-  case '8':
-    midiAll(65, 255, 10);
-    break;
-    
-  case '9':
-    midiAll(66, 255, 10);
-    break;
-    
-  case '0':
-    midiAll(67, 255, 10);
-    break;
-    
-  case '-':
-    midiAll(68, 255, 10);
-    break;
+case '`':
+      midi(0, 10, 57, 255);
+      break;
+      
+    case '1':
+      midi(0, 10, 58, 255);
+      break;
+      
+    case '2':
+      midi(0, 10, 59, 255);
+      break;
+      
+    case '3':
+      midi(0, 10, 60, 255);
+      break;
+      
+    case '4':
+      midi(0, 10, 61, 255);
+      break;
+      
+    case '5':
+      midi(0, 10, 62, 255);
+      break;
+      
+    case '6':
+      midi(0, 10, 63, 255);
+      break;
+      
+    case '7':
+      midi(0, 10, 64, 255);
+      break;
+      
+    case '8':
+      midi(0, 10, 65, 255);
+      break;
+      
+    case '9':
+      midi(0, 10, 66, 255);
+      break;
+      
+    case '0':
+      midi(0, 10, 67, 255);
+      break;
+      
+    case '-':
+      midi(0, 10, 68, 255);
+      break;
     
     
   case 'k':

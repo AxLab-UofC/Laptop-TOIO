@@ -683,6 +683,74 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         //error
                                     }
                                 }
+                                "/multitargetsimple" => {
+                                    let mut marg = [0; 2];
+                                    for k in 0..2 {
+                                        if let OscType::Int(i) = message.args[k] {
+                                            marg[k] = i;
+                                        }
+                                    }
+                                    let characteristic = Characteristic {
+                                        uuid: MOTOR_CHARACTERISTIC_UUID,
+                                        service_uuid: TOIO_SERVICE_UUID,
+                                        properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                    };
+                                    let mut cmd = vec![
+                                        0x04,                   //multi target
+                                        0x00,                               //control distinction value
+                                        0x05,                               //timeout period
+                                        marg[1].abs() as u8,                //movement type
+                                        0x50,                               //maximum motor speed
+                                        0x00,                               //motor speed changes
+                                        0x00,                               //reserved
+                                        0x01,                   //Write operation addition setting
+                                    ];
+
+                                    for k in 2..message.args.len() {
+                                        if let OscType::Int(i) = message.args[k] {
+                                            cmd.push((i.abs() & 0x00FF) as u8);
+                                            cmd.push(((i.abs() & 0xFF00) >> 8) as u8);
+                                        }
+                                    }
+
+                                    p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
+                                    .await
+                                    .unwrap();
+                                }
+                                "/multitarget" => {
+                                    let mut marg = [0; 6];
+                                    for k in 0..6 {
+                                        if let OscType::Int(i) = message.args[k] {
+                                            marg[k] = i;
+                                        }
+                                    }
+                                    let characteristic = Characteristic {
+                                        uuid: MOTOR_CHARACTERISTIC_UUID,
+                                        service_uuid: TOIO_SERVICE_UUID,
+                                        properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                    };
+                                    let mut cmd = vec![
+                                        0x04,                   //multi target
+                                        marg[1].abs() as u8,    //control distinction value
+                                        marg[2].abs() as u8,    //timeout period
+                                        marg[3].abs() as u8,    //movement type
+                                        marg[4].abs() as u8,    //maximum motor speed
+                                        marg[5].abs() as u8,    //motor speed changes
+                                        0x00,                   //reserved
+                                        0x01,                   //Write operation addition setting
+                                    ];
+
+                                    for k in 6..message.args.len() {
+                                        if let OscType::Int(i) = message.args[k] {
+                                            cmd.push((i.abs() & 0x00FF) as u8);
+                                            cmd.push(((i.abs() & 0xFF00) >> 8) as u8);
+                                        }
+                                    }
+
+                                    p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
+                                    .await
+                                    .unwrap();
+                                }
                                 "/motoracceleration" => {
                                     if message.args.len() == 8 {
                                         //we should have 4 args
@@ -729,7 +797,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         };
                                         let cmd = vec![
                                             0x03,                 //light
-                                            (marg[1] / 10) as u8, //length
+                                            marg[1] as u8,        //length
                                             0x01,                 //led
                                             0x01,                 //reserved
                                             marg[2].abs() as u8,  //red
@@ -741,7 +809,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             .await
                                             .unwrap();
                                     } else {
-                                        //error
+                                        let mut marg = [0; 3];
+                                        for k in 0..3 {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                marg[k] = i;
+                                            }
+                                        }
+                                        let characteristic = Characteristic {
+                                            uuid: LIGHT_CHARACTERISTIC_UUID,
+                                            service_uuid: TOIO_SERVICE_UUID,
+                                            properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                        };
+                                        let mut cmd = vec![
+                                            0x04,                 //midi
+                                            marg[1].abs() as u8,  //repetitions
+                                            marg[2].abs() as u8,  //operations
+                                        ];
+
+                                        for k in 3..message.args.len() {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                cmd.push(i.abs() as u8);
+                                            }
+                                        }
+
+                                        println!("{:?}", cmd);
+                                        p2.write(&characteristic, &cmd, WriteType::WithResponse)
+                                            .await
+                                            .unwrap();
                                     }
                                 }
                                 "/sound" => {
@@ -786,7 +880,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
                                         };
                                         let cmd = vec![
-                                            0x03,                 //light
+                                            0x03,                 //midi
                                             0x01,                 //repetitions
                                             0x01,                 //operations
                                             marg[1].abs() as u8,  //duration
@@ -798,7 +892,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             .await
                                             .unwrap();
                                     } else {
-                                        //error
+                                        let mut marg = [0; 3];
+                                        for k in 0..3 {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                marg[k] = i;
+                                            }
+                                        }
+                                        let characteristic = Characteristic {
+                                            uuid: SOUND_CHARACTERISTIC_UUID,
+                                            service_uuid: TOIO_SERVICE_UUID,
+                                            properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
+                                        };
+                                        let mut cmd = vec![
+                                            0x03,                 //midi
+                                            marg[1].abs() as u8,  //repetitions
+                                            marg[2].abs() as u8,  //operations
+                                        ];
+
+                                        for k in 3..message.args.len() {
+                                            if let OscType::Int(i) = message.args[k] {
+                                                cmd.push(i.abs() as u8);
+                                            }
+                                        }
+
+                                        println!("{:?}", cmd);
+                                        p2.write(&characteristic, &cmd, WriteType::WithResponse)
+                                            .await
+                                            .unwrap();
                                     }
                                 }
                                 "/motion" => {
