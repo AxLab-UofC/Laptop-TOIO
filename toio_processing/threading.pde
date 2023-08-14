@@ -27,6 +27,22 @@ void moveCircle(int x, int y, int r, int offset) {
   movePairs(spots);
 }
 
+int [][] getCircle(int x, int y, int r, int offset) {
+  int count = 6;
+  float angle = 2 * PI/count;
+  int spots[][] = new int[count][3];
+  
+  for (int i = 0; i < count; i++) {
+    int j = (i + offset) % count;
+    spots[i][0] = int(x + r*cos(angle*j));
+    spots[i][1] = int(y + r*sin(angle*j));
+    spots[i][2] = int((360 * j * angle / (2 * PI)) + 90);
+  }
+
+  return spots;
+}
+
+
 void moveLine(int count) {
   float spots[][] = new float[count][3];
   

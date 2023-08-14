@@ -28,11 +28,20 @@ class Pair {
     b.target(control, timeout, mode, maxspeed, speedchange, x, y, theta);
   }
   
+  void multiTarget(int mode, int[][] targets) {
+    t.multiTarget(mode, targets);
+    b.multiTarget(mode, targets);
+  }
+  
+  void multiTarget(int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets) {
+    t.multiTarget(control, timeout, mode, maxspeed, speedchange, targets);
+    b.multiTarget(control, timeout, mode, maxspeed, speedchange, targets);
+  }
+  
   void acceleration(int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration) {
     t.acceleration(speed, a, rotateVelocity, rotateDir, dir, priority, duration);
     b.acceleration(speed, a, rotateVelocity, rotateDir, dir, priority, duration);
   }
-  
 }
 
 void moveTargets(int[][] spots) {
@@ -45,6 +54,12 @@ void moveTargets(float[][] spots) {
    for (int i = 0; i < spots.length; i++) {
     motorTarget(i, 0, 0, 0, 115, 0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
     println(i, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
+  }
+}
+
+void multiMovePairs(int[][] spots) {
+   for(int i = 0;i < spots.length; i++) {
+    pairs[i].multiTarget(0, spots);
   }
 }
 

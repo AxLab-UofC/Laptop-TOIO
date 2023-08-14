@@ -24,54 +24,59 @@ void keyPressed() {
     break;
     
   
-case '`':
+  case '`':
       midi(0, 10, 57, 255);
       break;
       
-    case '1':
-      midi(0, 10, 58, 255);
-      break;
-      
-    case '2':
-      midi(0, 10, 59, 255);
-      break;
-      
-    case '3':
-      midi(0, 10, 60, 255);
-      break;
-      
-    case '4':
-      midi(0, 10, 61, 255);
-      break;
-      
-    case '5':
-      midi(0, 10, 62, 255);
-      break;
-      
-    case '6':
-      midi(0, 10, 63, 255);
-      break;
-      
-    case '7':
-      midi(0, 10, 64, 255);
-      break;
-      
-    case '8':
-      midi(0, 10, 65, 255);
-      break;
-      
-    case '9':
-      midi(0, 10, 66, 255);
-      break;
-      
-    case '0':
-      midi(0, 10, 67, 255);
-      break;
-      
-    case '-':
-      midi(0, 10, 68, 255);
-      break;
+  case '1':
+    midi(0, 10, 58, 255);
+    break;
     
+  case '2':
+    midi(0, 10, 59, 255);
+    break;
+      
+  case '3':
+    midi(0, 10, 60, 255);
+    break;
+    
+  case '4':
+    midi(0, 10, 61, 255);
+    break;
+    
+  case '5':
+    midi(0, 10, 62, 255);
+    break;
+    
+  case '6':
+    midi(0, 10, 63, 255);
+    break;
+    
+  case '7':
+    midi(0, 10, 64, 255);
+    break;
+    
+  case '8':
+    midi(0, 10, 65, 255);
+    break;
+    
+  case '9':
+    midi(0, 10, 66, 255);
+    break;
+    
+  case '0':
+    midi(0, 10, 67, 255);
+    break;
+    
+  case '-':
+    midi(0, 10, 68, 255);
+    break;
+    
+  case 'a':
+    for (int i = 0; i < pairs.length; i++) {
+      pairs[i].multiTarget(0, 0, 0, 80, 3, getCircle(xmax / 2, ymax / 2, 3 * min(xmax, ymax) / 8, i));
+    }
+    break;
     
   case 'k':
     ledAll();
@@ -96,8 +101,7 @@ case '`':
     break;
     
   case 'c':
-    moveCircle(xmax / 2, ymax / 2, 3 * min(xmax, ymax) / 8, offset);
-    offset = (offset + 1) % 6;
+    moveCircle(xmax / 2, ymax / 2, 3 * min(xmax, ymax) / 8);
     break;
     
   case 's':
@@ -105,7 +109,7 @@ case '`':
     break;
     
   case 'l':
-    moveLine(6, offset);
+    moveLine(6);
     break;
     
   default:
@@ -114,7 +118,6 @@ case '`':
   }
 }
 
-int offset = 0;
 
 void mousePressed() {
 }

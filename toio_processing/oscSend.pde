@@ -149,7 +149,7 @@ void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
 //motor control with multiple targets specified (simplified), specification found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
 //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
-void multiTarget(int cubeId, int mode, int[][] targets){
+void motorMultiTarget(int cubeId, int mode, int[][] targets) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/multitargetsimple");
@@ -170,7 +170,7 @@ void multiTarget(int cubeId, int mode, int[][] targets){
 //motor control with multiple targets specified (advanced), specification found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
 //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
-void multiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets){
+void motorMultiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/multitarget");

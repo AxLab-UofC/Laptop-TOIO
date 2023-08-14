@@ -63,6 +63,14 @@ class Cube {
     motorTarget(id, control, timeout, mode, maxspeed, speedchange, x, y, theta);
   }
   
+  void multiTarget(int mode, int[][] targets) {
+    motorMultiTarget(id, mode, targets);
+  }
+  
+  void multiTarget(int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets) {
+    motorMultiTarget(id, control, timeout, mode, maxspeed, speedchange, targets);
+  }
+  
   void acceleration(int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration) {
     motorAcceleration(id, speed, a, rotateVelocity, rotateDir, dir, priority, duration);
   }
