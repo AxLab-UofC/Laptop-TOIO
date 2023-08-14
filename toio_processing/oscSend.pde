@@ -193,53 +193,6 @@ void multiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
   oscP5.send(msg, server[hostId]);
 }
 
-//motor control with multiple targets specified (simplified), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
-void multiTarget(int cubeId, int mode, int[][] targets){
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/multitargetsimple");
-  msg.add(actualcubeid);
-  msg.add(mode);
-  for (int i = 0; i < targets.length; i++) {
-    for (int j = 0; j < targets[i].length; j++) {
-      msg.add(targets[i][j]);
-    }
-    
-    if (targets[i].length == 2) {
-      msg.add(0);
-    }
-  }
-  oscP5.send(msg, server[hostId]);
-}
-
-//motor control with multiple targets specified (advanced), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
-void multiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets){
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/multitarget");
-  msg.add(actualcubeid);
-  msg.add(control);
-  msg.add(timeout);
-  msg.add(mode);
-  msg.add(maxspeed);
-  msg.add(speedchange);
-  
-  for (int i = 0; i < targets.length; i++) {
-    for (int j = 0; j < targets[i].length; j++) {
-      msg.add(targets[i][j]);
-    }
-    
-    if (targets[i].length == 2) {
-      msg.add(0);
-    }
-  }
-  oscP5.send(msg, server[hostId]);
-}
-
 //would need to change rotational velocity for threading space project, can be done if we need this function
 //motor control with acceleration specified, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
