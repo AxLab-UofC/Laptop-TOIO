@@ -157,7 +157,11 @@ void motorMultiTarget(int cubeId, int mode, int[][] targets) {
   msg.add(mode);
   for (int i = 0; i < targets.length; i++) {
     for (int j = 0; j < targets[i].length; j++) {
-      msg.add(targets[i][j]);
+      if (j == 1 && !cubes[actualcubeid].onFloor) { 
+        msg.add(ymax - targets[i][j]);
+      } else {
+        msg.add(targets[i][j]);
+      }
     }
     
     if (targets[i].length == 2) {
@@ -183,7 +187,11 @@ void motorMultiTarget(int cubeId, int control, int timeout, int mode, int maxspe
   
   for (int i = 0; i < targets.length; i++) {
     for (int j = 0; j < targets[i].length; j++) {
-      msg.add(targets[i][j]);
+      if (j == 1 && !cubes[actualcubeid].onFloor) { 
+        msg.add(ymax - targets[i][j]);
+      } else {
+        msg.add(targets[i][j]);
+      }
     }
     
     if (targets[i].length == 2) {

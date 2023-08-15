@@ -5,15 +5,17 @@ PeasyCam cam;
 import oscP5.*;
 import netP5.*;
 
+boolean zorozoro = true;
+int[][] zoropairs = {{185,137},{105,171},{118,92},{190,145},{127,144},{172,148}};
 
 //constants
 //The soft limit on how many toios a laptop can handle is in the 10-12 range
 //the more toios you connect to, the more difficult it becomes to sustain the connection
-int nCubes = 190;
+int nCubes = 200;
 int nPairs = 6;
 int cubesPerHost = nCubes;
 
-int[] sets = {186,190,174,145,148,172,139,143,155,144,185,154};
+
 
 int xmax = 949;
 int ymax = 898;
@@ -57,10 +59,18 @@ void setup() {
   }
   
   pairs = new Pair[nPairs];
-  for (int i = 0; i < nPairs; i++) {
-     pairs[i] = new Pair((i * 2), (i * 2) + 1);
+  if (zorozoro) {
+     for (int i = 0; i < zoropairs.length; i++) {
+     pairs[i] = new Pair(zoropairs[i][0], zoropairs[i][1]); // For Zorozoro
      println((i * 2), (i * 2) + 1);
+    }
+  } else {
+      for (int i = 0; i < nPairs; i++) {
+       pairs[i] = new Pair((i * 2), (i * 2) + 1); //For Laptop-TOIO
+       println((i * 2), (i * 2) + 1);
+    }
   }
+
 
 
   //do not send TOO MANY PACKETS

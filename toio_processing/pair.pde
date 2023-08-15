@@ -52,7 +52,7 @@ void moveTargets(int[][] spots) {
 
 void moveTargets(float[][] spots) {
    for (int i = 0; i < spots.length; i++) {
-    motorTarget(i, 0, 0, 0, 115, 0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
+    motorTarget(i, 0, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
     println(i, int(spots[i][0]), int(spots[i][1]), int(spots[i][2]));
   }
 }
