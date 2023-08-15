@@ -1016,6 +1016,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             }
                             peripheral.subscribe(&characteristic).await?;
                         } 
+                        if characteristic.uuid == MOTOR_CHARACTERISTIC_UUID
+                            && characteristic.properties.contains(CharPropFlags::NOTIFY)
+                        {
+                            if verbose {
+                                println!(
+                                    "Subscribing to motor characteristic {:?}",
+                                    characteristic.uuid
+                                );
+                            }
+                            peripheral.subscribe(&characteristic).await?;
+                        } 
                         if characteristic.uuid == MOTION_CHARACTERISTIC_UUID
                             && characteristic.properties.contains(CharPropFlags::NOTIFY)
                         {
@@ -1093,6 +1104,40 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     .unwrap();
 
                                     tx3.send((msg, remote_addr)).await.unwrap();
+                                }
+                                MOTOR_CHARACTERISTIC_UUID => {
+                                    if data.value[0] == 0x83 || data.value[0] == 0x84 {
+                                        let control = data.value[1];
+                                        let response = data.value[2];
+                                        let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                            addr: "/motorresponse".to_string(),
+                                            args: vec![
+                                                OscType::Int(host_id),
+                                                OscType::Int(id as i32),
+                                                OscType::Int(control as i32),
+                                                OscType::Int(response as i32),
+                                            ],
+                                        }))
+                                        .unwrap();
+    
+                                        tx3.send((msg, remote_addr)).await.unwrap();
+                                    } else if data.value[0] == 0xe0 {
+                                        let speedleft = data.value[1];
+                                        let speedright = data.value[2];
+                                        let msg = encoder::encode(&OscPacket::Message(OscMessage {
+                                            addr: "/speedresponse".to_string(),
+                                            args: vec![
+                                                OscType::Int(host_id),
+                                                OscType::Int(id as i32),
+                                                OscType::Int(speedleft as i32),
+                                                OscType::Int(speedright as i32),
+                                            ],
+                                        }))
+                                        .unwrap();
+    
+                                        tx3.send((msg, remote_addr)).await.unwrap();
+
+                                    }
                                 }
                                 MOTION_CHARACTERISTIC_UUID => {
                                     if data.value[0] == 0x01 {
