@@ -92,4 +92,16 @@ void oscEvent(OscMessage msg) {
       cubes[id].buttonDown();
     } 
   }
+  
+  else if (msg.checkAddrPattern("/motorresponse")) {
+    //this collects button information
+    int hostId = msg.get(0).intValue();
+    int relid = msg.get(1).intValue();
+    int control = msg.get(2).intValue();
+    int response = msg.get(3).intValue();
+    
+    int id = cubesPerHost*hostId + relid;
+    
+    println(id, ":", control, response);
+  }
 }
