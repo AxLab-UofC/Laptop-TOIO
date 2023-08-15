@@ -72,11 +72,20 @@ void keyPressed() {
     midi(0, 10, 68, 255);
     break;
     
-  case 'a':
+   case 'a':
     for (int i = 0; i < pairs.length; i++) {
-      pairs[i].multiTarget(0, 0, 0, 80, 3, getCircle(xmax / 2, ymax / 2, 3 * min(xmax, ymax) / 8, i));
+      pairs[i].multiTarget(0, 0, 0, 30, 0, getCircle((xmax + 45)/ 2, (ymax + 45) / 2, 3 * min(xmax, ymax) / 8, i));
     }
     break;
+    
+   case 'q':
+    motorTarget(0, 0, 0, 0, 50, 0, 200, 200, 90);
+    
+   case 'w':
+    motorTarget(0, 0, 0, 1, 50, 0, 200, 200, 90);
+  
+  case 'e':
+    motorTarget(0, 0, 0, 2, 50, 0, 200, 200, 90);
     
   case 'k':
     ledAll();
@@ -101,7 +110,7 @@ void keyPressed() {
     break;
     
   case 'c':
-    moveCircle(xmax / 2, ymax / 2, 3 * min(xmax, ymax) / 8);
+    moveCircle((xmax + 45)/ 2, (ymax + 45) / 2, 3 * min(xmax, ymax) / 8);
     break;
     
   case 's':

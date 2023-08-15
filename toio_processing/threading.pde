@@ -19,25 +19,29 @@ void moveCircle(int x, int y, int r, int offset) {
   
   for (int i = 0; i < count; i++) {
     int j = (i + offset) % count;
-    spots[i][0] = x + r*cos(angle*j);
-    spots[i][1] = y + r*sin(angle*j);
-    spots[i][2] = (360 * j * angle / (2 * PI)) + 90;
+    float newAngle = angle*j;
+    spots[i][0] = x + r*cos(newAngle);
+    spots[i][1] = y + r*sin(newAngle);
+    spots[i][2] = (360 * newAngle / (2 * PI)) + 90;
   }
 
   movePairs(spots);
 }
 
 int [][] getCircle(int x, int y, int r, int offset) {
-  int count = 6;
-  float angle = 2 * PI/count;
-  int spots[][] = new int[count][3];
+  float angle = 2 * PI/28;
+  float angleOffset = offset * (2 * PI/pairs.length);
+  int spots[][] = new int[29][3];
   
-  for (int i = 0; i < count; i++) {
-    int j = (i + offset) % count;
-    spots[i][0] = int(x + r*cos(angle*j));
-    spots[i][1] = int(y + r*sin(angle*j));
-    spots[i][2] = int((360 * j * angle / (2 * PI)) + 90);
+  for (int i = 0; i < 28; i++) {
+    float newAngle = angle*i + angleOffset;
+    spots[i][0] = int(x + r*cos(newAngle));
+    spots[i][1] = int(y + r*sin(newAngle));
+    spots[i][2] = int((360 * (newAngle) / (2 * PI)) + 90);
   }
+  
+  int[] finalSpot = {int(x + r*cos(angleOffset)), int(y + r*sin(angleOffset)), int((360 * (angleOffset) / (2 * PI)) + 90)};
+  spots[28] = finalSpot;
 
   return spots;
 }
