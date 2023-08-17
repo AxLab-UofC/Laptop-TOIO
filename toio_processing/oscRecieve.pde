@@ -102,6 +102,6 @@ void oscEvent(OscMessage msg) {
     
     int id = cubesPerHost*hostId + relid;
     
-    println(id, ":", control, response);
+    cubes[id].motorUpdate(control, response);
   }
 }

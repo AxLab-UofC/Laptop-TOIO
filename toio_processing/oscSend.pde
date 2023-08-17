@@ -57,6 +57,30 @@ void motorBasic(int cubeId, boolean leftforwards, int leftspeed, boolean rightfo
 //basic motor control (simplified), specification found at:
 //can use negative numbers to move toio backwards
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+void motorDuration(int cubeId, int speed, int duration) {
+  int hostId = cubeId/cubesPerHost;
+  int actualcubeid = cubeId % cubesPerHost;
+  OscMessage msg = new OscMessage("/motorduration");
+  msg.add(actualcubeid);
+  if (speed < 0) {
+    msg.add(0x01);
+  } else {
+    msg.add(0x02);
+  }
+  msg.add(speed);
+    if (speed < 0) {
+    msg.add(0x01);
+  } else {
+    msg.add(0x02);
+  }
+  msg.add(speed);
+  msg.add(duration);
+  oscP5.send(msg, server[hostId]);
+}
+
+//basic motor control (simplified), specification found at:
+//can use negative numbers to move toio backwards
+//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
 void motorDuration(int cubeId, int leftspeed, int rightspeed, int duration) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;

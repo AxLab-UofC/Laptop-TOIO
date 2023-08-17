@@ -101,16 +101,23 @@ void keyPressed() {
      motorBasic(1, true, 45, true, 30);
      break; 
 
-  case 'x':
-    pairs[0].target(1, 400, 400, 90);
-    break;
-    
-  case 'z':
-    pairs[0].target(1, 200, 200 , 90);
-    break;
+
     
   case 'c':
-    moveCircle((xmax + 45)/ 2, (ymax + 45) / 2, 3 * min(xmax, ymax) / 8);
+    first = new Frame(moveType.BOTTOM, getCircle(0));
+    first.execute();
+    break;
+    
+  case 'v':
+    visualOn = !visualOn;
+    break;
+    
+  case 'b':
+    visualize(getCircle(0));
+    break;
+    
+  case 'n':
+    visualizeTop(getCircle(1));
     break;
     
   case 's':
@@ -127,6 +134,7 @@ void keyPressed() {
   }
 }
 
+Frame first;
 
 void mousePressed() {
 }

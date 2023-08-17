@@ -1,7 +1,15 @@
+enum moveStatus {
+  NONE, INPROGRESS, COMPLETE, ERROR
+}
+
 class Cube {
   int id;
   boolean isActive;
   long lastUpdate;
+  
+  //targeting
+  moveStatus status = moveStatus.NONE;
+  int control = -1;
     
   // position
   int x;
@@ -55,24 +63,32 @@ class Cube {
     motorBasic(id, leftforwards, leftspeed, rightforwards, rightspeed);
   }
   
-  void target(int mode, int x, int y, int theta) {
-    motorTarget(id, mode, x, y, theta);
-  }
-  
-  void target(int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta) {
-    motorTarget(id, control, timeout, mode, maxspeed, speedchange, x, y, theta);
-  }
-  
-  void multiTarget(int mode, int[][] targets) {
-    motorMultiTarget(id, mode, targets);
-  }
-  
-  void multiTarget(int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets) {
-    motorMultiTarget(id, control, timeout, mode, maxspeed, speedchange, targets);
+  void duration(int speed, int duration) {
+    motorDuration(id, speed, duration);
   }
   
   void acceleration(int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration) {
     motorAcceleration(id, speed, a, rotateVelocity, rotateDir, dir, priority, duration);
+  }
+  
+  void target(int mode, int x, int y, int theta) {
+    status = moveStatus.INPROGRESS;
+    motorTarget(id, mode, x, y, theta);
+  }
+  
+  void target(int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta) {
+    status = moveStatus.INPROGRESS;
+    motorTarget(id, control, timeout, mode, maxspeed, speedchange, x, y, theta);
+  }
+  
+  void multiTarget(int mode, int[][] targets) {
+    status = moveStatus.INPROGRESS;
+    motorMultiTarget(id, mode, targets);
+  }
+  
+  void multiTarget(int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets) {
+    status = moveStatus.INPROGRESS;
+    motorMultiTarget(id, control, timeout, mode, maxspeed, speedchange, targets);
   }
   
     // Updates position values
@@ -138,6 +154,22 @@ class Cube {
     qz = upz;
   }
   
+  void motorUpdate(int upcontrol, int upresponse) {
+    control = upcontrol;
+    switch(upresponse) {
+      case 0:
+        status = moveStatus.COMPLETE;
+        break;
+        
+      case 5:
+        status = moveStatus.NONE;
+        break;
+        
+      default:
+        status = moveStatus.ERROR;
+        break;
+    }
+  }
   
   //Execute this code on button press
   void buttonDown() {
@@ -151,12 +183,12 @@ class Cube {
   
   //Execute this code on collision
   void onCollision() {
-    println("Collision Detected!");
+    //println("Collision Detected!");
   }
   
   //Execute this code on double tap
   void onDoubleTap() {
-    println("Double Tap Detected!");
+    //println("Double Tap Detected!");
   }
   
 }
