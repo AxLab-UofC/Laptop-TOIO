@@ -29,11 +29,11 @@ void moveCircle(int x, int y, int r, int offset) {
 }
 
 int [][] getCircle(int x, int y, int r, int offset) {
-  float angle = 2 * PI/28;
+  float angle = 2 * PI/pairs.length;
   float angleOffset = offset * (2 * PI/pairs.length);
   int spots[][] = new int[29][3];
   
-  for (int i = 0; i < 28; i++) {
+  for (int i = 0; i < pairs.length; i++) {
     float newAngle = angle*i + angleOffset;
     spots[i][0] = int(x + r*cos(newAngle));
     spots[i][1] = int(y + r*sin(newAngle));
@@ -41,7 +41,7 @@ int [][] getCircle(int x, int y, int r, int offset) {
   }
   
   int[] finalSpot = {int(x + r*cos(angleOffset)), int(y + r*sin(angleOffset)), int((360 * (angleOffset) / (2 * PI)) + 90)};
-  spots[28] = finalSpot;
+  spots[pairs.length] = finalSpot;
 
   return spots;
 }

@@ -1,18 +1,25 @@
 void keyPressed() {
   if (key == CODED) {
     switch (keyCode) {
+      //case UP:
+      //  cam.rotateX(PI/2);  
+      //  break;
+      //case DOWN:
+      //  cam.rotateX(-PI/2);
+      //  break;
+      //case LEFT:
+      //  cam.rotateY(PI/4); 
+      //  break;
+      //case RIGHT:
+      //  cam.rotateY(-PI/4);  
+      //  break;
       case UP:
-        cam.rotateX(PI/2);  
+        playSpeed += 0.5;  
         break;
       case DOWN:
-        cam.rotateX(-PI/2);
+        playSpeed -= 0.5;  
         break;
-      case LEFT:
-        cam.rotateY(PI/4); 
-        break;
-      case RIGHT:
-        cam.rotateY(-PI/4);  
-        break;
+      
     }
   }
   
@@ -67,7 +74,7 @@ void keyPressed() {
   case '0':
     midi(0, 10, 67, 255);
     break;
-    
+     
   case '-':
     midi(0, 10, 68, 255);
     break;
@@ -122,6 +129,10 @@ void keyPressed() {
     
   case 's':
     stop();
+    break;
+    
+  case 'd':
+    debugMode = !debugMode;
     break;
     
   case 'l':
