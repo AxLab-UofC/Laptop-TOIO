@@ -63,4 +63,6 @@ void draw() {
     }
   }
   //END DO NOT EDIT
+  //start your code
+  motorBasic(1, 100, 100);
 }
