@@ -14,6 +14,9 @@ OscP5 oscP5;
 //where to send the commands to
 NetAddress[] server;
 
+OscP5 pythonOsc;               // For communication with Python
+NetAddress pythonAddress;      // Address for Python
+
 //we'll keep the cubes here
 Cube[] cubes;
 
@@ -23,6 +26,7 @@ void settings() {
 
 
 void setup() {
+  
   //launch OSC sercer
   oscP5 = new OscP5(this, 3333);
   server = new NetAddress[1];
@@ -34,6 +38,11 @@ void setup() {
     cubes[i] = new Cube(i);
   }
 
+  pythonOsc = new OscP5(this, 4444);   // Different port for Python communication
+  pythonAddress = new NetAddress("127.0.0.1", 4445);   // Assuming Python listens here
+  pythonOsc.send(new OscMessage("/connected"), pythonAddress);
+
+  
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
   frameRate(30);
@@ -50,19 +59,27 @@ void draw() {
   rect(45, 45, 410, 410);
 
   //draw the cubes
+  OscMessage cubePositionsMsg = new OscMessage("/cube_positions");
   for (int i = 0; i < nCubes; i++) {
     cubes[i].checkActive(now);
-    
     if (cubes[i].isActive) {
       pushMatrix();
       translate(cubes[i].x, cubes[i].y);
+      
+      cubePositionsMsg.add(cubes[i].id);
+      cubePositionsMsg.add(cubes[i].x);
+      cubePositionsMsg.add(cubes[i].y);
+      cubePositionsMsg.add(cubes[i].theta);
+        
       rotate(cubes[i].theta * PI/180);
       rect(-10, -10, 20, 20);
       line(0, 0, 20, 0);
       popMatrix();
     }
   }
+  //TODO: send positions 
+  pythonOsc.send(cubePositionsMsg, pythonAddress);
   //END DO NOT EDIT
   //start your code
-  motorBasic(1, 100, 100);
+  //motorBasic(1, 100, 100);
 }

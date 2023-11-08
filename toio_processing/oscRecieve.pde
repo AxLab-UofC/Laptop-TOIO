@@ -1,4 +1,21 @@
 void oscEvent(OscMessage msg) {
+  //Python Commands
+  if (msg.checkAddrPattern("/someCommand")) {
+      print("received msg from python");
+      // Handle Python command here
+  }
+  if (msg.checkAddrPattern("/test")) {
+      String receivedMessage = msg.get(0).stringValue();
+      println("Received from Python: " + receivedMessage);
+  }
+  if (msg.checkAddrPattern("/user_input")) {
+      print("python message" + msg);
+      String userInput = msg.get(0).stringValue();
+      println("Received user input from Python: " + userInput);
+  }
+  // You can add more commands if needed
+    
+  
   if (msg.checkAddrPattern("/position")) {
     //this collects position information 
     int hostId = msg.get(0).intValue();

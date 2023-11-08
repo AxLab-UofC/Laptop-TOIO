@@ -78,3 +78,9 @@ void mousePressed() {
 
 void mouseReleased() {
 }
+
+void mouseClicked() {
+    OscMessage replyMsg = new OscMessage("/test_reply");
+    replyMsg.add("Hello from Processing!");
+    pythonOsc.send(replyMsg, pythonAddress);
+}
