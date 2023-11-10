@@ -15,7 +15,7 @@ OscP5 oscP5;
 NetAddress[] server;
 
 //we'll keep the cubes here
-Cube[] cubes;
+Cube[] toios;
 
 void settings() {
   size(1000, 1000, P3D);
@@ -29,9 +29,9 @@ void setup() {
   server[0] = new NetAddress("127.0.0.1", 3334);
 
   //create cubes
-  cubes = new Cube[nCubes];
-  for (int i = 0; i< cubes.length; ++i) {
-    cubes[i] = new Cube(i);
+  toios = new Cube[nCubes];
+  for (int i = 0; i< nCubes; ++i) {
+    toios[i] = new Cube(i);
   }
 
   //do not send TOO MANY PACKETS
@@ -51,12 +51,12 @@ void draw() {
 
   //draw the cubes
   for (int i = 0; i < nCubes; i++) {
-    cubes[i].checkActive(now);
+    toios[i].checkActive(now);
     
-    if (cubes[i].isActive) {
+    if (toios[i].isActive) {
       pushMatrix();
-      translate(cubes[i].x, cubes[i].y);
-      rotate(cubes[i].theta * PI/180);
+      translate(toios[i].x, toios[i].y);
+      rotate(toios[i].theta * PI/180);
       rect(-10, -10, 20, 20);
       line(0, 0, 20, 0);
       popMatrix();
