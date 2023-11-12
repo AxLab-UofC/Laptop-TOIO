@@ -1,3 +1,5 @@
+import processing.data.JSONArray;
+import processing.data.JSONObject;
 void oscEvent(OscMessage msg) {
   //Python Commands
   if (msg.checkAddrPattern("/someCommand")) {
@@ -13,6 +15,37 @@ void oscEvent(OscMessage msg) {
       String userInput = msg.get(0).stringValue();
       println("Received user input from Python: " + userInput);
   }
+    if (msg.checkAddrPattern("/new_positions")) {
+    // Parse the new positions and send motor commands to Toio cubes
+    String jsonString = msg.get(0).stringValue();
+    print(jsonString);
+    jsonString = jsonString.trim();
+    jsonString = jsonString.substring(1, jsonString.length() - 1); // Remove the leading and trailing square brackets
+    jsonString = jsonString.replaceAll("\'", "\""); // Replace single quotes with double quotes for valid JSON
+    print(jsonString);
+  
+    try {
+      // Parse the JSON string into a JSONArray
+      JSONArray positionsArray = JSONArray.parse(jsonString);
+  
+      // Iterate over the array of positions
+      for (int i = 0; i < positionsArray.size(); i++) {
+        JSONObject positionObject = positionsArray.getJSONObject(i);
+        int x = positionObject.getInt("x");
+        int y = positionObject.getInt("y");
+        int theta = positionObject.getInt("theta");
+        
+        // Assuming cubeId is the index in the array
+        motorTarget(i, 0, x, y, theta); // mode is set as 1 by default
+      }
+    } 
+    catch (Exception e) {
+      e.printStackTrace();
+      println("Failed to parse JSON string");
+    }
+
+  }
+  
   // You can add more commands if needed
     
   
