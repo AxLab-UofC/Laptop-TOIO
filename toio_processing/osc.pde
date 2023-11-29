@@ -348,7 +348,7 @@ void oscEvent(OscMessage msg) {
     
     id = cubesPerHost*hostId + id;
     
-    toios[id].onPositionUpdate(posx, posy, postheta);
+    cubes[id].onPositionUpdate(posx, posy, postheta);
   } 
   
   else if (msg.checkAddrPattern("/battery")) {
@@ -359,7 +359,7 @@ void oscEvent(OscMessage msg) {
     
     id = cubesPerHost * hostId + id;
     
-    toios[id].onBatteryUpdate(battery);
+    cubes[id].onBatteryUpdate(battery);
   }
   
   else if (msg.checkAddrPattern("/motion")) {
@@ -374,7 +374,7 @@ void oscEvent(OscMessage msg) {
     
     id = cubesPerHost*hostId + id;
     
-    toios[id].onMotionUpdate(flatness, hit, double_tap, face_up, shake_level);
+    cubes[id].onMotionUpdate(flatness, hit, double_tap, face_up, shake_level);
   } 
   
   else if (msg.checkAddrPattern("/magnetic")) {
@@ -390,7 +390,7 @@ void oscEvent(OscMessage msg) {
     
     id = cubesPerHost*hostId + id;
     
-    toios[id].onMagneticUpdate(state, strength, forcex, forcey, forcez);
+    cubes[id].onMagneticUpdate(state, strength, forcex, forcey, forcez);
   }
   
   else if (msg.checkAddrPattern("/postureeuler")) {
@@ -403,7 +403,7 @@ void oscEvent(OscMessage msg) {
     
     id = cubesPerHost*hostId + id;
     
-    toios[id].onPostureUpdate(roll, pitch, yaw);
+    cubes[id].onPostureUpdate(roll, pitch, yaw);
   } 
   
   else if (msg.checkAddrPattern("/posturequaternion")) {
@@ -417,7 +417,7 @@ void oscEvent(OscMessage msg) {
     
     id = cubesPerHost*hostId + id;
     
-    toios[id].onPostureUpdate(w, x, y, z);
+    cubes[id].onPostureUpdate(w, x, y, z);
   } 
   
   else if (msg.checkAddrPattern("/button")) {
@@ -429,9 +429,9 @@ void oscEvent(OscMessage msg) {
     int id = cubesPerHost*hostId + relid;
     
     if (pressValue == 0) {
-      toios[id].onButtonUp();
+      cubes[id].onButtonUp();
     } else {
-      toios[id].onButtonDown();
+      cubes[id].onButtonDown();
     } 
   }
   
