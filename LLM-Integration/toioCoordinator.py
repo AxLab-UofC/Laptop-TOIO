@@ -65,8 +65,9 @@ def wait_for_completion(run_id):
 def interpret_shape(user_input, toio_positions):
     message_counter = 0
     toio_positions_str = json.dumps(toio_positions)
-    
-    input = f"Here is my list of points: {toio_positions_str}. What shape or basic image could this represent?"
+    if(user_input != ''):
+        extra_input = f"Here is some clarifying information: {user_input}."
+    input = f"Here is my list of points: {toio_positions_str}. {extra_input} What shape or basic image could this represent? "
     while(input != ''):
         client.beta.threads.messages.create(
 			thread_id=thread.id,
@@ -117,19 +118,19 @@ def main():
     print("Listening for OSC messages on port 4445...")
 
     #while True:
-    user_message = input("Enter your Prompt: ")
+    user_message = input("Add further information to interpret toio positions (optional)")
     result = interpret_shape(user_message, global_cube_positions)
     print("###################################")
-    final_result = result["output"]
+    final_result = result
     print(final_result)
-    try:
-        new_positions = extract_json_from_output(result['output'])
-        print(new_positions)
-    except ValueError as e:
-        print(str(e))
+    #try:
+        #new_positions = extract_json_from_output(result['output'])
+        #print(new_positions)
+   	#except ValueError as e:
+       # print(str(e))
     
-    print(new_positions)
-    client.send_message("/new_positions", str(new_positions))
+    p#rint(new_positions)
+    #client.send_message("/new_positions", str(new_positions))
 
 
 if __name__ == "__main__":
