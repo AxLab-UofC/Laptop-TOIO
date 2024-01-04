@@ -21,7 +21,7 @@ assistant = gpt.beta.assistants.create(
     name="2D Graphed Image Interpreter",
     instructions="You are a interpeter of a 2D graph. Given a list of points and connections between points\
     , you are meant to interpret what basic images or shapes they might represent. The 2D plane you are working with has dimensions\
-    of 1000 by 1000, with 0 being in the top left corner. Therefore, consider 500, 500 as the center of our ",
+    of 1000 by 1000, with 0 being in the top left corner.",
     tools=[{"type": "retrieval"}],
     model="gpt-4-1106-preview"
 )
@@ -32,12 +32,12 @@ thread = gpt.beta.threads.create()
 #Set up server for communicating with toios
 client = udp_client.SimpleUDPClient("127.0.0.1", 4444)
 
-global_cube_positions = []
+global_toio_positions = []
 
-def handle_cube_positions(unused_addr, *args):
-    global global_cube_positions
-    global_cube_positions.clear()
-    global_cube_positions = [{'id': args[i], 'x': args[i+1], 'y': args[i+2], 'theta': args[i+3]} for i in range(0, len(args), 4)]
+def handle_toio_positions(unused_addr, *args):
+    global global_toio_positions
+    global_toio_positions.clear()
+    global_toio_positions = [{'id': args[i], 'x': args[i+1], 'y': args[i+2], 'theta': args[i+3]} for i in range(0, len(args), 4)]
 
 def handle_test_reply(unused_addr, message):
     """Handle the test_reply message from Processing."""
@@ -80,13 +80,14 @@ def interpret_toios(user_input, toio_positions):
     extra_input = ''
     if(user_input != ''):
         extra_input = f"Here is some clarifying information: {user_input}."
-    prompt = f"Here is my list of points: {toio_positions_str}. {extra_input} What shape or basic image could this represent? "
+    prompt = f"Here is my list of points: {toio_positions_str}. {extra_input} What shape or basic image could this represent? Give your answer in one or two sentences."
     while(prompt != ''):
         gpt.beta.threads.messages.create(
 			thread_id=thread.id,
 			role="user",
 			content=prompt,
 		)
+        message_counter += 1
         run = gpt.beta.threads.runs.create(
 			thread_id=thread.id,
 			assistant_id=assistant.id,
@@ -95,12 +96,12 @@ def interpret_toios(user_input, toio_positions):
         messages = gpt.beta.threads.messages.list(
 			thread_id=thread.id
 		)
-        mes = messages.data[message_counter].content[0].text.value
+        mes = messages.data[0].content[0].text.value
         print(mes)
         final_result = mes
         print('\n')
-        prompt = input("Are any of these interpretations accurate? (Enter if correct, otherwise write further instruction)")
         message_counter += 1
+        prompt = input("Are any of these interpretations accurate? (Enter if correct, otherwise write further instruction): ")
         
     gpt.beta.threads.messages.create(
 		thread_id=thread.id,
@@ -116,21 +117,25 @@ def interpret_toios(user_input, toio_positions):
     messages = gpt.beta.threads.messages.list(
 		thread_id=thread.id
 	)
-    final_result = messages.data[message_counter].content[0].text.value
+    final_result = messages.data[0].content[0].text.value
     return final_result
 
 
-def new_movements():
+def new_movements(interpretation, toio_positions):
     """
     Generate new positions given interpretation
     """
-    return
+    gpt.beta.threads.messages.create(
+		thread_id=thread.id,
+		role="user",
+		content="Return the final interpretation as a one or two word answer",
+	)
 
  
 def main():
     disp = dispatcher.Dispatcher()
     disp.map("/test_reply", handle_test_reply)
-    disp.map("/cube_positions", handle_cube_positions)
+    disp.map("/cube_positions", handle_toio_positions)
 
     server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", 4445), disp)
 
@@ -141,8 +146,8 @@ def main():
     print("Listening for OSC messages on port 4445...")
 
     #while True:
-    user_message = input("Add further information to interpret toio positions (optional)")
-    result = interpret_toios(user_message, global_cube_positions)
+    user_message = input("Add further information to interpret toio positions (optional): ")
+    result = interpret_toios(user_message, global_toio_positions)
     print("###################################")
     final_result = result
     print(final_result)
