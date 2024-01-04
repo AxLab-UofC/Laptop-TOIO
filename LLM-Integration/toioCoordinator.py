@@ -62,7 +62,10 @@ def wait_for_completion(run_id):
         time.sleep(1)
           
 #handle individual call
-def interpret_shape(user_input, toio_positions):
+def interpret_toios(user_input, toio_positions):
+    """
+    Interpret toios with help from user
+    """
     message_counter = 0
     toio_positions_str = json.dumps(toio_positions)
     if(user_input != ''):
@@ -102,8 +105,15 @@ def interpret_shape(user_input, toio_positions):
 		thread_id=thread.id
 	)[message_counter]
     return final_result
-        
-        
+
+
+def new_movements():
+    """
+    Generate new positions given interpretation
+    """
+    return
+
+ 
 def main():
     disp = dispatcher.Dispatcher()
     disp.map("/test_reply", handle_test_reply)
@@ -119,7 +129,7 @@ def main():
 
     #while True:
     user_message = input("Add further information to interpret toio positions (optional)")
-    result = interpret_shape(user_message, global_cube_positions)
+    result = interpret_toios(user_message, global_cube_positions)
     print("###################################")
     final_result = result
     print(final_result)
