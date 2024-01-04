@@ -97,7 +97,7 @@ def interpret_toios(user_input, toio_positions):
     """
     Interpret toios with help from user
     """
-    toio_positions_str = json.dumps(dummy_toio_positions)
+    toio_positions_str = json.dumps(toio_positions)
     extra_input = ''
     if(user_input != ''):
         extra_input = f"Here is some clarifying information: {user_input}."
@@ -121,17 +121,16 @@ def new_movements():
     movement_prompt = input("What new movements should the toios make?\n")
     prompt = f"Based on our current understanding of the shape and the current positions, rearrange the points \
         to form a new shape given these instructions: {movement_prompt}. The response should be a list of points \
-        and coordinates in the same format as the positions were given to you."
+        and coordinates in the same format as the positions were given to you. Do not write anything else besides the points \
+        within the []"
     if(movement_prompt != ''):
         new_locations = complete_one_prompt(prompt)
         try:
-            new_positions = extract_json_from_output(new_locations)
-            print(new_positions)
+            client.send_message("/new_positions", str(new_locations))
+            print(f"Success! New locations: {new_locations}")
+            print("Sent locations!")
         except ValueError as e:
             print(str(e))
-    print(f"Success! New locations: {new_locations}")
-    client.send_message("/new_positions", str(new_positions))
-
  
 def main():
     disp = dispatcher.Dispatcher()
