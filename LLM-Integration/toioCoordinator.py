@@ -20,7 +20,8 @@ gpt = OpenAI(
 assistant = gpt.beta.assistants.create(
     name="2D Graphed Image Interpreter",
     instructions="You are a interpeter of a 2D graph. Given a list of points and connections between points\
-    , you are meant to interpret what basic images or shapes they might represent.",
+    , you are meant to interpret what basic images or shapes they might represent. The 2D plane you are working with has dimensions\
+    of 1000 by 1000, with 0 being in the top left corner. Therefore, consider 500, 500 as the center of our ",
     tools=[{"type": "retrieval"}],
     model="gpt-4-1106-preview"
 )
@@ -31,12 +32,12 @@ thread = gpt.beta.threads.create()
 #Set up server for communicating with toios
 client = udp_client.SimpleUDPClient("127.0.0.1", 4444)
 
-global_toio_positions = []
+global_cube_positions = []
 
-def handle_toio_positions(unused_addr, *args):
-    global global_toio_positions
-    global_toio_positions.clear()
-    global_toio_positions = [{'id': args[i], 'x': args[i+1], 'y': args[i+2], 'theta': args[i+3]} for i in range(0, len(args), 4)]
+def handle_cube_positions(unused_addr, *args):
+    global global_cube_positions
+    global_cube_positions.clear()
+    global_cube_positions = [{'id': args[i], 'x': args[i+1], 'y': args[i+2], 'theta': args[i+3]} for i in range(0, len(args), 4)]
 
 def handle_test_reply(unused_addr, message):
     """Handle the test_reply message from Processing."""
@@ -75,7 +76,7 @@ def interpret_toios(user_input, toio_positions):
     Interpret toios with help from user
     """
     message_counter = 0
-    toio_positions_str = json.dumps(toio_positions)
+    toio_positions_str = json.dumps(dummy_toio_positions)
     extra_input = ''
     if(user_input != ''):
         extra_input = f"Here is some clarifying information: {user_input}."
@@ -84,7 +85,7 @@ def interpret_toios(user_input, toio_positions):
         gpt.beta.threads.messages.create(
 			thread_id=thread.id,
 			role="user",
-			content=input,
+			content=prompt,
 		)
         run = gpt.beta.threads.runs.create(
 			thread_id=thread.id,
@@ -106,6 +107,7 @@ def interpret_toios(user_input, toio_positions):
 		role="user",
 		content="Return the final interpretation as a one or two word answer",
 	)
+    message_counter += 1
     run = gpt.beta.threads.runs.create(
 		thread_id=thread.id,
 		assistant_id=assistant.id,
@@ -128,7 +130,7 @@ def new_movements():
 def main():
     disp = dispatcher.Dispatcher()
     disp.map("/test_reply", handle_test_reply)
-    disp.map("/cube_positions", handle_toio_positions)
+    disp.map("/cube_positions", handle_cube_positions)
 
     server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", 4445), disp)
 
@@ -140,7 +142,7 @@ def main():
 
     #while True:
     user_message = input("Add further information to interpret toio positions (optional)")
-    result = interpret_toios(user_message, dummy_toio_positions)
+    result = interpret_toios(user_message, global_cube_positions)
     print("###################################")
     final_result = result
     print(final_result)
