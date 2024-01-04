@@ -6,12 +6,18 @@ import threading
 import re
 import time
 
+#Dummmy data
+dummy_cube_positions = [{'id': 0, 'x': 0, 'y': 0, 'theta': 130},
+                         {'id': 1, 'x': 1, 'y': 1, 'theta': 208},
+                         {'id': 2, 'x': 1, 'y': 0, 'theta': 208},
+                         {'id': 3, 'x': 0, 'y': 1, 'theta': 208}]
+
 #Set up Assistant
-client = OpenAI(
+gpt = OpenAI(
    api_key=os.environ.get("OPENAI_API_KEY"),
 )
 
-assistant = client.beta.assistants.create(
+assistant = gpt.beta.assistants.create(
     name="2D Graphed Image Interpreter",
     instructions="You are a interpeter of a 2D graph. Given a list of points and connections between points\
     , you are meant to interpret what basic images or shapes they might represent.",
@@ -19,7 +25,7 @@ assistant = client.beta.assistants.create(
     model="gpt-4-1106-preview"
 )
 
-thread = client.beta.threads.create()
+thread = gpt.beta.threads.create()
 
 
 #Set up server for communicating with toios
@@ -53,13 +59,14 @@ def wait_for_completion(run_id):
     Wait for completion of prompt to continue
     """
     while(True):
-        run = client.beta.threads.runs.retrieve(
+        run = gpt.beta.threads.runs.retrieve(
 			thread_id=thread.id,
 			run_id=run_id
 		)
-        if(run["status"] == "complete"):
+        if(run.status == "completed"):
             return
-        time.sleep(1)
+        time.sleep(3)
+        print("Loading...")
           
 #handle individual call
 def interpret_toios(user_input, toio_positions):
@@ -68,42 +75,45 @@ def interpret_toios(user_input, toio_positions):
     """
     message_counter = 0
     toio_positions_str = json.dumps(toio_positions)
+    extra_input = ''
     if(user_input != ''):
         extra_input = f"Here is some clarifying information: {user_input}."
-    input = f"Here is my list of points: {toio_positions_str}. {extra_input} What shape or basic image could this represent? "
-    while(input != ''):
-        client.beta.threads.messages.create(
+    prompt = f"Here is my list of points: {toio_positions_str}. {extra_input} What shape or basic image could this represent? "
+    while(prompt != ''):
+        gpt.beta.threads.messages.create(
 			thread_id=thread.id,
 			role="user",
 			content=input,
 		)
-        run = client.beta.threads.runs.create(
+        run = gpt.beta.threads.runs.create(
 			thread_id=thread.id,
 			assistant_id=assistant.id,
 		)
         wait_for_completion(run.id)
-        messages = client.beta.threads.messages.list(
+        messages = gpt.beta.threads.messages.list(
 			thread_id=thread.id
 		)
-        print(messages[message_counter])
-        final_result = messages[message_counter]
-        print('\n\n')
-        input = input("Are any of these interpretations accurate? (Enter if correct, otherwise write further instruction)")
+        mes = messages.data[message_counter].content[0].text.value
+        print(mes)
+        final_result = mes
+        print('\n')
+        prompt = input("Are any of these interpretations accurate? (Enter if correct, otherwise write further instruction)")
         message_counter += 1
         
-    client.beta.threads.messages.create(
+    gpt.beta.threads.messages.create(
 		thread_id=thread.id,
 		role="user",
 		content="Return the final interpretation as a one or two word answer",
 	)
-    run = client.beta.threads.runs.create(
+    run = gpt.beta.threads.runs.create(
 		thread_id=thread.id,
 		assistant_id=assistant.id,
 	)
     wait_for_completion(run.id)
-    final_result = client.beta.threads.messages.list(
+    messages = gpt.beta.threads.messages.list(
 		thread_id=thread.id
-	)[message_counter]
+	)
+    final_result = messages.data[message_counter].content[0].text.value
     return final_result
 
 
@@ -129,7 +139,7 @@ def main():
 
     #while True:
     user_message = input("Add further information to interpret toio positions (optional)")
-    result = interpret_toios(user_message, global_cube_positions)
+    result = interpret_toios(user_message, dummy_cube_positions)
     print("###################################")
     final_result = result
     print(final_result)
