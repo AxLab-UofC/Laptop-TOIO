@@ -53,7 +53,8 @@ def extract_json_from_output(output):
     else:
         raise ValueError("No JSON list found in the output")
 
-
+          
+#handle individual call
 def wait_for_completion(run_id):
     """
     Wait for completion of prompt to continue
@@ -67,8 +68,8 @@ def wait_for_completion(run_id):
             return
         time.sleep(3)
         print("Loading...")
-          
-#handle individual call
+	
+	
 def interpret_toios(user_input, toio_positions):
     """
     Interpret toios with help from user
