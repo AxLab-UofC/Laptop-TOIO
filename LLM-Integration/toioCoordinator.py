@@ -7,7 +7,7 @@ import re
 import time
 
 #Dummmy data
-dummy_cube_positions = [{'id': 0, 'x': 0, 'y': 0, 'theta': 130},
+dummy_toio_positions = [{'id': 0, 'x': 0, 'y': 0, 'theta': 130},
                          {'id': 1, 'x': 1, 'y': 1, 'theta': 208},
                          {'id': 2, 'x': 1, 'y': 0, 'theta': 208},
                          {'id': 3, 'x': 0, 'y': 1, 'theta': 208}]
@@ -31,12 +31,12 @@ thread = gpt.beta.threads.create()
 #Set up server for communicating with toios
 client = udp_client.SimpleUDPClient("127.0.0.1", 4444)
 
-global_cube_positions = []
+global_toio_positions = []
 
-def handle_cube_positions(unused_addr, *args):
-    global global_cube_positions
-    global_cube_positions.clear()
-    global_cube_positions = [{'id': args[i], 'x': args[i+1], 'y': args[i+2], 'theta': args[i+3]} for i in range(0, len(args), 4)]
+def handle_toio_positions(unused_addr, *args):
+    global global_toio_positions
+    global_toio_positions.clear()
+    global_toio_positions = [{'id': args[i], 'x': args[i+1], 'y': args[i+2], 'theta': args[i+3]} for i in range(0, len(args), 4)]
 
 def handle_test_reply(unused_addr, message):
     """Handle the test_reply message from Processing."""
@@ -127,7 +127,7 @@ def new_movements():
 def main():
     disp = dispatcher.Dispatcher()
     disp.map("/test_reply", handle_test_reply)
-    disp.map("/cube_positions", handle_cube_positions)
+    disp.map("/cube_positions", handle_toio_positions)
 
     server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", 4445), disp)
 
@@ -139,7 +139,7 @@ def main():
 
     #while True:
     user_message = input("Add further information to interpret toio positions (optional)")
-    result = interpret_toios(user_message, dummy_cube_positions)
+    result = interpret_toios(user_message, dummy_toio_positions)
     print("###################################")
     final_result = result
     print(final_result)
@@ -149,7 +149,7 @@ def main():
    	#except ValueError as e:
        # print(str(e))
     
-    p#rint(new_positions)
+    #print(new_positions)
     #client.send_message("/new_positions", str(new_positions))
 
 
