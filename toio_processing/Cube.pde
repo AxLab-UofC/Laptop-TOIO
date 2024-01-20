@@ -8,6 +8,11 @@ class Cube {
   int y;
   int theta;
   
+  //velocity targeting
+  int targetx;
+  int targety;
+  int targetTime;
+  
   // battery
   int battery;
   
@@ -143,51 +148,104 @@ class Cube {
     //insert code here
   }
   
+  //basic motor control, specification found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+  //can use negative numbers to move toio backwards
   void motor(int leftSpeed,int rightSpeed) {
     motorBasic(id, leftSpeed, rightSpeed);
   }
   
+  //basic motor control w/ duration, specification found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+  //can use negative numbers to move toio backwards
   void motor(int leftSpeed, int rightSpeed, int duration) {
     motorDuration(id, leftSpeed, rightSpeed, duration);
   }
   
+  //motor control with target specified (simplified), specification found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  //control, timeout, maxspeed, and speed change are preset
   void target(int mode, int x, int y, int theta) {
     motorTarget(id, mode, x, y, theta);
   }
   
+  //motor control with target specified (advanced), specification found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   void target(int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta) {
     motorTarget(id, control, timeout, mode, maxspeed, speedchange, x, y, theta);
   }
   
+  //velocity targeting to allow you to smoothly move to points in an animation
+  boolean velocityTarget(int x, int y) {
+    float elapsedTime = millis() - targetTime;
+    float vx = (targetx - x) / elapsedTime;
+    float vy = (targety - y) / elapsedTime;
+    
+    boolean val = motorTargetVelocity(id, x, y, vx, vy);
+    
+    targetx = x;
+    targety = y;
+    targetTime = millis();
+    return val;
+  }
+  
+  //motor control with acceleration specified, specification can be found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
   void accelerate(int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration) {
     motorAcceleration(id, speed, a, rotateVelocity, rotateDir, dir, priority, duration);
   }
   
+  //motor control with multiple targets specified (simplified), specification found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
   void multiTarget(int mode, int[][] targets) {
     motorMultiTarget(id, mode, targets);
   }
   
+  //motor control with multiple targets specified (advanced), specification found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
   void multiTarget(int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets) {
     motorMultiTarget(id, control, timeout, mode, maxspeed, speedchange, targets);
   }
   
+  //Activating the toio LED (single), specification can be found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_light
   void led(int duration, int red, int green, int blue) {
     lightLed(id, duration, red, green, blue);
   }
   
+  //Activating the toio LED (sequence), specification can be found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_light
+  //lights should be formatted as {duration, red, green, blue}
   void led(int repetitions, int[][] lights) {
     lightLed(id, repetitions, lights);
   }
   
+  //play sound effects, specification can be found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_sound
   void sound(int soundeffect, int volume) {
     soundEffect(id, soundeffect, volume);
   }
   
+  //play Midi Note (single), specification can be found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
   void midi(int duration, int noteID, int volume) {
     soundMidi(id, duration, noteID, volume);
   }
   
+  //play Midi Notes (sequence), specification can be found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
+  //targets should be formatted as {duration, noteID, volume} or {duration, noteID}. Unless specified, volume = 255
   void midi(int repetitions, int[][] notes)  {
     soundMidi(id, repetitions, notes);
+  }
+  
+  float distance(Cube o) {
+    return distance(o.x, o.y);
+  }
+
+  float distance(float ox, float oy) {
+    return sqrt ((x-ox)*(x-ox) + (y-oy)*(y-oy));
   }
 }
