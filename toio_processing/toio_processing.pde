@@ -18,7 +18,7 @@ NetAddress[] server;
 Cube[] cubes;
 
 void settings() {
-  size(1000, 1000, P3D);
+  size(1000, 1000);
 }
 
 
@@ -40,10 +40,11 @@ void setup() {
 }
 
 void draw() {
-  //START DO NOT EDIT
+  //START TEMPLATE/DEBUG VIEW
   background(255);
   stroke(0);
   long now = System.currentTimeMillis();
+  postureRequest(0);
 
   //draw the "mat"
   fill(255);
@@ -56,11 +57,20 @@ void draw() {
     if (cubes[i].isActive) {
       pushMatrix();
       translate(cubes[i].x, cubes[i].y);
+      fill(0);
+      textSize(15);
+      text(i, 0, -20);
+      noFill();
       rotate(cubes[i].theta * PI/180);
       rect(-10, -10, 20, 20);
       line(0, 0, 20, 0);
       popMatrix();
     }
   }
-  //END DO NOT EDIT
+  //END TEMPLATE/DEBUG VIEW
+  
+  //insert code here
+  if (cubes[0].posture == 1) {
+    cubes[0].led(0, 255, 0, 0);
+  }
 }

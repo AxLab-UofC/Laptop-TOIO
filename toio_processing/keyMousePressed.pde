@@ -66,6 +66,25 @@ void keyPressed() {
     case 'l':
       int[][] lights = {{30, 0, 255, 0}, {30, 0, 0, 255}};
       cubes[0].led(5, lights);
+      break;
+      
+    case 'a':
+      cubes[0].motor(50, 50, 5);
+      break;
+      
+      
+    case 'd':
+      cubes[0].motor(-50,-50, 5);
+      break;
+      
+      
+    case 't':
+      cubes[0].target(100, 100, 90);
+      break;
+      
+    case 's':
+      cubes[0].motor(115,-115, 5);
+      break;
       
     default:
       break;
@@ -73,6 +92,7 @@ void keyPressed() {
 }
 
 void mousePressed() {
+  cubes[0].target(mouseX, mouseY, 90);
   //insert code here;
 }
 

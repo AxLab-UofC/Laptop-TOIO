@@ -16,6 +16,9 @@ class Cube {
   // battery
   int battery;
   
+  // button 
+  boolean buttonDown;
+  
   // motion
   boolean isHorizontal;
   boolean collision;
@@ -45,6 +48,7 @@ class Cube {
     id = i;
     lastUpdate = System.currentTimeMillis();
     isActive = false;
+    buttonDown = false;
   }
   
   void checkActive(long now) {
@@ -80,12 +84,11 @@ class Cube {
      
      //insert code here
      
-     if (collision) {
-       onCollision();
-     }
-     
+
      if (doubleTap) {
        onDoubleTap();
+     } else if (collision) {
+       onCollision();
      }
   }
   
@@ -123,13 +126,14 @@ class Cube {
   //Execute this code on button press
   void onButtonDown() {
     println("Button Pressed!");
-    
+    buttonDown = true;
     //insert code here
   }
   
   //Execute this code on button release
   void onButtonUp() {
     println("Button Released");
+    buttonDown = false;
     
     //insert code here
   }
@@ -162,6 +166,14 @@ class Cube {
     motorDuration(id, leftSpeed, rightSpeed, duration);
   }
   
+  
+  //motor control with target specified (simplified), specification found at:
+  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  //control, timeout, maxspeed, and speed change are preset
+  void target(int x, int y, int theta) {
+    motorTarget(id, 0, x, y, theta);
+  }
+  
   //motor control with target specified (simplified), specification found at:
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   //control, timeout, maxspeed, and speed change are preset
@@ -175,7 +187,7 @@ class Cube {
     motorTarget(id, control, timeout, mode, maxspeed, speedchange, x, y, theta);
   }
   
-  //velocity targeting to allow you to smoothly move to points in an animation
+  //velocity targeting to allow you to smoothly move to points continously
   boolean velocityTarget(int x, int y) {
     float elapsedTime = millis() - targetTime;
     float vx = (targetx - x) / elapsedTime;

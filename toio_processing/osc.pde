@@ -444,6 +444,6 @@ void oscEvent(OscMessage msg) {
     
     int id = cubesPerHost*hostId + relid;
     
-    println(id, ":", control, response);
+    //println(id, ":", control, response);
   }
 }
