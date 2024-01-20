@@ -84,11 +84,12 @@ class Cube {
      
      //insert code here
      
-
+     if (collision) {
+       onCollision();
+     }
+     
      if (doubleTap) {
        onDoubleTap();
-     } else if (collision) {
-       onCollision();
      }
   }
   

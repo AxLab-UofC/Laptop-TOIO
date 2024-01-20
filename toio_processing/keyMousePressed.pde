@@ -73,17 +73,8 @@ void keyPressed() {
       break;
       
       
-    case 'd':
-      cubes[0].motor(-50,-50, 5);
-      break;
-      
-      
     case 't':
       cubes[0].target(100, 100, 90);
-      break;
-      
-    case 's':
-      cubes[0].motor(115,-115, 5);
       break;
       
     default:
