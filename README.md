@@ -25,3 +25,24 @@ There are special flags for specific cases.
 
 - Running Laptop-Toio with the command `cargo run -- -s` will allow you to connect to all nearby toios, in case you don't want to deal with the hassle of looking over which toios you have. NOTE: Only use this flag when there is no one else using toios nearby.
 - Running Laptop-Toio with the command `cargo run -- -o -a 48,46` will attempt to connect to the toios in the specific order you passed them in. In this case, that would be 48 and then 46
+
+
+# Running the Simulation with Processing
+The full [toio API](https://toio.github.io/toio-spec/en/docs/about) allows us to send commands and request information from the toio. Most of these API requests have been implemented within Laptop-toio on the Rust and Processing side to allow us to control toios. All of these functions are available on the `Cube` tab of the processing code.
+
+We are send comannds to control to control:
+- [The Motors](https://toio.github.io/toio-spec/en/docs/ble_motor):
+- [The LED Indicator](https://toio.github.io/toio-spec/en/docs/ble_light):
+- [The Speaker](https://toio.github.io/toio-spec/en/docs/ble_sound):
+
+We automatically recieve updates about:
+- [Position](https://toio.github.io/toio-spec/en/docs/ble_id)
+- [Battery](https://toio.github.io/toio-spec/en/docs/ble_battery)
+- [Button](https://toio.github.io/toio-spec/en/docs/ble_button)
+
+We are able to request information from:
+- [Motion Sensor](https://toio.github.io/toio-spec/en/docs/ble_sensor)
+- [Posture Angle Sensor](https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor)
+- [Magnetic Sensor](https://toio.github.io/toio-spec/en/docs/ble_magnetic_sensor)
+
+
