@@ -49,7 +49,7 @@ Processing allows you to write code in two ways:
 - The `draw()` function is called continously on a loop. If you want your code to run on a regular interval, this is the best place to put it.
 - The `events` tab is comprised of many functions that are called on certain events. 
     - Keyboard and Mouse events call the `keyPressed`, `mousePressed` and `mouseReleased` functions. If you want an extended look at the GUI events that are registered by Processing, you can look at the Keyboard and Mouse sections [here](https://processing.org/reference/#input).
-    - toio events are call the `buttonDown`, `buttonUp`, `collision` and `doubleTap` functions. These will automatically pass the toio IDs as a function parameter, allowing you to use them in your code.
+    - toio events automatically call the `buttonDown`, `buttonUp`, `collision` and `doubleTap` functions. These functions will pass the toio IDs as a function parameter, allowing you to use them in your code.
 
 ## Writing toio Processing commands
 
