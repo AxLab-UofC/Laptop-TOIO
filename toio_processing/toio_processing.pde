@@ -44,7 +44,6 @@ void draw() {
   background(255);
   stroke(0);
   long now = System.currentTimeMillis();
-  postureRequest(0);
 
   //draw the "mat"
   fill(255);
@@ -70,7 +69,4 @@ void draw() {
   //END TEMPLATE/DEBUG VIEW
   
   //insert code here
-  if (cubes[0].posture == 1) {
-    cubes[0].led(0, 255, 0, 0);
-  }
 }

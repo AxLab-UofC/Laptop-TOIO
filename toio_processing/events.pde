@@ -90,3 +90,27 @@ void mousePressed() {
 void mouseReleased() {
   //insert code here;
 }
+
+void buttonDown(int id) {
+    println("Button Pressed!");
+    
+    //insert code here
+}
+
+void buttonUp(int id) {
+    println("Button Released!");
+    
+    //insert code here
+}
+
+void collision(int id) {
+    println("Collision Detected!");
+    
+    //insert code here
+}
+
+void doubleTap(int id) {
+    println("Double Tap Detected!");
+    
+    //insert code here
+}

@@ -126,14 +126,14 @@ class Cube {
   
   //Execute this code on button press
   void onButtonDown() {
-    println("Button Pressed!");
+    buttonDown(id);
     buttonDown = true;
     //insert code here
   }
   
   //Execute this code on button release
   void onButtonUp() {
-    println("Button Released");
+    buttonUp(id);
     buttonDown = false;
     
     //insert code here
@@ -141,14 +141,14 @@ class Cube {
   
   //Execute this code on collision
   void onCollision() {
-    println("Collision Detected!");
+    collision(id);
     
     //insert code here
   }
   
   //Execute this code on double tap
   void onDoubleTap() {
-    println("Double Tap Detected!");
+    doubleTap(id);
     
     //insert code here
   }
