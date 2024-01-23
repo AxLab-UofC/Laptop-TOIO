@@ -7,6 +7,11 @@ import netP5.*;
 //the more toios you connect to, the more difficult it becomes to sustain the connection
 int nCubes = 12;
 int cubesPerHost = 12;
+int maxMotorSpeed = 115;
+int xOffset;
+int yOffset;
+
+int[] matDimension = {45, 45, 455, 455};
 
 
 //for OSC
@@ -34,11 +39,13 @@ void setup() {
     cubes[i] = new Cube(i);
   }
 
+  xOffset = matDimension[0] - 45;
+  yOffset = matDimension[1] - 45;
+
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
   frameRate(30);
-  
-  println(sin(5 / 5) * 180);
+
 }
 
 void draw() {
@@ -49,7 +56,7 @@ void draw() {
 
   //draw the "mat"
   fill(255);
-  rect(45, 45, 410, 410);
+  rect(matDimension[0] - xOffset, matDimension[1] - yOffset, matDimension[2] - matDimension[0], matDimension[3] - matDimension[1]);
 
   //draw the cubes
   for (int i = 0; i < nCubes; i++) {
@@ -57,7 +64,7 @@ void draw() {
     
     if (cubes[i].isActive) {
       pushMatrix();
-      translate(cubes[i].x, cubes[i].y);
+      translate(cubes[i].x - xOffset, cubes[i].y - yOffset);
       fill(0);
       textSize(15);
       text(i, 0, -20);

@@ -1,5 +1,3 @@
-int maxMotorSpeed = 115;
-
 boolean motorTargetVelocity(int id, int x, int y, float vx, float vy) {
 
   if (cubes[id].isActive) {

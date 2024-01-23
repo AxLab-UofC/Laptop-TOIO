@@ -153,6 +153,11 @@ class Cube {
     //insert code here
   }
   
+  void onMotorResponse(int control, int response) {
+    
+    //insert code here
+  }
+  
   //basic motor control, specification found at:
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
   //can use negative numbers to move toio backwards
@@ -161,7 +166,7 @@ class Cube {
   }
   
   //basic motor control w/ duration, specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+  //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-specified-duration
   //can use negative numbers to move toio backwards
   void motor(int leftSpeed, int rightSpeed, int duration) {
     motorDuration(id, leftSpeed, rightSpeed, duration);
@@ -171,8 +176,7 @@ class Cube {
   //motor control with target specified (simplified), specification found at:
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   //control, timeout, maxspeed, and speed change are preset
-  void target(int newx, int newy) {
-    int theta = int(asin((newx - x)/(newy - y)) * 180 / PI);
+  void target(int x, int y, int theta) {
     motorTarget(id, 0, x, y, theta);
   }
   
@@ -205,19 +209,19 @@ class Cube {
   
   //motor control with acceleration specified, specification can be found at:
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
-  void accelerate(int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration) {
-    motorAcceleration(id, speed, a, rotateVelocity, rotateDir, dir, priority, duration);
+  void accelerate(int speed, int acc, int rotateVelocity, int rotateDir, int dir, int priority, int duration) {
+    motorAcceleration(id, speed, acc, rotateVelocity, rotateDir, dir, priority, duration);
   }
   
   //motor control with multiple targets specified (simplified), specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
   //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
   void multiTarget(int mode, int[][] targets) {
     motorMultiTarget(id, mode, targets);
   }
   
   //motor control with multiple targets specified (advanced), specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
   //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
   void multiTarget(int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets) {
     motorMultiTarget(id, control, timeout, mode, maxspeed, speedchange, targets);
