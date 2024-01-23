@@ -74,7 +74,7 @@ void keyPressed() {
       
       
     case 't':
-      cubes[0].target(100, 100, 90);
+      cubes[0].target(100, 100);
       break;
       
     default:

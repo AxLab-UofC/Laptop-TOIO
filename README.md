@@ -28,21 +28,37 @@ There are special flags for specific cases.
 
 
 # Running the Simulation with Processing
-The full [toio API](https://toio.github.io/toio-spec/en/docs/about) allows us to send commands and request information from the toio. Most of these API requests have been implemented within Laptop-toio on the Rust and Processing side to allow us to control toios. All of these functions are available on the `Cube` tab of the processing code.
+The full [toio API](https://toio.github.io/toio-spec/en/docs/about) allows us to send commands and request information from the toio. Most of these API requests have been implemented within Laptop-toio on the Rust and Processing side to allow us to control toios. All of these functions are available on the `Cube` tab of the processing code. All of the toios are stored an array called `cubes`. This means that you can access each toio with `cubes[i]`, where `i` is the order thetoios connected in.
 
+## Processing Code Structure
+Processing allows you to write code in two ways:
+- The `draw()` function is called continously on a loop. If you want your code to run on a regular interval, this is the best place to put it.
+- the `events` tab is comprised of many functions that are called on certain events. 
+    - Keyboard and Mouse events call the `keyPressed`, `mousePressed` and `mouseReleased` functions. If you want an extended look at the GUI events that are registered by Processing, you can look at the Keyboard and Mouse sections [here](https://processing.org/reference/#input).
+    - toio events are call the `buttonDown`, `buttonUp`, `collision` and `doubleTap` functions. These will automatically pass the toio IDs as a function parameter, allowing you to use them in your code.
+
+## Writing toio Processing code
 We are send comannds to control to control:
-- [The Motors](https://toio.github.io/toio-spec/en/docs/ble_motor):
+- [The Motors](https://toio.github.io/toio-spec/en/docs/ble_motor): NOTE: the maximum speed of a motor on a toio is 115. That commands that can control the toio are:
+    -  `cubes[i].motor`: can be called with either `leftSpeed, rightSpeed` or `leftSpeed, rightSpeed, duration`, allowing you to control the speed of each motor individually for a set duration. Further documentation can be found [here](https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control) and [here](https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-specified-duration).
+    - `cubes[i].target`: can be called with `x, y, theta`, `mode, x, y, theta` or `control, timeout, mode, maxspeed, speedchange, x, y, theta`, allowing you to target a specific location. Further documentation can be found [here](https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified)
+    - `cubes[i].accelerate`: can be called with `speed, acc, rotateVelocity, rotateDir, dir, priority, duration`, allowing you to control acceleration of the motors. Further documentation can be found [here](https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified)
+    - `cubes[i].multiTarget`: can be called with `mode, targets` or `control, timeout, mode, maxspeed, speedchange, targets` where targets are a 2D array for each target marked as `{x, y}` or `{x, y, theta}`. Unless specified, `theta = 0`. Further documentation can be found [here](https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified).
 - [The LED Indicator](https://toio.github.io/toio-spec/en/docs/ble_light):
+    - `cubes[i].led` can be used to set the LED to a certain color with `duration, red, green, blue` or to produce an LED sequence with `repetitions, lights` where `lights` are a 2D array with each light in the sequence arranged as `{duration, red, green, blue}`. Further documentation can be found [here](https://toio.github.io/toio-spec/en/docs/ble_light)
 - [The Speaker](https://toio.github.io/toio-spec/en/docs/ble_sound):
+    - `cubes[i].sound` can be called with `soundeffect, volume` to play sound effects. Further documentation can be found [here](https://toio.github.io/toio-spec/en/docs/ble_sound)
+    - `cubes[i].midi` can be used to play a certain note with `duration, noteID, volume` or to produce an note sequence with `repetitions, notes` where `note` are a 2D array with each note in the sequence arranged as `{duration, noteID, volume}` or `{duration, noteID}`. Unless specified, `volume = 255`. Further documentation can be found [here](https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers)
 
 We automatically recieve updates about:
-- [Position](https://toio.github.io/toio-spec/en/docs/ble_id)
-- [Battery](https://toio.github.io/toio-spec/en/docs/ble_battery)
-- [Button](https://toio.github.io/toio-spec/en/docs/ble_button)
+- [Position](https://toio.github.io/toio-spec/en/docs/ble_id): The values of `cubes[i].x`, `cubes[i].y`, and `cubes[i].theta` will automatically update to the location and angle of each toio.
+- [Battery](https://toio.github.io/toio-spec/en/docs/ble_battery): The value of `cubes[i].battery` will automatically update to the battery level of each toio.
+- [Button](https://toio.github.io/toio-spec/en/docs/ble_button): The value of `cubes[i].buttonDown` will automatically change on button press of each toio. Changes in this state will also trigger the `buttonDown` and `buttonUp` functions
 
 We are able to request information from:
-- [Motion Sensor](https://toio.github.io/toio-spec/en/docs/ble_sensor)
-- [Posture Angle Sensor](https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor)
-- [Magnetic Sensor](https://toio.github.io/toio-spec/en/docs/ble_magnetic_sensor)
+- [Motion Sensor](https://toio.github.io/toio-spec/en/docs/ble_sensor):
+- [Posture Angle Sensor](https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor):
+- [Magnetic Sensor](https://toio.github.io/toio-spec/en/docs/ble_magnetic_sensor):
+
 
 

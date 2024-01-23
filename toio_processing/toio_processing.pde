@@ -37,6 +37,8 @@ void setup() {
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
   frameRate(30);
+  
+  println(sin(5 / 5) * 180);
 }
 
 void draw() {

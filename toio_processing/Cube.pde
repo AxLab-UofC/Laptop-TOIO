@@ -171,7 +171,8 @@ class Cube {
   //motor control with target specified (simplified), specification found at:
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   //control, timeout, maxspeed, and speed change are preset
-  void target(int x, int y, int theta) {
+  void target(int newx, int newy) {
+    int theta = int(asin((newx - x)/(newy - y)) * 180 / PI);
     motorTarget(id, 0, x, y, theta);
   }
   
