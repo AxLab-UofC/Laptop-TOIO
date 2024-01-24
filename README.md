@@ -12,6 +12,8 @@ All of the Low-Level Bluetooth Toio is handled within Rust, while the Higher-Lev
 # Connecting with Rust
 Our Rust code allows us to connect to toios by using their 'name' (An internal 3-digit alphanumeric id built into the firmware), or their AxLab ID (Written on the bottom of the toio). We can connect using the following command
 
+First, clone this repository, and use terminal to navigate to rust_osc folder. From there, run: 
+
 ```
 cargo run -- -a 48,46
 ```
