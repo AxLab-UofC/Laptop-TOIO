@@ -1,6 +1,7 @@
 # Requirements
 Before you use Laptop-Toio, you will need to download:
 - [Processing](https://processing.org/download)
+    - Also make sure to add the oscP5 library from the `sketch > Import Library... > Manage Libraries...` button.
 - [Rust](https://www.rust-lang.org/tools/install)
 
 # Structure
