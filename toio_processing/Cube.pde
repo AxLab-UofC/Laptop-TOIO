@@ -7,6 +7,7 @@ class Cube {
   int x;
   int y;
   int theta;
+  boolean ready;
   
   //velocity targeting
   int targetx;
@@ -153,6 +154,7 @@ class Cube {
     //insert code here
   }
   
+  //Execute this code on motor response
   void onMotorResponse(int control, int response) {
     
     //insert code here

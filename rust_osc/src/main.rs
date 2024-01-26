@@ -30,6 +30,7 @@ const SOUND_CHARACTERISTIC_UUID:    Uuid = Uuid::from_u128(0x10B20104_5B3B_4571_
 const MOTION_CHARACTERISTIC_UUID:   Uuid = Uuid::from_u128(0x10B20106_5B3B_4571_9508_CF3EFCD7BBAE);
 const BUTTON_CHARACTERISTIC_UUID:   Uuid = Uuid::from_u128(0x10B20107_5B3B_4571_9508_CF3EFCD7BBAE);
 const BATTERY_CHARACTERISTIC_UUID:  Uuid = Uuid::from_u128(0x10B20108_5B3B_4571_9508_CF3EFCD7BBAE);
+const CONFIG_CHARACTERISTIC_UUID:   Uuid = Uuid::from_u128(0x10B201FF_5B3B_4571_9508_CF3EFCD7BBAE);
 
 fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} FILE [options]", program);
@@ -88,7 +89,7 @@ fn return_toio_id(name: &str) -> &str{
         "M5p",  // #41
         "A4a",  // #42
         "M9J",  // #43
-        "0",  // #44
+        "i01",  // #44
         "T5m",  // #45
         "j1G",  // #46
         "40G",  // #47
@@ -126,11 +127,11 @@ fn return_toio_id(name: &str) -> &str{
         "E7c",  // #79
         "P1B",  // #80
         "F2B",  // #81
-        "0",  // #82
+        "L1H",  // #82
         "D5i",  // #83
         "m4Q",  // #84
         "m1k",  // #85
-        "r52",  // #86
+        "0",  // #86
         "k89",  // #87
         "D2K",  // #88
         "65r",  // #89
@@ -146,7 +147,7 @@ fn return_toio_id(name: &str) -> &str{
         "i1M",  // #99
         "R3C",  // #100
         "D98",  // #101
-        "0",  // #102
+        "m86",  // #102
         "a66",  // #103
         "0",  // #104
         "E8T",  // #105
@@ -169,7 +170,7 @@ fn return_toio_id(name: &str) -> &str{
         "m6B",  // #122
         "M0j",  // #123
         "Q8G",  // #124
-        "0",  // #125
+        "A1t",  // #125
         "p7J",  // #126
         "t0H",  // #127
         "M5i",  // #128
