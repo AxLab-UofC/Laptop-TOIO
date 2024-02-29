@@ -31,7 +31,7 @@ submitted = 0
 playing = False
 reset = False
 animation_thread = None #flag for if an animation is running in the background
-delay = 0.4
+delay = 0.3
 new_locations = None
 
 
@@ -65,8 +65,7 @@ def extract_json_from_output(output):
     else:
         raise ValueError("No JSON list found in the output")
 
-          
-#handle individual call
+
 def wait_for_completion(run_id):
     """
     Wait for completion of prompt to continue
@@ -115,13 +114,8 @@ def interpret_toios(user_input, toio_positions):
         extra_input = f"Here is some clarifying information: {user_input}."
     prompt = f"Here is my list of points: {toio_positions_str}. {extra_input} What shape or basic image could this \
         represent? Give your answer in one or two short sentences, no more."
-    # while(prompt != ''):
     mes = complete_one_prompt(prompt)
     print(mes)
-        # final_result = mes
-        # print('\n')
-        # prompt = input("Are any of these interpretations accurate? (Enter if correct, otherwise write further instruction): ")
-    #Switch to new movements
     final_result = complete_one_prompt("Return the final interpretation as a one or two word answer")
     return final_result
 
@@ -131,7 +125,6 @@ def new_movements(animation_prompt):
     Generate new positions given interpretation
     """
     global new_locations
-    #num_frames = input("How many frames?\n")
     prompt = f"Based on your current understanding of the current shape, we want to generate a simple looping \
         animation based on the following prompt: {animation_prompt}. If relevant, recall the grouping of our points and what each of these groups might represent. Use this understanding to inform the each rearrangement of points. \
         Treat each frame as an adjustment of the original shape through moving each point. Not every point must move at each frame, only move the ones that make sense to move. Rearrange the points 4 times to form a simple looping \
@@ -212,6 +205,7 @@ def main():
             ('logo.png'), (200,100))
     display = pygame.display.set_mode([800,600])
     font = pygame.font.Font('freesansbold.ttf', 20)
+    font2 = pygame.font.Font('freesansbold.ttf', 15)
     font3 = pygame.font.Font('freesansbold.ttf', 30)
     font4 = pygame.font.Font('freesansbold.ttf', 40)
     result = "None"
@@ -235,13 +229,13 @@ def main():
     playRect.center = (500,450)
     e1Text = font.render("Example 1: Walking", True, (0,0,0), (60,179,113))
     e1Rect = e1Text.get_rect()
-    e1Rect.center = (50,550)
+    e1Rect.center = (150,550)
     e2Text = font.render("Example 2: Expressions", True, (0,0,0), (60,179,113))
     e2Rect = e2Text.get_rect()
-    e2Rect.center = (50,550)
+    e2Rect.center = (400,550)
     e3Text = font.render("Example 3: Walking", True, (0,0,0), (60,179,113))
     e3Rect = e3Text.get_rect()
-    e3Rect.center = (50,550)
+    e3Rect.center = (650,550)
     #Main loop
     while running:
         for event in pygame.event.get():
@@ -279,9 +273,29 @@ def main():
                     user_input = ''
                     filename = None
                 elif e1Rect.collidepoint(event.pos):
-                    tmp = json.load("animations/walking.txt")
+                    with open("walking.txt", 'r') as file:
+                        # Read the first line from the file
+                        tmp = file.readline().strip()
                     frames = tmp.split(";")
-                    start_animation(frames, )
+                    client.send_message("/new_positions", frames[0])
+                    time.sleep(3)
+                    start_animation(animate_movements, frames)
+                elif e2Rect.collidepoint(event.pos):
+                    with open("expressions.txt", 'r') as file:
+                        # Read the first line from the file
+                        tmp = file.readline().strip()
+                    frames = tmp.split(";")
+                    client.send_message("/new_positions", frames[0])
+                    time.sleep(3)
+                    start_animation(animate_movements, frames)
+                elif e3Rect.collidepoint(event.pos):
+                    with open("bounce.txt", 'r') as file:
+                        # Read the first line from the file
+                        tmp = file.readline().strip()
+                    frames = tmp.split(";")
+                    client.send_message("/new_positions", frames[0])
+                    time.sleep(3)
+                    start_animation(animate_movements, frames)
                 else:
                     box_active = False
             if event.type == pygame.KEYDOWN:
@@ -296,16 +310,19 @@ def main():
             color = (200,200,200)
         display.fill((255,255,255))
         pygame.draw.rect(display, color, input_rect)
-        text_surface = font.render(user_input, True, (0,0,0))
+        text_surface = font2.render(user_input, True, (0,0,0))
         display.blit(text_surface, (input_rect.x+5, input_rect.y+5))
         display.blit(logo, (600,0))
         input_rect.w = max(700, text_surface.get_width()+10)
         instructionsText = font.render("Please input instructions for the {} of your design".format(current_step), True, (0,0,0), (255,255,255))
         instructionsRect = instructionsText.get_rect()
         instructionsRect.center = (400,280)
-        outText = font.render("Current interpretation of your design: {}".format(result), True, (0,0,0), (255,255,255))
+        outText = font.render("Current interpretation of your design:", True, (0,0,0), (255,255,255))
         outRect = outText.get_rect()
-        outRect.center = (400,250)
+        outRect.center = (400,220)
+        wordText = font3.render(result, True, (0,0,0), (255,255,255))
+        wordRect = wordText.get_rect()
+        wordRect.center = (400,250)
         titleText = font4.render("Shape n' Swarm", True, (0,0,0), (255,255,255))
         titleRect = titleText.get_rect()
         titleRect.center = (400, 100)
@@ -316,6 +333,7 @@ def main():
         display.blit(titleText, titleRect)
         display.blit(buttonText, buttonRect)
         display.blit(outText, outRect)
+        display.blit(wordText, wordRect)
         display.blit(instructionsText, instructionsRect)
         display.blit(e1Text, e1Rect)
         display.blit(e2Text, e2Rect)
