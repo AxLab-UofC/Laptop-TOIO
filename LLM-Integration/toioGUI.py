@@ -33,6 +33,8 @@ reset = False
 animation_thread = None #flag for if an animation is running in the background
 delay = 0.3
 new_locations = None
+gpt_thread = None
+animation_ready = False
 
 
 def save_file(string_data, filename, folder_path = "animations"):
@@ -47,11 +49,6 @@ def handle_toio_positions(unused_addr, *args):
     global global_toio_positions
     global_toio_positions.clear()
     global_toio_positions = [{'id': args[i], 'x': args[i+1], 'y': args[i+2], 'theta': args[i+3], 'group':args[i+4]} for i in range(0, len(args), 5)]
-
-
-def handle_test_reply(unused_addr, message):
-    """Handle the test_reply message from Processing."""
-    print("Received from Processing: " + message)
 
 
 def extract_json_from_output(output):
@@ -125,6 +122,7 @@ def new_movements(animation_prompt):
     Generate new positions given interpretation
     """
     global new_locations
+    global animation_ready
     prompt = f"Based on your current understanding of the current shape, we want to generate a simple looping \
         animation based on the following prompt: {animation_prompt}. If relevant, recall the grouping of our points and what each of these groups might represent. Use this understanding to inform the each rearrangement of points. \
         Treat each frame as an adjustment of the original shape through moving each point. Not every point must move at each frame, only move the ones that make sense to move. Rearrange the points 4 times to form a simple looping \
@@ -132,8 +130,7 @@ def new_movements(animation_prompt):
         with no extra words or description."
     if(animation_prompt != ''):
         new_locations = complete_one_prompt(prompt)
-        frames = new_locations.split(";")
-        start_animation(animate_movements, frames)
+        animation_ready = True
 
 
 def start_animation(target, frames):
@@ -142,7 +139,7 @@ def start_animation(target, frames):
     """
     global animation_thread
     global playing
-    playing = True
+    playing = False
     if animation_thread is None:
         animation_thread = threading.Thread(target=target, args=[frames])
         animation_thread.start()
@@ -161,6 +158,7 @@ def animate_movements(frames):
     global reset
 
     i = 0
+    client.send_message("/new_positions", frames[0])
     while True:
         if playing:
             try:
@@ -181,11 +179,13 @@ def main():
     global new_locations
     global playing
     global reset
+    global gpt_thread
+    global animation_ready
     running = True
     user_input = ''
     global submitted
+    loading_animation = False
     disp = dispatcher.Dispatcher()
-    disp.map("/test_reply", handle_test_reply)
     disp.map("/cube_positions", handle_toio_positions)
 
     server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", 4445), disp)
@@ -253,7 +253,14 @@ def main():
                         filename = filename + ".txt"
                         print(filename)
                     else:
-                        new_movements(user_input)
+                        if gpt_thread is None:
+                            gpt_thread = threading.Thread(target=new_movements, args=[user_input])
+                            gpt_thread.start()
+                        else:
+                            gpt_thread.join()
+                            gpt_thread = threading.Thread(target=new_movements, args=[user_input])
+                            gpt_thread.start()
+                        loading_animation = True
                         user_input = ''
                 elif saveRect.collidepoint(event.pos):
                     if new_locations is not None and filename is not None:
@@ -273,29 +280,26 @@ def main():
                     user_input = ''
                     filename = None
                 elif e1Rect.collidepoint(event.pos):
-                    with open("walking.txt", 'r') as file:
+                    with open("animations/walking.txt", 'r') as file:
                         # Read the first line from the file
-                        tmp = file.readline().strip()
+                        tmp = file.read()
                     frames = tmp.split(";")
-                    client.send_message("/new_positions", frames[0])
-                    time.sleep(3)
                     start_animation(animate_movements, frames)
                 elif e2Rect.collidepoint(event.pos):
-                    with open("expressions.txt", 'r') as file:
-                        # Read the first line from the file
-                        tmp = file.readline().strip()
+                    with open("animations/expressions.txt", 'r') as file:
+                        tmp = file.read()
                     frames = tmp.split(";")
-                    client.send_message("/new_positions", frames[0])
-                    time.sleep(3)
                     start_animation(animate_movements, frames)
                 elif e3Rect.collidepoint(event.pos):
-                    with open("bounce.txt", 'r') as file:
-                        # Read the first line from the file
-                        tmp = file.readline().strip()
+                    with open("animations/bounce.txt", 'r') as file:
+                        tmp = file.read()
                     frames = tmp.split(";")
-                    client.send_message("/new_positions", frames[0])
-                    time.sleep(3)
                     start_animation(animate_movements, frames)
+                elif readyRect.collidepoint(event.pos):
+                    if animation_ready:
+                        loading_animation = False
+                        frames = new_locations.split(";")
+                        start_animation(animate_movements, frames)
                 else:
                     box_active = False
             if event.type == pygame.KEYDOWN:
@@ -329,6 +333,12 @@ def main():
         descriptionText = font.render("Smart Swarm Robots for Creative Interaction and Play Using LLMs", True, (0,0,0), (255,255,255))
         descriptionRect = descriptionText.get_rect()
         descriptionRect.center = (400, 150)
+        if animation_ready:
+            readyText = font.render("Animation ready! (press to play)", True, (0,0,0), (60,179,113))
+        else:
+            readyText = font.render("Animation loading...", True, (0,0,0), (255,255,255))
+        readyRect = readyText.get_rect()
+        readyRect.center = (500, 400)
         display.blit(descriptionText, descriptionRect)
         display.blit(titleText, titleRect)
         display.blit(buttonText, buttonRect)
@@ -338,6 +348,8 @@ def main():
         display.blit(e1Text, e1Rect)
         display.blit(e2Text, e2Rect)
         display.blit(e3Text, e3Rect)
+        if loading_animation:
+            display.blit(readyText, readyRect)
         if animation_thread is not None:
             display.blit(saveText, saveRect)
             display.blit(playText, playRect)
