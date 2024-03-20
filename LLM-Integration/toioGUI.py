@@ -35,6 +35,7 @@ delay = 0.3
 new_locations = None
 gpt_thread = None
 animation_ready = False
+frames = None
 
 
 def save_file(string_data, filename, folder_path = "animations"):
@@ -113,7 +114,7 @@ def interpret_toios(user_input, toio_positions):
         represent? Give your answer in one or two short sentences, no more."
     mes = complete_one_prompt(prompt)
     print(mes)
-    final_result = complete_one_prompt("Return the final interpretation as a one or two word answer")
+    final_result = complete_one_prompt("Return the final interpretation as a one or two word answer. Do not include a period at the end.")
     return final_result
 
 
@@ -133,29 +134,31 @@ def new_movements(animation_prompt):
         animation_ready = True
 
 
-def start_animation(target, frames):
+def start_animation(target):
     """
     Start animation thread
     """
     global animation_thread
     global playing
     playing = False
+    print("d")
     if animation_thread is None:
-        animation_thread = threading.Thread(target=target, args=[frames])
+        animation_thread = threading.Thread(target=target, args=[])
         animation_thread.start()
     else:
-        animation_thread.join()
-        animation_thread = threading.Thread(target=target, args=[frames])
+        #animation_thread.join()
+        animation_thread = threading.Thread(target=target, args=[])
         animation_thread.start()
         
 
-def animate_movements(frames):
+def animate_movements():
     """
     Run animations in the background
     """
     global delay
     global playing
     global reset
+    global frames
 
     i = 0
     client.send_message("/new_positions", frames[0])
@@ -181,10 +184,12 @@ def main():
     global reset
     global gpt_thread
     global animation_ready
+    global frames
     running = True
     user_input = ''
     global submitted
     loading_animation = False
+    example_playing = False
     disp = dispatcher.Dispatcher()
     disp.map("/cube_positions", handle_toio_positions)
 
@@ -210,7 +215,7 @@ def main():
     font4 = pygame.font.Font('freesansbold.ttf', 40)
     result = "None"
     clock = pygame.time.Clock()
-    input_rect = pygame.Rect(50,300,140,35)
+    input_rect = pygame.Rect(50,320,140,35)
     box_active = False
     buttonText = font3.render("Send Instructions", True, (0,0,0), (60,179,113))
     buttonRect = buttonText.get_rect()
@@ -221,23 +226,23 @@ def main():
     resetText = font.render("Reset", True, (0,0,0), (60,179,113))
     resetRect = resetText.get_rect()
     resetRect.center = (400,450)
-    if playing:
-        playText = font.render("Pause", True, (0,0,0), (60,179,113))
-    else:
-        playText = font.render("Play", True, (0,0,0), (60,179,113))
-    playRect = playText.get_rect()
-    playRect.center = (500,450)
-    e1Text = font.render("Example 1: Walking", True, (0,0,0), (60,179,113))
+    e1Text = font.render("Example 1: Wave", True, (0,0,0), (60,179,113))
     e1Rect = e1Text.get_rect()
     e1Rect.center = (150,550)
-    e2Text = font.render("Example 2: Expressions", True, (0,0,0), (60,179,113))
+    e2Text = font.render("Example 2: Jumping Guy", True, (0,0,0), (60,179,113))
     e2Rect = e2Text.get_rect()
     e2Rect.center = (400,550)
-    e3Text = font.render("Example 3: Walking", True, (0,0,0), (60,179,113))
+    e3Text = font.render("Example 3: Not ready", True, (0,0,0), (60,179,113))
     e3Rect = e3Text.get_rect()
     e3Rect.center = (650,550)
     #Main loop
     while running:
+        if playing:
+            playText = font.render("Pause", True, (0,0,0), (60,179,113))
+        else:
+            playText = font.render("Play", True, (0,0,0), (60,179,113))
+        playRect = playText.get_rect()
+        playRect.center = (500,450)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -273,33 +278,54 @@ def main():
                 elif resetRect.collidepoint(event.pos):
                     reset = True
                     playing = False
-                    animation_thread.join()
                     animation_thread = None
                     current_step = "interpretation"
                     result = None
                     user_input = ''
                     filename = None
                 elif e1Rect.collidepoint(event.pos):
-                    with open("animations/walking.txt", 'r') as file:
+                    with open("animations/wave.txt", 'r') as file:
                         # Read the first line from the file
                         tmp = file.read()
+                    if tmp[1] == "[":
+                        tmp = tmp[1:-1]
                     frames = tmp.split(";")
-                    start_animation(animate_movements, frames)
+                    example_playing = True
+                    playing = False
+                    start_animation(animate_movements)
                 elif e2Rect.collidepoint(event.pos):
-                    with open("animations/expressions.txt", 'r') as file:
+                    with open("animations/jumping.txt", 'r') as file:
                         tmp = file.read()
+                    if tmp[1] == "[":
+                        tmp = tmp[1:-1]
                     frames = tmp.split(";")
-                    start_animation(animate_movements, frames)
+                    example_playing = True
+                    playing = False
+                    start_animation(animate_movements)
                 elif e3Rect.collidepoint(event.pos):
-                    with open("animations/bounce.txt", 'r') as file:
+                    with open("animations/jumping.txt", 'r') as file:
                         tmp = file.read()
+                    if tmp[1] == "[":
+                        tmp = tmp[1:-1]
                     frames = tmp.split(";")
-                    start_animation(animate_movements, frames)
+                    example_playing = True
+                    playing = False
+                    start_animation(animate_movements)
                 elif readyRect.collidepoint(event.pos):
                     if animation_ready:
+                        print("a")
                         loading_animation = False
-                        frames = new_locations.split(";")
-                        start_animation(animate_movements, frames)
+                        if new_locations[1] == "[":
+                            tmp = new_locations[1:-1]
+                        else:
+                            tmp = new_locations
+                        print(tmp)
+                        frames = tmp.split(";")
+                        print("c")
+                        playing = False
+                        example_playing = False
+                        animation_ready = False
+                        start_animation(animate_movements)
                 else:
                     box_active = False
             if event.type == pygame.KEYDOWN:
@@ -320,13 +346,13 @@ def main():
         input_rect.w = max(700, text_surface.get_width()+10)
         instructionsText = font.render("Please input instructions for the {} of your design".format(current_step), True, (0,0,0), (255,255,255))
         instructionsRect = instructionsText.get_rect()
-        instructionsRect.center = (400,280)
+        instructionsRect.center = (400,300)
         outText = font.render("Current interpretation of your design:", True, (0,0,0), (255,255,255))
         outRect = outText.get_rect()
         outRect.center = (400,220)
         wordText = font3.render(result, True, (0,0,0), (255,255,255))
         wordRect = wordText.get_rect()
-        wordRect.center = (400,250)
+        wordRect.center = (400,260)
         titleText = font4.render("Shape n' Swarm", True, (0,0,0), (255,255,255))
         titleRect = titleText.get_rect()
         titleRect.center = (400, 100)
@@ -338,7 +364,7 @@ def main():
         else:
             readyText = font.render("Animation loading...", True, (0,0,0), (255,255,255))
         readyRect = readyText.get_rect()
-        readyRect.center = (500, 400)
+        readyRect.center = (400, 500)
         display.blit(descriptionText, descriptionRect)
         display.blit(titleText, titleRect)
         display.blit(buttonText, buttonRect)
@@ -351,9 +377,10 @@ def main():
         if loading_animation:
             display.blit(readyText, readyRect)
         if animation_thread is not None:
-            display.blit(saveText, saveRect)
+            if example_playing is False:
+                display.blit(saveText, saveRect)
+                display.blit(resetText, resetRect)
             display.blit(playText, playRect)
-            display.blit(resetText, resetRect)
         pygame.display.update()
         clock.tick(60)  
     server_thread.join()
