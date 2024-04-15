@@ -257,41 +257,33 @@ void postureRequest(boolean euler, int[] cubeId) {
 }
 
 void oscEvent(OscMessage msg) {
+  
   if (msg.checkAddrPattern("/position")) {
     //this collects position information 
-    int hostId = msg.get(0).intValue();
-    int id = msg.get(1).intValue();
-    int posx = msg.get(2).intValue();
-    int posy = msg.get(3).intValue();
-    int postheta = msg.get(4).intValue();
-    
-    id = cubesPerHost*hostId + id;
+    int id = msg.get(0).intValue();
+    int posx = msg.get(1).intValue();
+    int posy = msg.get(2).intValue();
+    int postheta = msg.get(3).intValue();
     
     cubes[id].onPositionUpdate(posx, posy, postheta);
   } 
   
   else if (msg.checkAddrPattern("/battery")) {
     //this collects battery value information
-    int hostId = msg.get(0).intValue();
-    int id = msg.get(1).intValue();
-    int battery = msg.get(2).intValue();
-    
-    id = cubesPerHost * hostId + id;
+    int id = msg.get(0).intValue();
+    int battery = msg.get(1).intValue();
     
     cubes[id].onBatteryUpdate(battery);
   }
   
   else if (msg.checkAddrPattern("/motion")) {
     //this collects motion sensor information
-    int hostId = msg.get(0).intValue();
-    int id = msg.get(1).intValue();
-    int flatness = msg.get(2).intValue();
-    int hit = msg.get(3).intValue();
-    int double_tap = msg.get(4).intValue();
-    int face_up = msg.get(5).intValue();
-    int shake_level = msg.get(6).intValue();
-    
-    id = cubesPerHost*hostId + id;
+    int id = msg.get(0).intValue();
+    int flatness = msg.get(1).intValue();
+    int hit = msg.get(2).intValue();
+    int double_tap = msg.get(3).intValue();
+    int face_up = msg.get(4).intValue();
+    int shake_level = msg.get(5).intValue();
     
     cubes[id].onMotionUpdate(flatness, hit, double_tap, face_up, shake_level);
   } 
@@ -341,11 +333,8 @@ void oscEvent(OscMessage msg) {
   
   else if (msg.checkAddrPattern("/button")) {
     //this collects button information
-    int hostId = msg.get(0).intValue();
-    int relid = msg.get(1).intValue();
-    int pressValue = msg.get(2).intValue();
-    
-    int id = cubesPerHost*hostId + relid;
+    int id = msg.get(0).intValue();
+    int pressValue = msg.get(1).intValue();
     
     if (pressValue == 0) {
       cubes[id].onButtonUp();
