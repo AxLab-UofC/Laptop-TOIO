@@ -21,29 +21,7 @@ void motorBasic(int cubeId, int leftspeed, int rightspeed) {
   oscP5.send(msg, server[hostId]);
 }
 
-//basic motor control (advanced), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
-void motorBasic(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motorbasic");
-  msg.add(actualcubeid);
-  if (leftforwards) {
-    msg.add(0x01);
-  } else {
-    msg.add(0x02);
-  }
-  msg.add(leftspeed);
-    if (rightforwards) {
-    msg.add(0x01);
-  } else {
-    msg.add(0x02);
-  }
-  msg.add(rightspeed);
-  oscP5.send(msg, server[hostId]);
-}
-
-//basic motor control (simplified), specification found at:
+//basic motor control with duration, specification found at:
 //can use negative numbers to move toio backwards
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
 void motorDuration(int cubeId, int leftspeed, int rightspeed, int duration) {
@@ -67,45 +45,7 @@ void motorDuration(int cubeId, int leftspeed, int rightspeed, int duration) {
   oscP5.send(msg, server[hostId]);
 }
 
-//basic motor control (advanced), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
-void motorDuration(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed, int duration) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motorduration");
-  msg.add(actualcubeid);
-  if (leftforwards) {
-    msg.add(0x01);
-  } else {
-    msg.add(0x02);
-  }
-  msg.add(leftspeed);
-    if (rightforwards) {
-    msg.add(0x01);
-  } else {
-    msg.add(0x02);
-  }
-  msg.add(rightspeed);
-  msg.add(duration);
-  oscP5.send(msg, server[hostId]);
-}
-
-//motor control with target specified (simplified), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-//control, timeout, maxspeed, and speed change are preset
-void motorTarget(int cubeId, int mode, int x, int y, int theta){
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motortarget");
-  msg.add(actualcubeid);
-  msg.add(mode);
-  msg.add(x);
-  msg.add(y);
-  msg.add(theta);
-  oscP5.send(msg, server[hostId]);
-}
-
-//motor control with target specified (advanced), specification found at:
+//motor control with target specified, specification found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
 void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
@@ -123,28 +63,7 @@ void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
   oscP5.send(msg, server[hostId]);
 }
 
-//motor control with multiple targets specified (simplified), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
-void motorMultiTarget(int cubeId, int mode, int[][] targets) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/multitargetsimple");
-  msg.add(actualcubeid);
-  msg.add(mode);
-  for (int i = 0; i < targets.length; i++) {
-    for (int j = 0; j < targets[i].length; j++) {
-      msg.add(targets[i][j]);
-    }
-    
-    if (targets[i].length == 2) {
-      msg.add(0);
-    }
-  }
-  oscP5.send(msg, server[hostId]);
-}
-
-//motor control with multiple targets specified (advanced), specification found at:
+//motor control with multiple targets specified, specification found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
 //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
 void motorMultiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets){

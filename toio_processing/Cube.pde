@@ -9,10 +9,14 @@ class Cube {
   int theta;
   boolean ready;
   
+  //motor targeting
+  int targetX;
+  int targetY;
+  
   //velocity targeting
-  int targetx;
-  int targety;
-  int targetTime;
+  int velocityX;
+  int velocityY;
+  int velocityTime;
   
   // battery
   int battery;
@@ -156,7 +160,10 @@ class Cube {
   
   //Execute this code on motor response
   void onMotorResponse(int control, int response) {
-    
+    if (response == 0) {
+      ready = true;
+    }
+
     //insert code here
   }
   
@@ -179,33 +186,42 @@ class Cube {
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   //control, timeout, maxspeed, and speed change are preset
   void target(int x, int y, int theta) {
-    motorTarget(id, 0, x, y, theta);
+    motorTarget(id, 0, 5, 0, 80, 0, x, y, theta);
+    ready = false;
+    targetX = x;
+    targetY = y;
   }
   
   //motor control with target specified (simplified), specification found at:
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   //control, timeout, maxspeed, and speed change are preset
   void target(int mode, int x, int y, int theta) {
-    motorTarget(id, mode, x, y, theta);
+    motorTarget(id, mode, 5, 0, 80, 0, x, y, theta);
+    ready = false;
+    targetX = x;
+    targetY = y;
   }
   
   //motor control with target specified (advanced), specification found at:
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   void target(int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta) {
     motorTarget(id, control, timeout, mode, maxspeed, speedchange, x, y, theta);
+    ready = false;
+    targetX = x;
+    targetY = y;
   }
   
   //velocity targeting to allow you to smoothly move to points continously
   boolean velocityTarget(int x, int y) {
-    float elapsedTime = millis() - targetTime;
-    float vx = (targetx - x) / elapsedTime;
-    float vy = (targety - y) / elapsedTime;
+    float elapsedTime = millis() - velocityTime;
+    float vx = (velocityX - x) / elapsedTime;
+    float vy = (velocityY - y) / elapsedTime;
     
     boolean val = motorTargetVelocity(id, x, y, vx, vy);
     
-    targetx = x;
-    targety = y;
-    targetTime = millis();
+    velocityX = x;
+    velocityY = y;
+    velocityTime = millis();
     return val;
   }
   
@@ -219,7 +235,7 @@ class Cube {
   //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
   //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
   void multiTarget(int mode, int[][] targets) {
-    motorMultiTarget(id, mode, targets);
+    motorMultiTarget(id, mode, 5, 0, 80, 0, targets);
   }
   
   //motor control with multiple targets specified (advanced), specification found at:

@@ -5,7 +5,7 @@ import netP5.*;
 //constants
 //The soft limit on how many toios a laptop can handle is in the 10-12 range
 //the more toios you connect to, the more difficult it becomes to sustain the connection
-int nCubes = 12;
+int nCubes = 5;
 int cubesPerHost = 12;
 int maxMotorSpeed = 115;
 int xOffset;
@@ -59,12 +59,15 @@ void draw() {
   rect(matDimension[0] - xOffset, matDimension[1] - yOffset, matDimension[2] - matDimension[0], matDimension[3] - matDimension[1]);
 
   //draw the cubes
+  pushMatrix();
+  translate(xOffset, yOffset);
+  
   for (int i = 0; i < nCubes; i++) {
     cubes[i].checkActive(now);
     
     if (cubes[i].isActive) {
       pushMatrix();
-      translate(cubes[i].x - xOffset, cubes[i].y - yOffset);
+      translate(cubes[i].x, cubes[i].y);
       fill(0);
       textSize(15);
       text(i, 0, -20);
@@ -75,6 +78,7 @@ void draw() {
       popMatrix();
     }
   }
+  popMatrix();
   //END TEMPLATE/DEBUG VIEW
   
   //insert code here
