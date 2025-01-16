@@ -29,6 +29,10 @@ There are special flags for specific cases.
 - Running Laptop-Toio with the command `cargo run -- -s` will allow you to connect to all nearby toios, in case you don't want to deal with the hassle of looking over which toios you have. NOTE: Only use this flag when there is no one else using toios nearby.
 - Running Laptop-Toio with the command `cargo run -- -o -a 48,46` will attempt to connect to the toios in the specific order you passed them in. In this case, that would be 48 and then 46
 
+### Connecting to New Toios
+
+- Run the command '`cargo run -- -s` from rust. The available toio id values (i.e. 88e) should show up in the order of connection. 
+- Should the user wish to give the toios more concise id "nicknames", this can be done via the main.rs file.
 
 # Running the Simulation with Processing
 The full [toio API](https://toio.github.io/toio-spec/en/docs/about) allows us to send commands and request information from the toio. Most of these API requests have been implemented within Laptop-toio on the Rust and Processing side to allow us to control toios. All of these functions are available on the `Cube` tab of the processing code. All of the toios are stored an array called `cubes`. This means that you can access each toio with `cubes[i]`, where `i` is the order thetoios connected in.
