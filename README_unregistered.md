@@ -11,3 +11,4 @@ As follows:
 ## Creating and managing directory of id aliases
 - For ease of use, it is best practice to label the toios with ID values. These can either be internal values (i.e. 88E) or some custom code system, such as that used by the AxLab. 
 - For AxLab Members: AxLab ID "nicknames" are managed within the main.rs file. Currently, 193 toios are managed in this way.
+- Organizations which are not AxLab may find it usefule to establish a similar structure, though this is not required. 
