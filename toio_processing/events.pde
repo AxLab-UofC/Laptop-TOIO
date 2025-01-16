@@ -7,8 +7,11 @@ void keyPressed() {
       break;
       
     case '2':
-      //cubes[0].target(200, 200, 0);
-      cubes[0].target(0, 200, 200, 0);
+      cubes[0].target(200, 200, 270);
+      cubes[0].target(200, 400, 270);
+      //cubes[0].target(0, 200, 200, 0);
+      //cubes[1].target(0, 200, 200, 0);
+      //cubes[2].target(0, 200, 200, 0);
       break;
     
     case '3':
@@ -30,7 +33,7 @@ void keyPressed() {
       break;
     
     case '7':
-      cubes[0].midi(10, 68, 255);
+      cubes[0].midi(10, 69, 255);
       break;
     
     case '8':
@@ -61,21 +64,28 @@ void mouseReleased() {
 void buttonDown(int id) {
     println("Button Pressed!");
     
-    //insert code here
 }
 
 //execute code when button on toio is released
 void buttonUp(int id) {
     println("Button Released!");
     
-    //insert code here
+    delay(100);
+    cubes[id].motor(115, 115, 100);
+    
 }
 
 //execute code when toio detects collision
 void collision(int id) {
     println("Collision Detected!");
     
-    //insert code here
+    //cubes[id].sound(2, 255);
+    cubes[id].motor(-115, -115, 10);
+    delay(120);
+    cubes[id].motor(115, -115, 20);
+    delay(100);
+    cubes[id].motor(115, 115, 100);
+    
 }
 
 //execute code when toio detects double tap
