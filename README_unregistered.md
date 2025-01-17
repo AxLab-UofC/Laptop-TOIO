@@ -1,7 +1,7 @@
 # About Registering new 'Unregistered' toios:
 To employ laptop toio with manually assigned ID (as labeled below for AxLab's toios), all toios need to be 'registered' in the laptop toio file.
 
-![IMG_3703](https://github.com/user-attachments/assets/ad4a31bc-efe0-42be-a5e9-d32650966be5)
+![IMG_3703](https://github.com/user-attachments/assets/ad4a31bc-efe0-42be-a5e9-d32650966be5 | width=200)
 
 This manually assigned ID is helpful, as toio connection is usually done by searching and automatically connecting whatever the software fines - you can't define which specific toio you want to connect to, making it diffuclt to use in classroom setting, or with sitaution that has many toios in the room. 
 
