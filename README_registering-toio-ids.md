@@ -10,7 +10,7 @@ This document instructs the method to 'preregister' Toios in laptop toio.
 NOTE: Don't follow this manual, if you are using pre-labeled toios (e.g. using AxLab's toio for Ken's Class).
 
 
-## Creating and　registering toio IDs to the directory of ID aliases
+## Registering toio IDs to the directory of ID aliases
 1. Turn on one toio you want to register the name.
 2. Navigate to the rust_osc folder, and run the command '`cargo run -- -s`. The available toio ID values (i.e. 88E) should appear in the order of connection.
 3. Use this ID to update the ID aliases on rust_osc/src/main.rs under with the variable 'const IDARR'
