@@ -63,7 +63,6 @@ void mouseReleased() {
 //execute code when button on toio is pressed
 void buttonDown(int id) {
     println("Button Pressed!");
-    
 }
 
 //execute code when button on toio is released
