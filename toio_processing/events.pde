@@ -79,12 +79,6 @@ void collision(int id) {
     println("Collision Detected!");
     
     //cubes[id].sound(2, 255);
-    cubes[id].motor(-115, -115, 10);
-    delay(120);
-    cubes[id].motor(115, -115, 20);
-    delay(100);
-    cubes[id].motor(115, 115, 100);
-    
 }
 
 //execute code when toio detects double tap
