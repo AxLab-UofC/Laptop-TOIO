@@ -5,11 +5,19 @@ import netP5.*;
 //constants
 //The soft limit on how many toios a laptop can handle is in the 10-12 range
 //the more toios you connect to, the more difficult it becomes to sustain the connection
-int nCubes = 5;
+int nCubes = 2;
 int cubesPerHost = 12;
 int maxMotorSpeed = 115;
 int xOffset;
 int yOffset;
+
+// Instruction for Windows Users //
+// 1. Enable WindowsMode and set nCubes to the exact number of toio you are connecting
+// 2. Run Processing Code First, Then Run the Rust Code
+// 3. Optional: If the toio behavior is werid consider dropping the framerate (e.g. change from 30 to 10)
+boolean WindowsMode = true; //When you enable this, it will check for connection with toio via Rust first, before starting void loop()
+
+int framerate = 30;
 
 int[] matDimension = {45, 45, 455, 455};
 
@@ -44,9 +52,13 @@ void setup() {
 
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
-  frameRate(30);
-
+  frameRate(framerate);
+  if(WindowsMode){
+  check_connection();
+  }
 }
+
+
 
 void draw() {
   //START TEMPLATE/DEBUG VIEW
@@ -82,4 +94,5 @@ void draw() {
   //END TEMPLATE/DEBUG VIEW
   
   //insert code here
+  cubes[0].target(cubes
 }
