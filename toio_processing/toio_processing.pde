@@ -94,5 +94,4 @@ void draw() {
   //END TEMPLATE/DEBUG VIEW
   
   //insert code here
-  cubes[0].target(cubes
 }
