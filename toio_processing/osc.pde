@@ -373,8 +373,8 @@ void check_connection(){
     if (!cubes[i].isActive){
       println("Waiting for cube"+i);
       i -= 1;
+      delay(500);
     }
-    delay(500);
   }
   println("Connection Check Passed.");
 }
