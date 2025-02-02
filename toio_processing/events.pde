@@ -119,12 +119,10 @@ void buttonUp(int id) {
 void collision(int id) {
   println("Collision Detected!");
 
-  //cubes[id].sound(2, 255);
 }
 
 //execute code when toio detects double tap
 void doubleTap(int id) {
   println("Double Tap Detected!");
 
-  //insert code here
 }
