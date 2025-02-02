@@ -5,21 +5,11 @@ import netP5.*;
 //constants
 //The soft limit on how many toios a laptop can handle is in the 10-12 range
 //the more toios you connect to, the more difficult it becomes to sustain the connection
-int nCubes = 2;
+int nCubes = 5;
 int cubesPerHost = 12;
 int maxMotorSpeed = 115;
 int xOffset;
 int yOffset;
-
-//// Instruction for Windows Users  (Feb 2. 2025) ////
-// 1. Enable WindowsMode and set nCubes to the exact number of toio you are connecting.
-// 2. Run Processing Code FIRST, Then Run the Rust Code.
-// 3. When you re-run the processing code, make sure to stop the rust code and toios to be disconnected (switch to Bluetooth stand-by mode [blue LED blinking]). If toios are taking time to disconnect, you can optionally turn off the toio and turn back on using the power button.
-// Optional: If the toio behavior is werid consider dropping the framerate (e.g. change from 30 to 10)
-// 
-boolean WindowsMode = true; //When you enable this, it will check for connection with toio via Rust first, before starting void loop()
-
-int framerate = 30;
 
 int[] matDimension = {45, 45, 455, 455};
 
@@ -54,13 +44,9 @@ void setup() {
 
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
-  frameRate(framerate);
-  if(WindowsMode){
-  check_connection();
-  }
+  frameRate(30);
+
 }
-
-
 
 void draw() {
   //START TEMPLATE/DEBUG VIEW
@@ -96,4 +82,9 @@ void draw() {
   //END TEMPLATE/DEBUG VIEW
   
   //insert code here
+  
+  cubes[0].target(cubes[1].x+100, cubes[1].y, cubes[1].theta);
+  cubes[1].target(cubes[0].x-100, cubes[0].y, cubes[0].theta);
+  
+  
 }
