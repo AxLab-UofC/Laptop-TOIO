@@ -13,11 +13,11 @@ int yOffset;
 
 //// Instruction for Windows Users  (Feb 2. 2025) ////
 // 1. Enable WindowsMode and set nCubes to the exact number of toio you are connecting.
-// 2. Run Processing Code FIRST, Then Run the Rust Code.
+// 2. Run Processing Code FIRST, Then Run the Rust Code. After running the Rust Code, you should place the toio on the toio mat, then Processing should start showing the toio position.
 // 3. When you re-run the processing code, make sure to stop the rust code and toios to be disconnected (switch to Bluetooth stand-by mode [blue LED blinking]). If toios are taking time to disconnect, you can optionally turn off the toio and turn back on using the power button.
 // Optional: If the toio behavior is werid consider dropping the framerate (e.g. change from 30 to 10)
 // 
-boolean WindowsMode = true; //When you enable this, it will check for connection with toio via Rust first, before starting void loop()
+boolean WindowsMode = false; //When you enable this, it will check for connection with toio via Rust first, before starting void loop()
 
 int framerate = 30;
 
