@@ -111,8 +111,6 @@ void buttonDown(int id) {
 void buttonUp(int id) {
   println("Button Released!");
 
-  delay(100);
-  cubes[id].motor(115, 115, 100);
 }
 
 //execute code when toio detects collision
