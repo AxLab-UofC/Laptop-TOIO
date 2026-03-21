@@ -1,0 +1,11 @@
+/Users/kennakagaki/Documents/GitHub/laptop-Toio/rust_osc/target/debug/deps/socket2-67cd81e03582005b.rmeta: /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/lib.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sockaddr.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/socket.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sockref.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sys/unix.rs
+
+/Users/kennakagaki/Documents/GitHub/laptop-Toio/rust_osc/target/debug/deps/libsocket2-67cd81e03582005b.rlib: /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/lib.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sockaddr.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/socket.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sockref.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sys/unix.rs
+
+/Users/kennakagaki/Documents/GitHub/laptop-Toio/rust_osc/target/debug/deps/socket2-67cd81e03582005b.d: /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/lib.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sockaddr.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/socket.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sockref.rs /Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sys/unix.rs
+
+/Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/lib.rs:
+/Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sockaddr.rs:
+/Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/socket.rs:
+/Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sockref.rs:
+/Users/kennakagaki/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.4/src/sys/unix.rs:

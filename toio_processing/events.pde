@@ -8,7 +8,7 @@ void keyPressed() {
     //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-specified-duration
     //can use negative numbers to move toio backwards
     // void motor(int leftSpeed, int rightSpeed, int duration)
-
+    
     cubes[0].motor(115, 115, 5);
     break;
 
@@ -20,6 +20,7 @@ void keyPressed() {
     //motor control with target specified (simplified), specification found at:
     //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
     //control, timeout, maxspeed, and speed change are preset
+    
     cubes[0].target(200, 200, 270);
 
     break;
@@ -30,8 +31,7 @@ void keyPressed() {
     //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
     //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
     // void multiTarget(int mode, int[][] targets)
-
-
+    
     int[][] targets = {{200, 200}, {200, 300, 90}, {300, 300}, {300, 200, 270}, {200, 200, 180}};
     cubes[0].multiTarget(0, targets);
     break;

@@ -1,6 +1,6 @@
 .DS_Store
 
-rust_osc/target/
+toio_rust/target/
 rust_bridge/target/
 
 env/
