@@ -43,7 +43,7 @@ fn print_toio_connected(toio_connected: i32){
 
 fn return_toio_id(name: &str) -> &str{
     //list of toio ids
-    const IDARR : [&str; 193] = [
+    const IDARR : [&str; 199] = [
         "Individual ID",  //TOIO Num
         "0",  // #1
         "j1c",  // #2
@@ -106,17 +106,17 @@ fn return_toio_id(name: &str) -> &str{
         "0",  // #59
         "0",  // #60
         "0",  // #61
-        "0",  // #62
-        "0",  // #63
+        "G42",  // #62
+        "446",  // #63
         "0",  // #64
         "0",  // #65
         "0",  // #66
         "0",  // #67
         "0",  // #68
         "0",  // #69
-        "0",  // #70
+        "a8h",  // #70
         "0",  // #71
-        "0",  // #72
+        "",  // #72
         "0",  // #73
         "0",  // #74
         "0",  // #75
@@ -237,6 +237,12 @@ fn return_toio_id(name: &str) -> &str{
         "p3E",  // #190
         "h6t",  // #191
         "n2L",  // #192
+        "0",  // #193
+        "0",  // #194
+        "0",  // #195
+        "0",  // #196
+        "0",  // #197
+        "0"  // #198
     ];
     match name.parse::<i32>() {
         Ok(n) => {
@@ -248,6 +254,13 @@ fn return_toio_id(name: &str) -> &str{
         }
       }
 }                
+
+fn toio_name_variants(id: &str) -> Vec<String> {
+    vec![
+        format!("toio Core Cube-{}", id),  // old firmware
+        format!("toio-{}", id),             // new firmware
+    ]
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -310,7 +323,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         match matches.opt_str("a") {
             Some(names) => {
                 for part in names.split(",") {
-                    res.push(format!("toio Core Cube-{}", return_toio_id(part)));
+                    //res.push(format!("toio Core Cube-{}", return_toio_id(part)));
+                    res.extend(toio_name_variants(&return_toio_id(part)));
                 }
             },
             None => {}
@@ -504,9 +518,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 //we kave a toio cube!
                 let tx3 = tx.clone();
                 if !(peripheral.is_connected().await?) {
-                    println!("Device Connected: {}", local_name);
+                    
                     toio_connected  += 1;
                     print_toio_connected(toio_connected);
+                    println!("Device Connected: {}", local_name);
 
                     // Connect if we aren't already connected.
                     if let Err(err) = peripheral.connect().await {
