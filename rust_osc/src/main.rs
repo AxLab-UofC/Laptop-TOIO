@@ -259,7 +259,8 @@ fn toio_name_variants(id: &str) -> Vec<String> {
     vec![
         format!("toio Core Cube-{}", id),  // old firmware
         format!("toio-{}", id),             // new firmware
-        format!("toio-{} (toio Core Cube)", id)
+        format!("toio-{} (toio Core Cube)", id),
+        format!("toio-{} (Axlab-KN", id)
     ]
 }
 
