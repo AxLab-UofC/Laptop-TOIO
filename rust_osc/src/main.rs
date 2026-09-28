@@ -242,7 +242,7 @@ fn return_toio_id(name: &str) -> &str{
         "0",  // #195
         "0",  // #196
         "0",  // #197
-        "0"  // #198
+        "f60"  // #198
     ];
     match name.parse::<i32>() {
         Ok(n) => {
@@ -258,9 +258,10 @@ fn return_toio_id(name: &str) -> &str{
 fn toio_name_variants(id: &str) -> Vec<String> {
     vec![
         format!("toio Core Cube-{}", id),  // old firmware
+        format!("toio-{} (AxLab-KN:0A.001)", id),
+        format!("toio-{} (AxLab-KN", id),
         format!("toio-{}", id),             // new firmware
-        format!("toio-{} (toio Core Cube)", id),
-        format!("toio-{} (Axlab-KN", id)
+        format!("toio-{} (toio Core Cube)", id)
     ]
 }
 
