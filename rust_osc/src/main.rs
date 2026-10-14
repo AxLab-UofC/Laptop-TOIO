@@ -43,7 +43,7 @@ fn print_toio_connected(toio_connected: i32){
 
 fn return_toio_id(name: &str) -> &str{
     //list of toio ids
-    const IDARR : [&str; 199] = [
+    const IDARR : [&str; 202] = [
         "Individual ID",  //TOIO Num
         "0",  // #1
         "j1c",  // #2
@@ -242,7 +242,10 @@ fn return_toio_id(name: &str) -> &str{
         "56k",  // #195
         "0",  // #196
         "d0P",  // #197
-        "f60"  // #198
+        "f60",  // #198
+        "A32", //   #199
+        "71b",  //  #200
+        "a97"  //  #201
     ];
     match name.parse::<i32>() {
         Ok(n) => {
