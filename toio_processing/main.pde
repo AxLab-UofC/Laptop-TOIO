@@ -5,7 +5,7 @@ import netP5.*;
 //constants
 //The soft limit on how many toios a laptop can handle is in the 10-12 range
 //the more toios you connect to, the more difficult it becomes to sustain the connection
-int nCubes = 2;
+int nCubes = 4;
 int cubesPerHost = 12;
 int maxMotorSpeed = 115;
 int xOffset;
@@ -22,6 +22,7 @@ boolean WindowsMode = false; //When you enable this, it will check for connectio
 int framerate = 30;
 
 int[] matDimension = {45, 45, 455, 455};
+String[] hosts = {"127.0.0.1"};
 
 
 //for OSC
@@ -38,11 +39,12 @@ void settings() {
 
 
 void setup() {
-  //launch OSC sercer
+  //create OSC servers
   oscP5 = new OscP5(this, 3333);
-  server = new NetAddress[1];
-  server[0] = new NetAddress("127.0.0.1", 3334);
-
+  server = new NetAddress[hosts.length];
+  for (int i = 0; i < hosts.length; i++) {
+    server[i] = new NetAddress(hosts[i], 3334);
+  }
   //create cubes
   cubes = new Cube[nCubes];
   for (int i = 0; i< nCubes; ++i) {
@@ -55,12 +57,10 @@ void setup() {
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
   frameRate(framerate);
-  if(WindowsMode){
-  check_connection();
+  if (WindowsMode){
+    check_connection();
   }
 }
-
-
 
 void draw() {
   //START TEMPLATE/DEBUG VIEW
