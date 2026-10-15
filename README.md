@@ -20,7 +20,7 @@ cargo run -- -a 48,46
 
 NOTE: Do not uses spaces between the IDs.
 
-Using the `-a` flag allows us to connect using the AxLab ID. When needed, we can also use `-n` to connect directly to their internal name, or even combine the two. For example: `cargo run -- -n P1B` or `cargo run -- -a 46 -n P1B`
+Using the `-a` flag allows us to connect using the AxLab ID.
 
 ## Special Flags
 There are special flags for specific cases.
