@@ -68,10 +68,11 @@ class Cube {
     y = upy;
     theta = uptheta; 
     
-    //insert code here
-    
     lastUpdate = System.currentTimeMillis();
     isActive = true;
+    //insert code here
+    
+
   }
   
   // Updates battery values

@@ -1,6 +1,5 @@
 .DS_Store
 
-toio_rust/target/
-rust_bridge/target/
+**/target/
 
 env/

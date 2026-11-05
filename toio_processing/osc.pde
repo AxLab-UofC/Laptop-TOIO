@@ -345,9 +345,9 @@ int getHostId(String addr) {
 }
 
 void oscEvent(OscMessage msg) {
-  int id = (int) msg.arguments()[0];
+  int cubeId = (int) msg.arguments()[0];
   int hostId = getHostId(msg.address());
-  id = cubesPerHost * hostId + id;
+  int id = cubesPerHost * hostId + cubeId;
   
   if (msg.checkAddrPattern("/position")) {
     //this collects position information 

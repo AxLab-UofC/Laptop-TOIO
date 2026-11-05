@@ -422,12 +422,19 @@ pub struct ToioPeripheral {
     pub peripheral_id: platform::PeripheralId,
 }
 
-// Consolidated state struct to reduce lock overhead
+#[derive(Clone)]
+pub struct ToioLocation {
+    pub x: u16,
+    pub y: u16,
+}
+
 #[derive(Clone)]
 pub struct ToioState {
     pub battery: Option<u8>,
     pub last_update: Option<SystemTime>,
     pub last_command: Option<SystemTime>,
+    pub curr_loc: Option<ToioLocation>,
+    pub target_loc: Option<ToioLocation>,
 }
 
 impl ToioState {
@@ -436,6 +443,8 @@ impl ToioState {
             battery: None,
             last_update: None,
             last_command: None,
+            curr_loc: None,
+            target_loc: None,
         }
     }
 }
@@ -589,13 +598,12 @@ impl ToioScanner {
         filter: Option<Vec<String>>,
     ) -> bool {
         if let Some(properties) = peripheral.properties().await.unwrap() {
-            let fullname = properties.local_name.unwrap_or("".to_string());
-            if peripheral.is_connected().await.unwrap() || !fullname.contains(&"toio") {
+            let full_name = properties.local_name.unwrap_or("".to_string());
+            if peripheral.is_connected().await.unwrap() || !full_name.contains(&"toio") {
                 return false;
             }
 
-            let name: Vec<&str> = fullname.split('-').collect();
-            let toio_name = name.last().unwrap_or(&&" ").to_string();
+            let toio_name = get_toio_name(&full_name);
             if let Some(filter_list) = filter {
                 if !filter_list.contains(&toio_name) {
                     return false;
@@ -931,7 +939,7 @@ impl Toio {
     pub fn new(toio: ToioPeripheral) -> Toio {
         return Toio {
             name: toio.name.clone(),
-            id: if let Some(id) = return_toio_id(&toio.name) {
+            id: if let Some(id) = get_toio_id(&toio.name) {
                 format!("{}", id)
             } else {
                 "N/A".to_owned()
@@ -963,9 +971,21 @@ impl Toio {
     }
 }
 
+pub fn get_toio_name(name: &str) -> String {
+    let name = IDARR
+        .iter()
+        .find(|r| toio_name_variants(r).iter().any(|x| x == name));
+
+    if let Some(toio_name) = name {
+        return format!("{}", toio_name);
+    } else {
+        return "N/A".to_string();
+    }
+}
+
 /// matches UUIDs of toios a string of their corresponding service
 pub fn uuid_to_string(uuid: Uuid) -> String {
-    return match uuid {
+    match uuid {
         SERVICE => "Service",
         POSITION => "Position",
         MOTOR => "Motor",
@@ -977,7 +997,17 @@ pub fn uuid_to_string(uuid: Uuid) -> String {
         CONFIG => "Config",
         _ => "",
     }
-    .to_owned();
+    .to_owned()
+}
+
+fn toio_name_variants(id: &str) -> Vec<String> {
+    vec![
+        format!("toio Core Cube-{}", id), // old firmware
+        format!("toio-{} (AxLab-KN:0A.001)", id),
+        format!("toio-{} (AxLab-KN", id),
+        format!("toio-{}", id), // new firmware
+        format!("toio-{} (toio Core Cube)", id),
+    ]
 }
 
 // parse a multi-targeting command
@@ -1026,6 +1056,6 @@ fn parse_midi_command(repetitions: u8, vals: Vec<MidiCommand>) -> Vec<u8> {
 }
 
 // return the toio ID that corresponds to a specific toio
-fn return_toio_id(name: &str) -> Option<usize> {
+fn get_toio_id(name: &str) -> Option<usize> {
     return IDARR.iter().position(|&r| r == name);
 }

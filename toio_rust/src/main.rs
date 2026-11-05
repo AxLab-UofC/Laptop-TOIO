@@ -80,7 +80,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // server and client address
     let host_addr = format!("0.0.0.0:{}", args.port.unwrap_or(3334));
-    let to_addr = format!("0.0.0.0:{}", args.remote.unwrap_or(3333));
+    let to_addr = format!("127.0.0.1:{}", args.remote.unwrap_or(3333));
     if args.terminal {
         println!(
             "Listening on port {} and sending to port {}",
@@ -148,10 +148,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         // Update state based on update type
                                         {
                                             let mut state_write = state.write().await;
-                                            if let Update::Battery { level } = update {
-                                                state_write.battery = Some(level);
-                                            }
                                             state_write.last_update = Some(SystemTime::now());
+
+                                            match update {
+                                                Update::Battery { level } => {
+                                                    state_write.battery = Some(level);
+                                                }
+                                                Update::Position {
+                                                    x_center, y_center, ..
+                                                } => {
+                                                    state_write.curr_loc = Some(ToioLocation {
+                                                        x: x_center,
+                                                        y: y_center,
+                                                    });
+                                                }
+                                                _ => {}
+                                            }
                                         }
 
                                         send_packet(&sock, &to_addr, id, update, args.terminal);
@@ -212,58 +224,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let connected_read = connected_clone.read().await;
 
         // get info from all of the toios
-        let toio_info = join_all(connected_read.iter().map(|toio_guard| async {
-            let toio = toio_guard.read().await;
-            let name = toio.name.clone();
-            let id = toio.id.clone();
-
-            // Read toio state
-            let state = toio.state.read().await;
-            let connected = toio.connected;
-
-            // get battery level
-            let battery_string = if let Some(level) = state.battery {
-                format!("{}", level)
-            } else {
-                "N/A".to_string()
-            };
-
-            // get time of last update
-            let last_update_string = if let Some(last) = state.last_update {
-                if let Ok(time) = last.elapsed() {
-                    format_elapsed_time(time)
-                } else {
-                    "N/A".to_string()
-                }
-            } else {
-                "N/A".to_string()
-            };
-
-            // get time of last command
-            let last_command_string = if let Some(last) = state.last_command {
-                if let Ok(time) = last.elapsed() {
-                    format_elapsed_time(time)
-                } else {
-                    "N/A".to_string()
-                }
-            } else {
-                "N/A".to_string()
-            };
-
-            (
-                name,
-                id,
-                battery_string,
-                last_update_string,
-                last_command_string,
-                connected,
-            )
-        }))
-        .await;
+        let toio_info = join_all(connected_read.iter().map(create_toio_info)).await;
 
         // update UI
         if let Some(ref mut toio_ui) = terminal {
-            toio_ui.draw(ui(toio_info, args.axlab_id.clone()))?;
+            toio_ui.draw(create_toio_ui(toio_info, args.axlab_id.clone()))?;
         }
 
         // exit terminal if "Q" key is pressed
@@ -271,16 +236,5 @@ async fn main() -> Result<(), Box<dyn Error>> {
             exit_terminal()?;
             process::exit(0);
         }
-    }
-}
-
-// Helper function to format elapsed time
-fn format_elapsed_time(time: Duration) -> String {
-    if time.as_millis() < 50 {
-        "<50ms".to_string()
-    } else if time.as_secs() < 1 {
-        format!(">{}ms", time.as_millis() - (time.as_millis() % 100))
-    } else {
-        format!("{}s", time.as_secs())
     }
 }
