@@ -1,3 +1,5 @@
+String[] hosts = { "127.0.0.1" }; // list of IP hosts that are connecting to this instance of Laptop-TOIO
+
 //basic motor control (simplified), specification found at:
 //can use negative numbers to move toio backwards
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control

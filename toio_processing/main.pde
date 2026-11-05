@@ -1,9 +1,6 @@
 import oscP5.*;
 import netP5.*;
 
-
-
-
 //// Instruction for Windows Users  (Feb 2. 2025) ////
 // 1. Enable WindowsMode and set nCubes to the exact number of toio you are connecting.
 // 2. Run Processing Code FIRST, Then Run the Rust Code. After running the Rust Code, you should place the toio on the toio mat, then Processing should start showing the toio position.
@@ -12,25 +9,20 @@ import netP5.*;
 // 
 boolean WindowsMode = false; //When you enable this, it will check for connection with toio via Rust first, before starting void loop()
 
-int framerate = 30;
-
-int[] matDims = { 45, 45, 455, 455 }; // Mat Dimensions, expressed as { x1, y1, x2, y2 };
-String[] hosts = { "127.0.0.1" }; // list of IP hosts that are connecting to this instance of Laptop-TOIO
-
-
-OscP5 oscP5; // for OSC
-NetAddress[] server; // where to send the commands to
-
 // constants
 // The soft limit on how many toios a laptop can handle is in the 10-12 range
 // the more toios you connect to, the more difficult it becomes to sustain the connection
+int[] matDims = { 45, 45, 455, 455 }; // Mat Dimensions, expressed as { x1, y1, x2, y2 };
 int nCubes = 4;
 int cubesPerHost = 12;
 int maxMotorSpeed = 115;
 int xOffset = matDims[0] - 45;
 int yOffset = matDims[1] - 45;
+int framerate = 30;
 
 Cube[] cubes;
+OscP5 oscP5; // for OSC
+NetAddress[] server; // where to send the commands to
 
 void settings() {
   size(matDims[2] + 45, matDims[3] + 45);

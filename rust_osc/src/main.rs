@@ -857,7 +857,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     println!("{:?}", cmd);
                                     p2.write(&characteristic, &cmd, WriteType::WithResponse)
                                         .await
-                                        .unwrap();3
+                                        .unwrap();
                                 }
                                 "/motion" => {
                                     let characteristic = Characteristic {
