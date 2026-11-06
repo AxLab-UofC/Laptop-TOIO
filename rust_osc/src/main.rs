@@ -604,9 +604,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 .collect();
 
                             match message.addr.as_ref() {
-                                "/motorbasic" => {
-                                    if vals.len() == 5 {
-                                        //we should have 5 args
+                                "/motorBasic" => {
+                                    if vals.len() == 5 { // we should have 5 args
                                         println!("Message received");
 
                                         let characteristic = Characteristic {
@@ -630,9 +629,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         //error
                                     }
                                 }
-                                "/motorduration" => {
-                                    if message.args.len() == 6 {
-                                        //we should have 5 args
+                                "/motorDuration" => {
+                                    if vals.len() == 6 {  // we should have 5 args
                                         println!("Message received");
 
                                         let characteristic = Characteristic {
@@ -657,9 +655,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         //error
                                     }
                                 }
-                                "/motortarget" => {
-                                    if message.args.len() == 5 {
-                                        //we should have 5 args
+                                "/motorTarget" => {
+                                    if vals.len() == 5 { // we should have 5 args
                                         let characteristic = Characteristic {
                                             uuid: MOTOR_CHARACTERISTIC_UUID,
                                             service_uuid: TOIO_SERVICE_UUID,
@@ -674,16 +671,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             0x00,                               //motor speed changes
                                             0x00,                               //reserved
                                             (vals[2].abs() & 0x00FF) as u8,     //x value of target
-                                            ((vals[2].abs() & 0xFF00) >> 8) as u8, 
+                                            ((vals[2].abs() & 0xFF00) >> 8) as u8,
                                             (vals[3].abs() & 0x00FF) as u8,     //y value of target
-                                            ((vals[3].abs() & 0xFF00) >> 8) as u8, 
+                                            ((vals[3].abs() & 0xFF00) >> 8) as u8,
                                             (vals[4].abs() & 0x00FF) as u8,     //θ value of target
-                                            ((vals[4].abs() & 0xFF00) >> 8) as u8, 
+                                            ((vals[4].abs() & 0xFF00) >> 8) as u8,
                                         ];
                                         p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
                                             .await
                                             .unwrap();
-                                    } else if message.args.len() == 9 {
+                                    } else if vals.len() == 9 {
                                         //we should have 9 args
                                         let characteristic = Characteristic {
                                             uuid: MOTOR_CHARACTERISTIC_UUID,
@@ -712,35 +709,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         //error
                                     }
                                 }
-                                "/multitargetsimple" => {
-                                    let characteristic = Characteristic {
-                                        uuid: MOTOR_CHARACTERISTIC_UUID,
-                                        service_uuid: TOIO_SERVICE_UUID,
-                                        properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
-                                    };
-                                    let mut cmd = vec![
-                                        0x04,                   //multi target
-                                        0x00,                               //control distinction value
-                                        0x05,                               //timeout period
-                                        vals[1].abs() as u8,                //movement type
-                                        0x50,                               //maximum motor speed
-                                        0x00,                               //motor speed changes
-                                        0x00,                               //reserved
-                                        0x01,                   //Write operation addition setting
-                                    ];
-
-                                    for k in 2..message.args.len() {
-                                        if let OscType::Int(i) = message.args[k] {
-                                            cmd.push((i.abs() & 0x00FF) as u8);
-                                            cmd.push(((i.abs() & 0xFF00) >> 8) as u8);
-                                        }
-                                    }
-
-                                    p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
-                                    .await
-                                    .unwrap();
-                                }
-                                "/multitarget" => {
+                                "/multiTarget" => {
                                     let characteristic = Characteristic {
                                         uuid: MOTOR_CHARACTERISTIC_UUID,
                                         service_uuid: TOIO_SERVICE_UUID,
@@ -757,7 +726,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         0x01,                   //Write operation addition setting
                                     ];
 
-                                    for k in 6..message.args.len() {
+                                    for k in 6..vals.len() {
                                         if let OscType::Int(i) = message.args[k] {
                                             cmd.push((i.abs() & 0x00FF) as u8);
                                             cmd.push(((i.abs() & 0xFF00) >> 8) as u8);
@@ -768,9 +737,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     .await
                                     .unwrap();
                                 }
-                                "/motoracceleration" => {
-                                    if message.args.len() == 8 {
-                                        //we should have 4 args
+                                "/motorAcceleration" => {
+                                    if vals.len() == 8 { // we should have 7 args
                                         let characteristic = Characteristic {
                                             uuid: MOTOR_CHARACTERISTIC_UUID,
                                             service_uuid: TOIO_SERVICE_UUID,
@@ -816,8 +784,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         .unwrap();
                                 }
                                 "/sound" => {
-                                    if message.args.len() == 3 {
-                                        //we should have 3 args
+                                    if vals.len() == 3 { // we should have 3 args
+                                        
                                         let characteristic = Characteristic {
                                             uuid: SOUND_CHARACTERISTIC_UUID,
                                             service_uuid: TOIO_SERVICE_UUID,
@@ -887,7 +855,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         .await
                                         .unwrap();
                                 }
-                                "/postureeuler" => {
+                                "/postureEuler" => {
                                     let characteristic = Characteristic {
                                         uuid: MOTION_CHARACTERISTIC_UUID,
                                         service_uuid: TOIO_SERVICE_UUID,
@@ -902,7 +870,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         .await
                                         .unwrap();
                                 }
-                                "/posturequaternion" => {
+                                "/postureQuaternion" => {
                                     let characteristic = Characteristic {
                                         uuid: MOTION_CHARACTERISTIC_UUID,
                                         service_uuid: TOIO_SERVICE_UUID,
@@ -1060,7 +1028,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                         let speedleft = data.value[1];
                                         let speedright = data.value[2];
                                         let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                            addr: "/speedresponse".to_string(),
+                                            addr: "/motorSpeed".to_string(),
                                             args: vec![
                                                 OscType::Int(id as i32),
                                                 OscType::Int(speedleft as i32),
@@ -1123,7 +1091,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             let yaw = data.value[3];
 
                                             let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                                addr: "/postureeuler".to_string(),
+                                                addr: "/postureEuler".to_string(),
                                                 args: vec![
                                                     OscType::Int(id as i32),
                                                     OscType::Int(roll as i32),
@@ -1134,24 +1102,32 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             .unwrap();
         
                                             tx3.send((msg, remote_addr)).await.unwrap();
-                                        } else {
-                                            let w = data.value[2];
-                                            let x = data.value[2];
-                                            let y = data.value[3];
-                                            let z = data.value[3];
+                                        } else if data.value[1] == 0x02 && data.value.len() >= 18 {
+                                            let float_at = |i: usize| {
+                                                f32::from_le_bytes([
+                                                    data.value[i],
+                                                    data.value[i + 1],
+                                                    data.value[i + 2],
+                                                    data.value[i + 3],
+                                                ])
+                                            };
+                                            let w = float_at(2);
+                                            let x = float_at(6);
+                                            let y = float_at(10);
+                                            let z = float_at(14);
 
                                             let msg = encoder::encode(&OscPacket::Message(OscMessage {
-                                                addr: "/posturequaternion".to_string(),
+                                                addr: "/postureQuaternion".to_string(),
                                                 args: vec![
                                                     OscType::Int(id as i32),
-                                                    OscType::Int(w as i32),
-                                                    OscType::Int(x as i32),
-                                                    OscType::Int(y as i32),
-                                                    OscType::Int(z as i32)
+                                                    OscType::Float(w),
+                                                    OscType::Float(x),
+                                                    OscType::Float(y),
+                                                    OscType::Float(z)
                                                 ],
                                             }))
                                             .unwrap();
-        
+
                                             tx3.send((msg, remote_addr)).await.unwrap();
                                         }
                                     }

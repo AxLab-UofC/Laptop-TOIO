@@ -44,10 +44,10 @@ class Cube {
   int yaw;
   
   // posture (quaternions)
-  int qx;
-  int qy;
-  int qw;
-  int qz;
+  float qx;
+  float qy;
+  float qw;
+  float qz;
   
   Cube(int i) {
     id = i;
@@ -120,7 +120,7 @@ class Cube {
   }
   
   //Updates posture values (quaternion)
-  void onPostureUpdate(int upw, int upx, int upy, int upz) {
+  void onPostureUpdate(float upw, float upx, float upy, float upz) {
     qw = upw;
     qx = upx;
     qy = upy;
@@ -197,7 +197,7 @@ class Cube {
   //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   //control, timeout, maxspeed, and speed change are preset
   void target(int mode, int x, int y, int theta) {
-    motorTarget(id, mode, 5, 0, 80, 0, x, y, theta);
+    motorTarget(id, 0, 5, mode, 80, 0, x, y, theta);
     ready = false;
     targetX = x;
     targetY = y;
@@ -236,7 +236,7 @@ class Cube {
   //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
   //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
   void multiTarget(int mode, int[][] targets) {
-    motorMultiTarget(id, mode, 5, 0, 80, 0, targets);
+    motorMultiTarget(id, 0, 5, mode, 80, 0, targets);
   }
   
   //motor control with multiple targets specified (advanced), specification found at:

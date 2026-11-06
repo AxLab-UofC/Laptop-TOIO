@@ -1,13 +1,48 @@
-use std::io::{self};
-use std::net::UdpSocket;
-use std::time::SystemTime;
-
+use crate::cmd::*;
+use crate::updates::Update;
+use crossterm::event::{self, Event, KeyCode};
 use rosc::encoder;
 use rosc::{OscMessage, OscPacket, OscType};
+use std::io::{self};
+use std::net::SocketAddr;
+use std::time::SystemTime;
+use tokio::net::UdpSocket;
 
-use crossterm::event::{self, Event, KeyCode};
+pub enum CommandResult {
+    Success {
+        toio_num: usize,
+        cmd: Command,
+    },
+    Error {
+        toio_num: usize,
+        name: String,
+        vals: Vec<i32>,
+    },
+    NoMatch {
+        toio_num: usize,
+        name: String,
+        vals: Vec<i32>,
+    },
+    None,
+}
 
-use crate::toio::*;
+type CmdValidator = fn(&[i32]) -> bool; // validate that an OSC message is a valid command
+type CmdBuilder = fn(&[i32]) -> Command; // build a command from a valid OSC message
+
+// builds a vector array of OSC i32
+macro_rules! OscInts {
+    ($($val:expr),* $(,)?) => {
+        vec![$(OscType::Int($val as i32)),*]
+    };
+}
+
+fn exact<const N: usize>(vals: &[i32]) -> bool {
+    vals.len() == N
+}
+
+fn chunked<const MIN: usize, const SIZE: usize>(vals: &[i32]) -> bool {
+    vals.len() >= MIN && (vals.len() - MIN) % SIZE == 0
+}
 
 pub fn handle_events() -> io::Result<bool> {
     if event::poll(std::time::Duration::from_millis(50))? {
@@ -20,7 +55,7 @@ pub fn handle_events() -> io::Result<bool> {
     Ok(false)
 }
 
-pub fn handle_packet(packet: OscPacket, show_terminal: bool) -> Option<(usize, Command)> {
+pub fn handle_packet(packet: OscPacket) -> CommandResult {
     match packet {
         OscPacket::Message(msg) => {
             let vals: Vec<i32> = msg
@@ -31,23 +66,24 @@ pub fn handle_packet(packet: OscPacket, show_terminal: bool) -> Option<(usize, C
                     _ => None,
                 })
                 .collect();
+            let toio_num = vals[0] as usize;
 
-            // extract command
-            let cmd: Option<Command> = match msg.addr.as_ref() {
-                "/motorbasic" => Some(Command::MotorControl {
+            // look up the command's expected arity and how to build it
+            let (match_cmd, build_cmd): (CmdValidator, CmdBuilder) = match msg.addr.as_ref() {
+                "/motorBasic" => (exact::<5>, |vals| Command::MotorControl {
                     left_direction: vals[1] as u8,
-                    left_speed: vals[2] as u8,
+                    left_speed: vals[2].abs() as u8,
                     right_direction: vals[3] as u8,
-                    right_speed: vals[4] as u8,
+                    right_speed: vals[4].abs() as u8,
                 }),
-                "/motorduration" => Some(Command::MotorDuration {
+                "/motorDuration" => (exact::<6>, |vals| Command::MotorDuration {
                     left_direction: vals[1] as u8,
-                    left_speed: vals[2] as u8,
+                    left_speed: vals[2].abs() as u8,
                     right_direction: vals[3] as u8,
-                    right_speed: vals[4] as u8,
+                    right_speed: vals[4].abs() as u8,
                     duration: vals[5] as u8,
                 }),
-                "/motortarget" => Some(Command::MotorTarget {
+                "/motorTarget" => (exact::<9>, |vals| Command::MotorTarget {
                     control: vals[1] as u8,
                     timeout: vals[2] as u8,
                     move_type: vals[3] as u8,
@@ -57,7 +93,7 @@ pub fn handle_packet(packet: OscPacket, show_terminal: bool) -> Option<(usize, C
                     y_target: vals[7] as u16,
                     theta_target: vals[8] as u16,
                 }),
-                "/motoracceleration" => Some(Command::MotorAcceleration {
+                "/motorAcceleration" => (exact::<8>, |vals| Command::MotorAcceleration {
                     velocity: vals[1] as u8,
                     acceleration: vals[2] as u8,
                     rotational_velocity: vals[3] as u16,
@@ -66,7 +102,7 @@ pub fn handle_packet(packet: OscPacket, show_terminal: bool) -> Option<(usize, C
                     priority: vals[6] as u8,
                     duration: vals[7] as u8,
                 }),
-                "/multitarget" => Some(Command::MultiTarget {
+                "/multiTarget" => (chunked::<9, 3>, |vals| Command::MultiTarget {
                     control: vals[1] as u8,
                     timeout: vals[2] as u8,
                     move_type: vals[3] as u8,
@@ -82,7 +118,7 @@ pub fn handle_packet(packet: OscPacket, show_terminal: bool) -> Option<(usize, C
                         })
                         .collect(),
                 }),
-                "/led" => Some(Command::MultiLed {
+                "/led" => (chunked::<6, 4>, |vals| Command::MultiLed {
                     repetitions: vals[1] as u8,
                     lights: vals[2..]
                         .chunks(4)
@@ -94,11 +130,11 @@ pub fn handle_packet(packet: OscPacket, show_terminal: bool) -> Option<(usize, C
                         })
                         .collect(),
                 }),
-                "/sound" => Some(Command::Sound {
+                "/sound" => (exact::<3>, |vals| Command::Sound {
                     sound_effect: vals[1] as u8,
                     volume: vals[2] as u8,
                 }),
-                "/midi" => Some(Command::Midi {
+                "/midi" => (chunked::<5, 3>, |vals| Command::Midi {
                     repetitions: vals[1] as u8,
                     notes: vals[2..]
                         .chunks(3)
@@ -109,39 +145,54 @@ pub fn handle_packet(packet: OscPacket, show_terminal: bool) -> Option<(usize, C
                         })
                         .collect(),
                 }),
-                _ => None,
+                "/motion" => (exact::<1>, |_| Command::MotionRequest),
+                "/magnetic" => (exact::<1>, |_| Command::MagneticRequest),
+                "/postureEuler" => (exact::<1>, |_| Command::PostureRequest { format: 0x01 }),
+                "/postureQuaternion" => (exact::<1>, |_| Command::PostureRequest { format: 0x02 }),
+                _ => {
+                    return CommandResult::NoMatch {
+                        toio_num,
+                        name: msg.addr,
+                        vals,
+                    }
+                }
             };
 
-            if show_terminal {
-                println!("[{:?}] Command Sent: {:?}", SystemTime::now(), cmd);
+            if match_cmd(&vals) {
+                CommandResult::Success {
+                    toio_num,
+                    cmd: build_cmd(&vals),
+                }
+            } else {
+                CommandResult::Error {
+                    toio_num,
+                    name: msg.addr,
+                    vals,
+                }
             }
-
-            // Return pair of (toioID, cmd)
-            cmd.map(|cmd| (vals[0] as usize, cmd))
         }
-        _ => None,
+        _ => CommandResult::None,
     }
 }
 
 pub fn send_packet(
     socket: &UdpSocket,
-    to_addr: &str,
+    to_addr: SocketAddr,
     id: usize,
     update: Update,
     show_terminal: bool,
 ) {
-    let vals: Option<(&str, Vec<i32>)> = match update {
+    let vals: Option<(&str, Vec<OscType>)> = match update {
         Update::Position {
             x_center,
             y_center,
             theta,
             ..
-        } => Some((
-            "/position",
-            vec![x_center as i32, y_center as i32, theta as i32],
-        )),
-        Update::Battery { level } => Some(("/battery", vec![level as i32])),
-        Update::Button { pressed } => Some(("/button", vec![if pressed { 0x80 } else { 0x00 }])),
+        } => Some(("/position", OscInts![x_center, y_center, theta])),
+        Update::Battery { level } => Some(("/battery", OscInts![level])),
+        Update::Button { pressed } => {
+            Some(("/button", OscInts![if pressed { 0x80 } else { 0x00 }]))
+        }
         Update::Motion {
             horizontal,
             collision,
@@ -150,35 +201,32 @@ pub fn send_packet(
             shake,
         } => Some((
             "/motion",
-            vec![
-                horizontal as i32,
-                collision as i32,
-                double_tap as i32,
-                posture as i32,
-                shake as i32,
-            ],
+            OscInts![horizontal, collision, double_tap, posture, shake],
         )),
         Update::MotorTargetResponse { control, response } => {
-            Some(("/motorresponse", vec![control as i32, response as i32]))
+            Some(("/motorresponse", OscInts![control, response]))
         }
         Update::MultiTargetResponse { control, response } => {
-            Some(("/motorresponse", vec![control as i32, response as i32]))
+            Some(("/motorresponse", OscInts![control, response]))
         }
-        Update::Standard { standard, theta } => {
-            Some(("/standard", vec![standard as i32, theta as i32]))
-        }
+        Update::Standard { standard, theta } => Some(("/standard", OscInts![standard, theta])),
         Update::PositionMissed => Some(("/positionMissed", vec![])),
         Update::StandardMissed => Some(("/standardMissed", vec![])),
         Update::MotorSpeed {
             left_speed,
             right_speed,
-        } => Some(("/motorSpeed", vec![left_speed as i32, right_speed as i32])),
+        } => Some(("/motorSpeed", OscInts![left_speed, right_speed])),
         Update::PostureEuler { roll, pitch, yaw } => {
-            Some(("/postureEuler", vec![roll as i32, pitch as i32, yaw as i32]))
+            Some(("/postureEuler", OscInts![roll, pitch, yaw]))
         }
         Update::PostureQuaternion { w, x, y, z } => Some((
-            "/PostureQuaternion",
-            vec![w as i32, x as i32, y as i32, z as i32],
+            "/postureQuaternion",
+            vec![
+                OscType::Float(w),
+                OscType::Float(x),
+                OscType::Float(y),
+                OscType::Float(z),
+            ],
         )),
         Update::Magnetic {
             state,
@@ -188,13 +236,7 @@ pub fn send_packet(
             forcez,
         } => Some((
             "/magnetic",
-            vec![
-                state as i32,
-                strength as i32,
-                forcex as i32,
-                forcey as i32,
-                forcez as i32,
-            ],
+            OscInts![state, strength, forcex, forcey, forcez],
         )),
         _ => None,
     };
@@ -211,14 +253,12 @@ pub fn send_packet(
 
         let msg = encoder::encode(&OscPacket::Message(OscMessage {
             addr: addr.to_string(),
-            args: vec![id as i32]
-                .iter()
-                .chain(args.iter())
-                .map(|x| OscType::Int(*x))
+            args: std::iter::once(OscType::Int(id as i32))
+                .chain(args)
                 .collect(),
         }))
         .unwrap();
 
-        let _ = socket.send_to(&msg, to_addr);
+        let _ = socket.try_send_to(&msg, to_addr);
     }
 }

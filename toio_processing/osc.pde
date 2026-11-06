@@ -6,7 +6,7 @@ String[] hosts = { "127.0.0.1" }; // list of IP hosts that are connecting to thi
 void motorBasic(int cubeId, int leftspeed, int rightspeed) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motorbasic");
+  OscMessage msg = new OscMessage("/motorBasic");
   msg.add(actualcubeid);
   if (leftspeed < 0) {
     msg.add(0x01);
@@ -28,7 +28,7 @@ void motorBasic(int cubeId, int leftspeed, int rightspeed) {
 void motorBasic(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motorbasic");
+  OscMessage msg = new OscMessage("/motorBasic");
   msg.add(actualcubeid);
   if (leftforwards) {
     msg.add(0x01);
@@ -51,7 +51,7 @@ void motorBasic(int cubeId, boolean leftforwards, int leftspeed, boolean rightfo
 void motorDuration(int cubeId, int leftspeed, int rightspeed, int duration) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motorduration");
+  OscMessage msg = new OscMessage("/motorDuration");
   msg.add(actualcubeid);
   if (leftspeed < 0) {
     msg.add(0x01);
@@ -74,7 +74,7 @@ void motorDuration(int cubeId, int leftspeed, int rightspeed, int duration) {
 void motorDuration(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed, int duration) {
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motorduration");
+  OscMessage msg = new OscMessage("/motorDuration");
   msg.add(actualcubeid);
   if (leftforwards) {
     msg.add(0x01);
@@ -92,27 +92,12 @@ void motorDuration(int cubeId, boolean leftforwards, int leftspeed, boolean righ
   oscP5.send(msg, server[hostId]);
 }
 
-//motor control with target specified (simplified), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-//control, timeout, maxspeed, and speed change are preset
-void motorTarget(int cubeId, int mode, int x, int y, int theta){
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motortarget");
-  msg.add(actualcubeid);
-  msg.add(mode);
-  msg.add(x);
-  msg.add(y);
-  msg.add(theta);
-  oscP5.send(msg, server[hostId]);
-}
-
 //motor control with target specified (advanced), specification found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
 void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/motortarget");
+  OscMessage msg = new OscMessage("/motorTarget");
   msg.add(actualcubeid);
   msg.add(control);
   msg.add(timeout);
@@ -125,34 +110,13 @@ void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
   oscP5.send(msg, server[hostId]);
 }
 
-//motor control with multiple targets specified (simplified), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
-void motorMultiTarget(int cubeId, int mode, int[][] targets) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/multitargetsimple");
-  msg.add(actualcubeid);
-  msg.add(mode);
-  for (int i = 0; i < targets.length; i++) {
-    for (int j = 0; j < targets[i].length; j++) {
-      msg.add(targets[i][j]);
-    }
-    
-    if (targets[i].length == 2) {
-      msg.add(0);
-    }
-  }
-  oscP5.send(msg, server[hostId]);
-}
-
 //motor control with multiple targets specified (advanced), specification found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
 //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
 void motorMultiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets){
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
-  OscMessage msg = new OscMessage("/multitarget");
+  OscMessage msg = new OscMessage("/multiTarget");
   msg.add(actualcubeid);
   msg.add(control);
   msg.add(timeout);
@@ -175,7 +139,7 @@ void motorMultiTarget(int cubeId, int control, int timeout, int mode, int maxspe
 //motor control with acceleration specified, specification can be found at:
 //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
 void motorAcceleration(int cubeId, int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration){
-  OscMessage msg = new OscMessage("/motoracceleration");
+  OscMessage msg = new OscMessage("/motorAcceleration");
   int hostId = cubeId/cubesPerHost;
   int actualcubeid = cubeId % cubesPerHost;
   msg.add(actualcubeid);
@@ -310,7 +274,7 @@ void magneticRequest(int[] cubeId) {
 void postureRequest(int cubeId) {
     int hostId = cubeId/cubesPerHost;
     int actualcubeid = cubeId % cubesPerHost;
-    OscMessage msg = new OscMessage("/postureeuler");
+    OscMessage msg = new OscMessage("/postureEuler");
     msg.add(actualcubeid);
     oscP5.send(msg, server[hostId]);
 }
@@ -322,9 +286,9 @@ void postureRequest(int cubeId, boolean euler) {
     int actualcubeid = cubeId % cubesPerHost;
     OscMessage msg;
     if (euler) {
-      msg = new OscMessage("/postureeuler");
+      msg = new OscMessage("/postureEuler");
     } else {
-      msg = new OscMessage("/posturequaternion");
+      msg = new OscMessage("/postureQuaternion");
     }
      msg.add(actualcubeid);
      oscP5.send(msg, server[hostId]);
@@ -389,7 +353,7 @@ void oscEvent(OscMessage msg) {
     cubes[id].onMagneticUpdate(state, strength, forcex, forcey, forcez);
   }
   
-  else if (msg.checkAddrPattern("/postureeuler")) {
+  else if (msg.checkAddrPattern("/postureEuler")) {
     //this collects posture sensor information (in eulers)
     int roll = (int) msg.arguments()[1];
     int pitch = (int) msg.arguments()[2];
@@ -398,12 +362,12 @@ void oscEvent(OscMessage msg) {
     cubes[id].onPostureUpdate(roll, pitch, yaw);
   } 
   
-  else if (msg.checkAddrPattern("/posturequaternion")) {
+  else if (msg.checkAddrPattern("/postureQuaternion")) {
     //this collects posture sensor information (in quaternion)
-    int w = (int) msg.arguments()[1];
-    int x = (int) msg.arguments()[2];
-    int y = (int) msg.arguments()[3];
-    int z = (int) msg.arguments()[4];
+    float w = (float) msg.arguments()[1];
+    float x = (float) msg.arguments()[2];
+    float y = (float) msg.arguments()[3];
+    float z = (float) msg.arguments()[4];
     
     cubes[id].onPostureUpdate(w, x, y, z);
   } 
