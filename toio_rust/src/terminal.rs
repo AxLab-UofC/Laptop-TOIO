@@ -1,6 +1,7 @@
-use crate::toio::{Toio, ToioLocation};
+use crate::{or_na, toio::*};
 use crossterm::{
     cursor::Show,
+    event::{self, Event, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
@@ -8,10 +9,8 @@ use ratatui::{
     prelude::*,
     widgets::{block::*, *},
 };
-use std::io::stdout;
-use std::sync::Arc;
-use std::time::Duration;
-use std::{error::Error, time::SystemTime};
+use std::io;
+use std::{error::Error, io::stdout, sync::Arc, time::Duration, time::SystemTime};
 use tokio::sync::RwLock;
 
 pub type ToioUI = Option<Terminal<CrosstermBackend<std::io::Stdout>>>;
@@ -65,6 +64,7 @@ pub fn create_toio_ui(toio_info: Vec<ToioInfo>, filter: Option<Vec<usize>>) -> i
     move |frame| {
         let area = frame.size();
 
+        // construct header element for "Search Mode" or Filtered List
         let connected_ids: Vec<String> = toio_info.iter().map(|val| val.id.clone()).collect();
         let filter_list = match &filter {
             Some(toio_filter) => {
@@ -79,8 +79,8 @@ pub fn create_toio_ui(toio_info: Vec<ToioInfo>, filter: Option<Vec<usize>>) -> i
                         };
 
                         match connected_ids.contains(&id_string) {
-                            true => Span::from(formatted_id).style(Style::new().white()),
-                            false => Span::from(formatted_id).style(Style::new().green()),
+                            true => Span::from(formatted_id).style(Style::new().green()),
+                            false => Span::from(formatted_id).style(Style::new().white()),
                         }
                     })
                     .collect();
@@ -161,6 +161,17 @@ pub fn exit_terminal() -> Result<(), Box<dyn Error>> {
     stdout().execute(Show)?;
     stdout().execute(LeaveAlternateScreen)?;
     Ok(())
+}
+
+pub fn handle_events() -> io::Result<bool> {
+    if event::poll(std::time::Duration::from_millis(50))? {
+        if let Event::Key(key) = event::read()? {
+            if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('q') {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
 }
 
 fn format_time(time: Option<SystemTime>) -> String {

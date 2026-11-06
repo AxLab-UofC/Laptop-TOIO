@@ -1,11 +1,6 @@
-use crate::cmd::*;
-use crate::updates::Update;
-use crossterm::event::{self, Event, KeyCode};
-use rosc::encoder;
-use rosc::{OscMessage, OscPacket, OscType};
-use std::io::{self};
+use crate::{cmd::*, updates::*, OscInts};
+use rosc::{encoder, OscMessage, OscPacket, OscType};
 use std::net::SocketAddr;
-use std::time::SystemTime;
 use tokio::net::UdpSocket;
 
 pub enum CommandResult {
@@ -29,30 +24,12 @@ pub enum CommandResult {
 type CmdValidator = fn(&[i32]) -> bool; // validate that an OSC message is a valid command
 type CmdBuilder = fn(&[i32]) -> Command; // build a command from a valid OSC message
 
-// builds a vector array of OSC i32
-macro_rules! OscInts {
-    ($($val:expr),* $(,)?) => {
-        vec![$(OscType::Int($val as i32)),*]
-    };
-}
-
 fn exact<const N: usize>(vals: &[i32]) -> bool {
     vals.len() == N
 }
 
 fn chunked<const MIN: usize, const SIZE: usize>(vals: &[i32]) -> bool {
     vals.len() >= MIN && (vals.len() - MIN) % SIZE == 0
-}
-
-pub fn handle_events() -> io::Result<bool> {
-    if event::poll(std::time::Duration::from_millis(50))? {
-        if let Event::Key(key) = event::read()? {
-            if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('q') {
-                return Ok(true);
-            }
-        }
-    }
-    Ok(false)
 }
 
 pub fn handle_packet(packet: OscPacket) -> CommandResult {
@@ -243,12 +220,7 @@ pub fn send_packet(
 
     if let Some((addr, args)) = vals {
         if show_terminal {
-            println!(
-                "[{:?}] Update Received [{}]: {:?}",
-                SystemTime::now(),
-                addr,
-                args
-            )
+            println!("Update Received [{}]: {:?}", addr, args)
         }
 
         let msg = encoder::encode(&OscPacket::Message(OscMessage {

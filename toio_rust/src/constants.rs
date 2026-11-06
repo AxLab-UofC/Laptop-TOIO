@@ -10,9 +10,6 @@ pub const BUTTON: Uuid = Uuid::from_u128(0x10B20107_5B3B_4571_9508_CF3EFCD7BBAE)
 pub const BATTERY: Uuid = Uuid::from_u128(0x10B20108_5B3B_4571_9508_CF3EFCD7BBAE);
 pub const CONFIG: Uuid = Uuid::from_u128(0x10B201FF_5B3B_4571_9508_CF3EFCD7BBAE);
 
-// How many commands for a toio can be queued up at once.
-pub const COMMAND_QUEUE_SIZE: usize = 32;
-
 pub const IDARR: [&str; 202] = [
     "Individual ID", // TOIO Num
     "0",             // #1

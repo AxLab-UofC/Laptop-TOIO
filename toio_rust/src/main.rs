@@ -1,36 +1,19 @@
-macro_rules! or_na {
-    ($pat:pat = $expr:expr => $body:expr) => {
-        if let $pat = $expr {
-            $body
-        } else {
-            "N/A".to_string()
-        }
-    };
-}
-
 mod cmd;
 mod constants;
+mod macros;
 mod osc;
 mod terminal;
 mod toio;
 mod updates;
 
+use crate::{osc::*, terminal::*, toio::*, updates::*};
 use clap::Parser;
 use futures::future::join_all;
 use futures::future::Either::{Left, Right};
-use osc::*;
-use std::error::Error;
-use std::process;
-use std::sync::Arc;
 use std::time::{Duration, SystemTime};
-use terminal::*;
-use toio::*;
-use tokio::net::UdpSocket;
-use tokio::sync::mpsc::error::TrySendError;
-use tokio::sync::RwLock;
-use tokio::time;
-
-use crate::updates::Update;
+use std::{error::Error, process, sync::Arc};
+use tokio::sync::{mpsc::error::TrySendError, RwLock};
+use tokio::{net::UdpSocket, time};
 
 #[derive(Parser)]
 #[command(name = "toio")]
@@ -43,9 +26,9 @@ struct Args {
     #[arg(short, long)]
     remote: Option<usize>,
 
-    /// Show terminal stream instead of terminal UI
+    /// Show debug terminal stream instead of terminal UI
     #[arg(short, long)]
-    terminal_stream: bool,
+    debug: bool,
 
     /// Use unfiltered search
     #[arg(short, long)]
@@ -67,14 +50,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // create scanner and array of toios
     let scanner = match args.axlab_id.clone() {
         Some(filter) => {
-            if args.terminal_stream {
+            if args.debug {
                 if args.ordered {
                     println!("Running Ordered Search for Toios: {:?}", filter.clone());
                 } else {
                     println!("Running Unordered Search for Toios: {:?}", filter.clone());
                 }
             }
-            ToioScanner::new_with_filter(args.ordered, filter.clone()).await?
+            ToioScanner::new_filtered(args.ordered, filter.clone()).await?
         }
         None => {
             if !args.search {
@@ -82,10 +65,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 process::exit(0);
             }
 
-            if args.terminal_stream {
+            if args.debug {
                 println!("Running Unfiltered Search for Toios");
             }
-            ToioScanner::new().await?
+            ToioScanner::new_search().await?
         }
     };
 
@@ -95,7 +78,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // server and client address
     let host_addr = format!("127.0.0.1:{}", args.port.unwrap_or(3334));
     let to_addr = format!("127.0.0.1:{}", args.remote.unwrap_or(3333)).parse()?;
-    if args.terminal_stream {
+    if args.debug {
         println!(
             "Listening on port {} and sending to port {}",
             host_addr, to_addr
@@ -106,7 +89,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let socket = Arc::new(UdpSocket::bind(&host_addr).await?);
     let mut buf = [0u8; rosc::decoder::MTU];
 
-    // whenever a message is received through OSC, forward to toio
+    // listen for commands over OSC and forward to toio
     let sock = socket.clone();
     let connected_clone = connected.clone();
     tokio::spawn(async move {
@@ -114,8 +97,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             if let Ok((_, packet)) = rosc::decoder::decode_udp(&buf[..size]) {
                 match handle_packet(packet) {
                     CommandResult::Success { toio_num, cmd } => {
-                        if args.terminal_stream {
-                            println!("[{:?}] Command Sent: {:?}", SystemTime::now(), cmd);
+                        if args.debug {
+                            println!("Command Sent: {:?}", cmd);
                         }
 
                         // find toio from connected
@@ -128,17 +111,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                             // add command to toio command queue
                             if let Err(err) = toio.queue_command(cmd) {
-                                if args.terminal_stream {
+                                if args.debug {
                                     let reason = match err {
                                         TrySendError::Full(_) => "Command Queue Full",
                                         TrySendError::Closed(_) => "Toio Disconnected",
                                     };
-                                    eprintln!(
-                                        "[{:?}] Command Dropped for toio {}: {}",
-                                        SystemTime::now(),
-                                        toio_num,
-                                        reason
-                                    );
+                                    eprintln!("Command Dropped for toio {}: {}", toio_num, reason);
                                 }
                             }
                         }
@@ -148,13 +126,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         name,
                         vals,
                     } => {
-                        if args.terminal_stream {
+                        if args.debug {
                             println!(
-                                "[{:?}] Error Parsing Command for toio {}: {} {:?}",
-                                SystemTime::now(),
-                                toio_num,
-                                name,
-                                vals
+                                "Error Parsing Command for toio {}: {} {:?}",
+                                toio_num, name, vals
                             );
                         }
                     }
@@ -163,13 +138,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         name,
                         vals,
                     } => {
-                        if args.terminal_stream {
+                        if args.debug {
                             println!(
-                                "[{:?}] Command not found for toio {}: {} {:?}",
-                                SystemTime::now(),
-                                toio_num,
-                                name,
-                                vals
+                                "Command not found for toio {}: {} {:?}",
+                                toio_num, name, vals
                             );
                         }
                     }
@@ -179,7 +151,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     });
 
-    // whenever we connect to a toio, add it to the list
+    // listen for toio connections and disconnections
     let connected_clone = connected.clone();
     tokio::spawn(async move {
         while let Some(peripheral_update) = toios.next().await {
@@ -193,7 +165,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                     // create instance of Toio to record toio info
                     let toio = Toio::new(toio_peripheral);
-                    if args.terminal_stream {
+                    if args.debug {
                         println!("Toio Connected: {}", toio.id);
                     }
 
@@ -230,13 +202,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             }
                                         }
 
-                                        send_packet(
-                                            &sock,
-                                            to_addr,
-                                            id,
-                                            update,
-                                            args.terminal_stream,
-                                        );
+                                        // forward message over OSC
+                                        send_packet(&sock, to_addr, id, update, args.debug);
                                     }
                                     None => break, // Stream ended, break out
                                 }
@@ -268,7 +235,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     if let Some(idx) = toio_id {
                         let mut toio = connected_write[idx].write().await;
                         toio.disconnect();
-                        if args.terminal_stream {
+                        if args.debug {
                             println!("Toio Disconnected: {}", toio.id);
                         }
                     };
@@ -279,7 +246,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // start terminal UI process
     let mut terminal: ToioUI = None;
-    if !args.terminal_stream {
+    if !args.debug {
         terminal = setup_terminal()?;
     }
 
@@ -289,12 +256,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     loop {
         interval.tick().await;
 
+        // read toio info and draw UI
         let connected_read = connected_clone.read().await;
-
-        // get info from all of the toios
         let toio_info = join_all(connected_read.iter().map(create_toio_info)).await;
-
-        // update UI
         if let Some(ref mut toio_ui) = terminal {
             toio_ui.draw(create_toio_ui(toio_info, args.axlab_id.clone()))?;
         }

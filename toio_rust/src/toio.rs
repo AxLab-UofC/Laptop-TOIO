@@ -1,4 +1,4 @@
-use crate::{cmd::*, constants::*, updates::*};
+use crate::{cmd::*, constants::*, or_na, updates::*};
 use btleplug::{
     api::{
         Central, CentralEvent, CharPropFlags, Characteristic, Manager as _, Peripheral, ScanFilter,
@@ -6,17 +6,14 @@ use btleplug::{
     platform,
     platform::{Adapter, Manager},
 };
-use futures::future::Either;
-use futures::stream::StreamExt;
-use std::error::Error;
-use std::sync::Arc;
-use std::time::SystemTime;
-use std::vec;
+use futures::{future::Either, stream::StreamExt};
+use std::{error::Error, sync::Arc, time::SystemTime, vec};
 use tokio::sync::mpsc;
-use tokio::sync::mpsc::error::TrySendError;
-use tokio::sync::mpsc::{Receiver, Sender};
-use tokio::sync::RwLock;
-use tokio::task::JoinHandle;
+use tokio::sync::mpsc::{error::TrySendError, Receiver, Sender};
+use tokio::{sync::RwLock, task::JoinHandle};
+
+// How many commands for a toio can be queued up at once.
+const COMMAND_QUEUE_SIZE: usize = 32;
 
 pub struct ToioScanner {
     central: Adapter,
@@ -56,7 +53,7 @@ pub struct Toio {
     pub connected: bool,
     pub channel: Option<JoinHandle<()>>,
     pub state: Arc<RwLock<ToioState>>,
-    commands: Option<Sender<Command>>,
+    command_queue: Option<Sender<Command>>,
     writer: Option<JoinHandle<()>>,
 }
 
@@ -72,7 +69,7 @@ impl ToioState {
 }
 
 impl ToioScanner {
-    pub async fn new() -> Result<ToioScanner, Box<dyn Error>> {
+    pub async fn new_search() -> Result<ToioScanner, Box<dyn Error>> {
         let central = Manager::new()
             .await?
             .adapters()
@@ -89,14 +86,12 @@ impl ToioScanner {
         })
     }
 
-    pub async fn new_with_filter(
+    pub async fn new_filtered(
         ordered: bool,
         filter: Vec<usize>,
     ) -> Result<ToioScanner, Box<dyn Error>> {
-        let manager = Manager::new().await?;
-
-        // get the first bluetooth adapter
-        let central = manager
+        let central = Manager::new()
+            .await?
             .adapters()
             .await
             .unwrap()
@@ -328,7 +323,7 @@ impl Toio {
             connected: true,
             channel: None,
             state: Arc::new(RwLock::new(ToioState::new())),
-            commands: Some(commands),
+            command_queue: Some(commands),
             writer: Some(writer),
             toio,
         };
@@ -339,7 +334,7 @@ impl Toio {
     }
 
     pub fn queue_command(&self, command: Command) -> Result<(), TrySendError<Command>> {
-        match &self.commands {
+        match &self.command_queue {
             Some(commands) => commands.try_send(command),
             None => Err(TrySendError::Closed(command)),
         }
@@ -360,7 +355,7 @@ impl Toio {
         if let Some(writer) = self.writer.take() {
             writer.abort();
         }
-        self.commands = None;
+        self.command_queue = None;
         self.connected = false;
     }
 }
