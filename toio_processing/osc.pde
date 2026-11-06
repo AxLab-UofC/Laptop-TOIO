@@ -302,17 +302,22 @@ void postureRequest(boolean euler, int[] cubeId) {
 
 int getHostId(String addr) {
   for (int i = 0; i < hosts.length; i++) {
-    if (addr == hosts[i]) {
+    if (addr.equals("/" + hosts[i]) || addr.equals("/" + server[i].address())) {
       return i;
     }
   }
-  
-  return 0;
+
+  return -1;
 }
 
 void oscEvent(OscMessage msg) {
-  int cubeId = (int) msg.arguments()[0];
   int hostId = getHostId(msg.address());
+  if (hostId < 0) {
+    println("Ignoring OSC message " + msg.addrPattern() + " from unknown host " + msg.address());
+    return;
+  }
+
+  int cubeId = (int) msg.arguments()[0];
   int id = cubesPerHost * hostId + cubeId;
   
   if (msg.checkAddrPattern("/position")) {

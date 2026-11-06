@@ -11,9 +11,11 @@ use clap::Parser;
 use futures::future::join_all;
 use futures::future::Either::{Left, Right};
 use std::time::{Duration, SystemTime};
-use std::{error::Error, process, sync::Arc};
+use std::{error::Error, process, sync::atomic::Ordering, sync::Arc};
 use tokio::sync::{mpsc::error::TrySendError, RwLock};
 use tokio::{net::UdpSocket, time};
+
+type ToioLock = Arc<RwLock<Vec<Arc<RwLock<Toio>>>>>;
 
 #[derive(Parser)]
 #[command(name = "toio")]
@@ -25,6 +27,10 @@ struct Args {
     /// Set remote port
     #[arg(short, long)]
     remote: Option<usize>,
+
+    /// Set remote IP
+    #[arg(short, long)]
+    ip: Option<String>,
 
     /// Show debug terminal stream instead of terminal UI
     #[arg(short, long)]
@@ -46,17 +52,21 @@ struct Args {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
+    macros::DEBUG.store(args.debug, Ordering::Relaxed);
 
     // create scanner and array of toios
     let scanner = match args.axlab_id.clone() {
         Some(filter) => {
-            if args.debug {
-                if args.ordered {
-                    println!("Running Ordered Search for Toios: {:?}", filter.clone());
-                } else {
-                    println!("Running Unordered Search for Toios: {:?}", filter.clone());
-                }
+            if args.search {
+                println!("You provide a filter and be in search mode");
+                process::exit(0);
             }
+
+            debugPrint!(
+                "Running {} Search for Toios: {:?}",
+                if args.ordered { "Ordered" } else { "Unordered" },
+                filter
+            );
             ToioScanner::new_filtered(args.ordered, filter.clone()).await?
         }
         None => {
@@ -65,44 +75,47 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 process::exit(0);
             }
 
-            if args.debug {
-                println!("Running Unfiltered Search for Toios");
+            if args.ordered {
+                println!("You cannot be in ordered mode when not in search mode");
+                process::exit(0);
             }
+
+            debugPrint!("Running Unfiltered Search for Toios");
             ToioScanner::new_search().await?
         }
     };
 
-    let mut toios = scanner.search().await?;
-    let connected: Arc<RwLock<Vec<Arc<RwLock<Toio>>>>> = Arc::new(RwLock::new(vec![]));
+    // parse server and client address from args
+    let host_addr = format!("0.0.0.0:{}", args.port.unwrap_or(3334));
+    let to_addr = format!(
+        "{}:{}",
+        args.ip.unwrap_or("127.0.0.1".to_string()),
+        args.remote.unwrap_or(3333)
+    )
+    .parse()?;
 
-    // server and client address
-    let host_addr = format!("127.0.0.1:{}", args.port.unwrap_or(3334));
-    let to_addr = format!("127.0.0.1:{}", args.remote.unwrap_or(3333)).parse()?;
-    if args.debug {
-        println!(
-            "Listening on port {} and sending to port {}",
-            host_addr, to_addr
-        )
-    }
+    debugPrint!("Listening at {} and sending to {}", host_addr, to_addr);
+
+    // start scanning for toios
+    let mut toios = scanner.search().await?;
+    let toio_lock: ToioLock = Arc::new(RwLock::new(vec![]));
 
     // open socket and create buffer
     let socket = Arc::new(UdpSocket::bind(&host_addr).await?);
     let mut buf = [0u8; rosc::decoder::MTU];
 
     // listen for commands over OSC and forward to toio
-    let sock = socket.clone();
-    let connected_clone = connected.clone();
+    let socket_clone = socket.clone();
+    let toio_lock_clone = toio_lock.clone();
     tokio::spawn(async move {
-        while let Ok((size, _)) = sock.recv_from(&mut buf).await {
+        while let Ok((size, _)) = socket_clone.recv_from(&mut buf).await {
             if let Ok((_, packet)) = rosc::decoder::decode_udp(&buf[..size]) {
                 match handle_packet(packet) {
                     CommandResult::Success { toio_num, cmd } => {
-                        if args.debug {
-                            println!("Command Sent: {:?}", cmd);
-                        }
+                        debugPrint!("Command Sent: {:?}", cmd);
 
                         // find toio from connected
-                        let toio = connected_clone.read().await.get(toio_num).cloned();
+                        let toio = toio_lock_clone.read().await.get(toio_num).cloned();
                         if let Some(toio) = toio {
                             let toio = toio.read().await;
 
@@ -111,13 +124,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                             // add command to toio command queue
                             if let Err(err) = toio.queue_command(cmd) {
-                                if args.debug {
-                                    let reason = match err {
-                                        TrySendError::Full(_) => "Command Queue Full",
-                                        TrySendError::Closed(_) => "Toio Disconnected",
-                                    };
-                                    eprintln!("Command Dropped for toio {}: {}", toio_num, reason);
-                                }
+                                let reason = match err {
+                                    TrySendError::Full(_) => "Command Queue Full",
+                                    TrySendError::Closed(_) => "Toio Disconnected",
+                                };
+                                debugPrint!("Command Dropped for toio {}: {}", toio_num, reason);
                             }
                         }
                     }
@@ -126,24 +137,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         name,
                         vals,
                     } => {
-                        if args.debug {
-                            println!(
-                                "Error Parsing Command for toio {}: {} {:?}",
-                                toio_num, name, vals
-                            );
-                        }
+                        debugPrint!(
+                            "Error Parsing Command for toio {}: {} {:?}",
+                            toio_num,
+                            name,
+                            vals
+                        );
                     }
                     CommandResult::NoMatch {
                         toio_num,
                         name,
                         vals,
                     } => {
-                        if args.debug {
-                            println!(
-                                "Command not found for toio {}: {} {:?}",
-                                toio_num, name, vals
-                            );
-                        }
+                        debugPrint!(
+                            "Command not found for toio {}: {} {:?}",
+                            toio_num,
+                            name,
+                            vals
+                        );
+                    }
+                    CommandResult::Empty { name } => {
+                        debugPrint!("Received Empty Command: {}", name);
                     }
                     CommandResult::None => {}
                 }
@@ -152,92 +166,90 @@ async fn main() -> Result<(), Box<dyn Error>> {
     });
 
     // listen for toio connections and disconnections
-    let connected_clone = connected.clone();
+    let toio_lock_clone = toio_lock.clone();
     tokio::spawn(async move {
         while let Some(peripheral_update) = toios.next().await {
             match peripheral_update {
                 Left(toio_peripheral) => {
-                    // clone socket
-                    let sock = socket.clone();
-
-                    // listen for updates from toio
+                    // clone updates and toio_lock
                     let mut updates = toio_peripheral.updates().await.unwrap();
+                    let mut toio_lock_write = toio_lock_clone.write().await;
 
-                    // create instance of Toio to record toio info
-                    let toio = Toio::new(toio_peripheral);
-                    if args.debug {
-                        println!("Toio Connected: {}", toio.id);
-                    }
+                    // find if id was previously connected to
+                    let existing_id = join_all(
+                        toio_lock_write
+                            .iter()
+                            .map(|x| async { x.read().await.toio.peripheral_id.clone() }),
+                    )
+                    .await
+                    .iter()
+                    .position(|id| *id == toio_peripheral.peripheral_id);
+                    let id = existing_id.unwrap_or(toio_lock_write.len());
 
-                    let state = toio.state.clone();
-
-                    // request permission to write to list of connected toios
-                    let mut connected_write = connected_clone.write().await;
-                    let id = connected_write.len();
-
-                    // start process to listen for messages from toio
-                    let toio_channel = tokio::spawn({
+                    // create instance of toio state and start listening for messages from toio
+                    let state = Arc::new(RwLock::new(ToioState::new()));
+                    let update_channel = tokio::spawn({
+                        let state = state.clone();
+                        let socket = socket.clone();
                         async move {
-                            loop {
-                                match updates.next().await {
-                                    Some(update) => {
-                                        {
-                                            let mut state_write = state.write().await;
-                                            state_write.last_update = Some(SystemTime::now());
+                            while let Some(update) = updates.next().await {
+                                {
+                                    let mut state_write = state.write().await;
+                                    state_write.last_update = Some(SystemTime::now());
 
-                                            // Update state based on update type
-                                            match update {
-                                                Update::Battery { level } => {
-                                                    state_write.battery = Some(level);
-                                                }
-                                                Update::Position {
-                                                    x_center, y_center, ..
-                                                } => {
-                                                    state_write.curr_loc = Some(ToioLocation {
-                                                        x: x_center,
-                                                        y: y_center,
-                                                    });
-                                                }
-                                                _ => {}
-                                            }
+                                    // Update state based on update type
+                                    match update {
+                                        Update::Battery { level } => {
+                                            state_write.battery = Some(level);
                                         }
-
-                                        // forward message over OSC
-                                        send_packet(&sock, to_addr, id, update, args.debug);
+                                        Update::Position {
+                                            x_center, y_center, ..
+                                        } => {
+                                            state_write.curr_loc = Some(ToioLocation {
+                                                x: x_center,
+                                                y: y_center,
+                                            });
+                                        }
+                                        _ => {}
                                     }
-                                    None => break, // Stream ended, break out
                                 }
+
+                                // forward message over OSC
+                                send_packet(&socket, to_addr, id, update);
                             }
                         }
                     });
 
-                    let toio = Arc::new(RwLock::new(toio));
-                    {
-                        let mut toio_write = toio.write().await;
-                        toio_write.add_channel(toio_channel);
+                    // connect or reconnect to a toio
+                    if existing_id.is_some() {
+                        let mut toio = toio_lock_write[id].write().await;
+                        debugPrint!("Toio Reconnected: {}", toio.id);
+                        toio.reconnect(toio_peripheral, update_channel, state);
+                    } else {
+                        let toio = Toio::connect(toio_peripheral, update_channel, state);
+                        debugPrint!("Toio Connected: {}", toio.id);
+                        toio_lock_write.push(Arc::new(RwLock::new(toio)));
                     }
-                    connected_write.push(toio);
                 }
                 Right(peripheral_id) => {
                     // request permission to write to list of connected toios
-                    let connected_write = connected_clone.write().await;
+                    let toio_lock_write = toio_lock_clone.write().await;
 
                     // Collect all peripheral_ids with their indices
-                    let ids = join_all(connected_write.iter().map(|x| async {
-                        let toio = x.read().await;
-                        toio.toio.peripheral_id.clone()
-                    }))
-                    .await;
-
-                    let toio_id = ids.iter().position(|id| *id == peripheral_id);
+                    let toio_id = join_all(
+                        toio_lock_write
+                            .iter()
+                            .map(|x| async { x.read().await.toio.peripheral_id.clone() }),
+                    )
+                    .await
+                    .iter()
+                    .position(|id| *id == peripheral_id);
 
                     // Find the index of the matching peripheral_id
                     if let Some(idx) = toio_id {
-                        let mut toio = connected_write[idx].write().await;
+                        let mut toio = toio_lock_write[idx].write().await;
                         toio.disconnect();
-                        if args.debug {
-                            println!("Toio Disconnected: {}", toio.id);
-                        }
+                        debugPrint!("Toio Disconnected: {}", toio.id);
                     };
                 }
             }
@@ -251,16 +263,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 
     // update UI from all of the toios
-    let connected_clone = connected.clone();
+    let toio_lock_clone = toio_lock.clone();
     let mut interval = time::interval(Duration::from_millis(50)); // 20 FPS
     loop {
         interval.tick().await;
 
         // read toio info and draw UI
-        let connected_read = connected_clone.read().await;
+        let connected_read = toio_lock_clone.read().await;
         let toio_info = join_all(connected_read.iter().map(create_toio_info)).await;
         if let Some(ref mut toio_ui) = terminal {
-            toio_ui.draw(create_toio_ui(toio_info, args.axlab_id.clone()))?;
+            toio_ui.draw(create_toio_ui(
+                toio_info,
+                args.axlab_id.clone(),
+                host_addr.clone(),
+                to_addr.to_string(),
+            ))?;
         }
 
         // exit terminal if "Q" key is pressed

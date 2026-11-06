@@ -1,4 +1,4 @@
-use crate::{cmd::*, updates::*, OscInts};
+use crate::{cmd::*, debugPrint, updates::*, OscInts};
 use rosc::{encoder, OscMessage, OscPacket, OscType};
 use std::net::SocketAddr;
 use tokio::net::UdpSocket;
@@ -18,6 +18,9 @@ pub enum CommandResult {
         name: String,
         vals: Vec<i32>,
     },
+    Empty {
+        name: String,
+    },
     None,
 }
 
@@ -35,6 +38,7 @@ fn chunked<const MIN: usize, const SIZE: usize>(vals: &[i32]) -> bool {
 pub fn handle_packet(packet: OscPacket) -> CommandResult {
     match packet {
         OscPacket::Message(msg) => {
+            let name: &str = msg.addr.as_ref();
             let vals: Vec<i32> = msg
                 .args
                 .iter()
@@ -43,10 +47,16 @@ pub fn handle_packet(packet: OscPacket) -> CommandResult {
                     _ => None,
                 })
                 .collect();
+            if vals.is_empty() {
+                return CommandResult::Empty {
+                    name: name.to_string(),
+                };
+            }
+
             let toio_num = vals[0] as usize;
 
             // look up the command's expected arity and how to build it
-            let (match_cmd, build_cmd): (CmdValidator, CmdBuilder) = match msg.addr.as_ref() {
+            let (match_cmd, build_cmd): (CmdValidator, CmdBuilder) = match name {
                 "/motorBasic" => (exact::<5>, |vals| Command::MotorControl {
                     left_direction: vals[1] as u8,
                     left_speed: vals[2].abs() as u8,
@@ -135,16 +145,16 @@ pub fn handle_packet(packet: OscPacket) -> CommandResult {
                 }
             };
 
-            if match_cmd(&vals) {
-                CommandResult::Success {
-                    toio_num,
-                    cmd: build_cmd(&vals),
-                }
-            } else {
+            if !match_cmd(&vals) {
                 CommandResult::Error {
                     toio_num,
                     name: msg.addr,
                     vals,
+                }
+            } else {
+                CommandResult::Success {
+                    toio_num,
+                    cmd: build_cmd(&vals),
                 }
             }
         }
@@ -152,13 +162,7 @@ pub fn handle_packet(packet: OscPacket) -> CommandResult {
     }
 }
 
-pub fn send_packet(
-    socket: &UdpSocket,
-    to_addr: SocketAddr,
-    id: usize,
-    update: Update,
-    show_terminal: bool,
-) {
+pub fn send_packet(socket: &UdpSocket, to_addr: SocketAddr, id: usize, update: Update) {
     let vals: Option<(&str, Vec<OscType>)> = match update {
         Update::Position {
             x_center,
@@ -219,9 +223,7 @@ pub fn send_packet(
     };
 
     if let Some((addr, args)) = vals {
-        if show_terminal {
-            println!("Update Received [{}]: {:?}", addr, args)
-        }
+        debugPrint!("Update Received [{}]: {:?}", addr, args);
 
         let msg = encoder::encode(&OscPacket::Message(OscMessage {
             addr: addr.to_string(),

@@ -30,21 +30,21 @@ void settings() {
 
 
 void setup() {
-  //create OSC servers
+  // initalize OSC servers
   oscP5 = new OscP5(this, 3333);
   server = new NetAddress[hosts.length];
   for (int i = 0; i < hosts.length; i++) {
     server[i] = new NetAddress(hosts[i], 3334);
   }
   
-  //create cubes
+  // create cubes
   cubes = new Cube[nCubes];
   for (int i = 0; i< nCubes; ++i) {
     cubes[i] = new Cube(i);
   }
 
-  //do not send TOO MANY PACKETS
-  //we'll be updating the cubes every frame, so don't try to go too high
+  // do not send TOO MANY PACKETS
+  // we'll be updating the cubes every frame, so don't try to go too high
   frameRate(framerate);
   if (WindowsMode) check_connection();
 }

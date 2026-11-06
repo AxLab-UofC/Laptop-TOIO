@@ -1,3 +1,16 @@
+// global debug flag, set once at startup from the CLI args
+pub static DEBUG: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+// prints a line only when the debug flag is set
+#[macro_export]
+macro_rules! debugPrint {
+    ($($arg:tt)*) => {
+        if $crate::macros::DEBUG.load(std::sync::atomic::Ordering::Relaxed) {
+            println!($($arg)*);
+        }
+    };
+}
+
 // builds a vector array of OSC i32
 #[macro_export]
 macro_rules! OscInts {

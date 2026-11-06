@@ -1,4 +1,4 @@
-use crate::{cmd::*, constants::*, or_na, updates::*};
+use crate::{cmd::*, constants::*, debugPrint, or_na, updates::*};
 use btleplug::{
     api::{
         Central, CentralEvent, CharPropFlags, Characteristic, Manager as _, Peripheral, ScanFilter,
@@ -19,6 +19,7 @@ pub struct ToioScanner {
     central: Adapter,
     ordered: bool,
     filter: Option<Vec<String>>,
+    connected: Vec<String>,
 }
 
 pub struct ToioReceiver {
@@ -58,7 +59,7 @@ pub struct Toio {
 }
 
 impl ToioState {
-    fn new() -> Self {
+    pub fn new() -> Self {
         ToioState {
             battery: None,
             last_update: None,
@@ -83,6 +84,7 @@ impl ToioScanner {
             central,
             filter: None,
             ordered: false,
+            connected: vec![],
         })
     }
 
@@ -105,6 +107,7 @@ impl ToioScanner {
             central,
             filter: Some(toio_filter),
             ordered,
+            connected: vec![],
         })
     }
 
@@ -123,54 +126,37 @@ impl ToioScanner {
 
         // Discovery Async Task
         let mut toio_filter = self.filter.clone();
+        let mut connected = self.connected.clone();
         let ordered = self.ordered;
         tokio::spawn(async move {
             while let Some(event) = events.next().await {
                 match event {
-                    CentralEvent::DeviceDiscovered(id) => {
+                    CentralEvent::DeviceDiscovered(id)
+                    | CentralEvent::ServicesAdvertisement { id, services: _ } => {
                         let peripheral = central.peripheral(&id).await.unwrap();
 
                         if ordered {
-                            // if filtered order, update filter on successful connection
                             if let Some(ref mut new_filter) = toio_filter.clone() {
-                                if !new_filter.is_empty() {
-                                    let curr_toio = new_filter.remove(0);
+                                let filter = if new_filter.len() > 0 {
+                                    [connected.clone(), vec![new_filter[0].clone()]].concat()
+                                } else {
+                                    connected.clone()
+                                };
 
-                                    let connect_success = Self::try_connect(
-                                        peripheral,
-                                        &tx,
-                                        Some(vec![curr_toio.clone()]),
-                                    )
-                                    .await;
+                                let connect_success =
+                                    Self::try_connect(peripheral, &tx, Some(filter)).await;
 
-                                    if connect_success {
-                                        toio_filter = Some(new_filter.to_vec());
+                                if let Some(toio_name) = connect_success {
+                                    // if filtered order, update filter on successful connection
+                                    let update_filter = !new_filter.is_empty()
+                                        && toio_name == new_filter[0].to_string();
+
+                                    if update_filter {
+                                        new_filter.remove(0);
                                     }
-                                }
-                            }
-                        } else {
-                            Self::try_connect(peripheral, &tx, toio_filter.clone()).await;
-                        }
-                    }
-                    CentralEvent::ServicesAdvertisement { id, services: _ } => {
-                        let peripheral = central.peripheral(&id).await.unwrap();
 
-                        if ordered {
-                            // if filtered order, update filter on successful connection
-                            if let Some(ref mut new_filter) = toio_filter.clone() {
-                                if !new_filter.is_empty() {
-                                    let curr_toio = new_filter.remove(0);
-
-                                    let connect_success = Self::try_connect(
-                                        peripheral,
-                                        &tx,
-                                        Some(vec![curr_toio.clone()]),
-                                    )
-                                    .await;
-
-                                    if connect_success {
-                                        toio_filter = Some(new_filter.to_vec());
-                                    }
+                                    toio_filter = Some(new_filter.to_vec());
+                                    connected.push(toio_name);
                                 }
                             }
                         } else {
@@ -192,31 +178,30 @@ impl ToioScanner {
         peripheral: platform::Peripheral,
         tx: &Sender<Either<ToioPeripheral, platform::PeripheralId>>,
         filter: Option<Vec<String>>,
-    ) -> bool {
+    ) -> Option<String> {
         if let Some(properties) = peripheral.properties().await.unwrap() {
             let full_name = properties.local_name.unwrap_or("".to_string());
             if peripheral.is_connected().await.unwrap() || !full_name.contains(&"toio") {
-                return false;
+                return None;
             }
 
             let toio_name = get_toio_name(&full_name);
             if let Some(filter_list) = filter {
                 if !filter_list.contains(&toio_name) {
-                    return false;
+                    return None;
                 }
             }
 
-            let toio_peripheral = ToioPeripheral::new(toio_name, peripheral);
+            let toio_peripheral = ToioPeripheral::new(toio_name.clone(), peripheral);
             if !toio_peripheral.connect().await {
-                return false;
+                return None;
             }
 
             tx.send(Either::Left(toio_peripheral)).await.unwrap();
-
-            return true;
+            return Some(toio_name);
         }
 
-        return false;
+        return None;
     }
 
     async fn set_disconnected(
@@ -259,7 +244,7 @@ impl ToioPeripheral {
             }
 
             if let Err(err) = self.peripheral.subscribe(&characteristic).await {
-                eprintln!("Error connecting to characteristic, skipping: {}", err);
+                debugPrint!("Error subscribing to characteristic, skipping: {}", err);
                 continue;
             }
         }
@@ -304,15 +289,13 @@ impl ToioPeripheral {
 }
 
 impl Toio {
-    pub fn new(toio: ToioPeripheral) -> Toio {
+    pub fn connect(
+        toio: ToioPeripheral,
+        channel: JoinHandle<()>,
+        state: Arc<RwLock<ToioState>>,
+    ) -> Toio {
         // create bluetooth writer task with queue per toio
-        let (commands, mut queue) = mpsc::channel::<Command>(COMMAND_QUEUE_SIZE);
-        let peripheral = toio.clone();
-        let writer = tokio::spawn(async move {
-            while let Some(command) = queue.recv().await {
-                peripheral.send_command(command).await;
-            }
-        });
+        let (commands, writer) = Self::spawn_writer(toio.clone());
 
         // parse toio id
         let id = or_na!(Some(id) = get_toio_id(&toio.name) => format!("{}", id));
@@ -321,16 +304,12 @@ impl Toio {
             name: toio.name.clone(),
             id: id,
             connected: true,
-            channel: None,
-            state: Arc::new(RwLock::new(ToioState::new())),
+            channel: Some(channel),
+            state,
             command_queue: Some(commands),
             writer: Some(writer),
             toio,
         };
-    }
-
-    pub fn add_channel(&mut self, channel: JoinHandle<()>) {
-        self.channel = Some(channel);
     }
 
     pub fn queue_command(&self, command: Command) -> Result<(), TrySendError<Command>> {
@@ -349,14 +328,45 @@ impl Toio {
     }
 
     pub fn disconnect(&mut self) {
-        if let Some(channel) = &self.channel {
+        self.stop_tasks();
+        self.connected = false;
+    }
+
+    pub fn reconnect(
+        &mut self,
+        toio: ToioPeripheral,
+        channel: JoinHandle<()>,
+        state: Arc<RwLock<ToioState>>,
+    ) {
+        self.stop_tasks();
+
+        let (commands, writer) = Self::spawn_writer(toio.clone());
+        self.toio = toio;
+        self.state = state;
+        self.command_queue = Some(commands);
+        self.writer = Some(writer);
+        self.channel = Some(channel);
+        self.connected = true;
+    }
+
+    fn stop_tasks(&mut self) {
+        if let Some(channel) = self.channel.take() {
             channel.abort();
         }
         if let Some(writer) = self.writer.take() {
             writer.abort();
         }
         self.command_queue = None;
-        self.connected = false;
+    }
+
+    fn spawn_writer(peripheral: ToioPeripheral) -> (Sender<Command>, JoinHandle<()>) {
+        let (commands, mut queue) = mpsc::channel::<Command>(COMMAND_QUEUE_SIZE);
+        let writer = tokio::spawn(async move {
+            while let Some(command) = queue.recv().await {
+                peripheral.send_command(command).await;
+            }
+        });
+        return (commands, writer);
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::constants::*;
+use crate::{constants::*, debugPrint};
 use btleplug::api::ValueNotification;
 use tokio::sync::mpsc::Receiver;
 use uuid::Uuid;
@@ -105,8 +105,8 @@ pub fn parse_update(notification: ValueNotification) -> Option<Update> {
             0x03 => Some(Update::PositionMissed),
             0x04 => Some(Update::StandardMissed),
             _ => {
-                println!(
-                    "Unkown {} Update: {:?}",
+                debugPrint!(
+                    "Unknown {} Update: {:?}",
                     get_uuid_characteristic(notification.uuid),
                     vals
                 );
@@ -127,8 +127,8 @@ pub fn parse_update(notification: ValueNotification) -> Option<Update> {
                 right_speed: vals[2],
             }),
             _ => {
-                println!(
-                    "Unkown {} Update: {:?}",
+                debugPrint!(
+                    "Unknown {} Update: {:?}",
                     get_uuid_characteristic(notification.uuid),
                     vals
                 );
@@ -170,8 +170,8 @@ pub fn parse_update(notification: ValueNotification) -> Option<Update> {
                 _ => None,
             },
             _ => {
-                println!(
-                    "Unkown {} Update: {:?}",
+                debugPrint!(
+                    "Unknown {} Update: {:?}",
                     get_uuid_characteristic(notification.uuid),
                     vals
                 );
@@ -183,8 +183,8 @@ pub fn parse_update(notification: ValueNotification) -> Option<Update> {
             pressed: vals[1] == 0x80,
         }),
         _ => {
-            println!(
-                "Unkown {} Update: {:?}",
+            debugPrint!(
+                "Unknown {} Update: {:?}",
                 get_uuid_characteristic(notification.uuid),
                 vals
             );

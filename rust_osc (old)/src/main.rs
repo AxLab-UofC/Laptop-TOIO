@@ -656,32 +656,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     }
                                 }
                                 "/motorTarget" => {
-                                    if vals.len() == 5 { // we should have 5 args
-                                        let characteristic = Characteristic {
-                                            uuid: MOTOR_CHARACTERISTIC_UUID,
-                                            service_uuid: TOIO_SERVICE_UUID,
-                                            properties: CharPropFlags::WRITE_WITHOUT_RESPONSE,
-                                        };
-                                        let cmd = vec![
-                                            0x03,                               //motor target
-                                            0x00,                               //control distinction value
-                                            0x05,                               //timeout period
-                                            vals[1].abs() as u8,                //movement type
-                                            0x50,                               //maximum motor speed
-                                            0x00,                               //motor speed changes
-                                            0x00,                               //reserved
-                                            (vals[2].abs() & 0x00FF) as u8,     //x value of target
-                                            ((vals[2].abs() & 0xFF00) >> 8) as u8,
-                                            (vals[3].abs() & 0x00FF) as u8,     //y value of target
-                                            ((vals[3].abs() & 0xFF00) >> 8) as u8,
-                                            (vals[4].abs() & 0x00FF) as u8,     //θ value of target
-                                            ((vals[4].abs() & 0xFF00) >> 8) as u8,
-                                        ];
-                                        p2.write(&characteristic, &cmd, WriteType::WithoutResponse)
-                                            .await
-                                            .unwrap();
-                                    } else if vals.len() == 9 {
-                                        //we should have 9 args
+                                     if vals.len() == 9 { // we should have 9 args
                                         let characteristic = Characteristic {
                                             uuid: MOTOR_CHARACTERISTIC_UUID,
                                             service_uuid: TOIO_SERVICE_UUID,
@@ -738,7 +713,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     .unwrap();
                                 }
                                 "/motorAcceleration" => {
-                                    if vals.len() == 8 { // we should have 7 args
+                                    if vals.len() == 8 { // we should have 8 args
                                         let characteristic = Characteristic {
                                             uuid: MOTOR_CHARACTERISTIC_UUID,
                                             service_uuid: TOIO_SERVICE_UUID,

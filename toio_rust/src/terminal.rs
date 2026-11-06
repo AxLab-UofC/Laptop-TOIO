@@ -60,7 +60,12 @@ pub async fn create_toio_info(toio_guard: &Arc<RwLock<Toio>>) -> ToioInfo {
     }
 }
 
-pub fn create_toio_ui(toio_info: Vec<ToioInfo>, filter: Option<Vec<usize>>) -> impl Fn(&mut Frame) {
+pub fn create_toio_ui(
+    toio_info: Vec<ToioInfo>,
+    filter: Option<Vec<usize>>,
+    host_addr: String,
+    to_addr: String,
+) -> impl Fn(&mut Frame) {
     move |frame| {
         let area = frame.size();
 
@@ -132,6 +137,10 @@ pub fn create_toio_ui(toio_info: Vec<ToioInfo>, filter: Option<Vec<usize>>) -> i
             .highlight_style(Style::new().reversed())
             .highlight_symbol(">>");
 
+        let addrs = Title::from(Line::from(format!(" {} -> {} ", host_addr, to_addr)))
+            .alignment(Alignment::Right)
+            .position(Position::Top);
+
         let instructions = Title::from(Line::from(vec![" Quit ".into(), "<Q> ".blue().bold()]))
             .alignment(Alignment::Center)
             .position(Position::Bottom);
@@ -141,6 +150,7 @@ pub fn create_toio_ui(toio_info: Vec<ToioInfo>, filter: Option<Vec<usize>>) -> i
                 Block::default()
                     .title(" Laptop Toio ")
                     .title(filter_list)
+                    .title(addrs)
                     .title(instructions)
                     .borders(Borders::ALL),
             ),
