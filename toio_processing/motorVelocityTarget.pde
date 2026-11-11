@@ -25,11 +25,11 @@ void motorVelocityTarget(int id, int x, int y, float vx, float vy) {
   if (!cubes[id].isActive) return;
   
   // get left and right motor speeds
-  float cubeAngle = cubes[id].theta * PI / 180;
+  float cubeAngle = radians(cubes[id].theta);
   float angleDiff = getAngleDiff(cubeAngle, atan2(y - cubes[id].y, x - cubes[id].x));
   int[] motorSpeeds = getMotorSpeeds(angleDiff);
 
-  float velIntegrate = sqrt(sq(vx) + sq(vy)); // integrate velocity x + y
+  float velIntegrate = mag(vx, vy); // integrate velocity x + y
   float aimMotorSpeed = velIntegrate / 2.0; // translate the speed (pixel/s)  to motor control command /// Maximum is 115 =>
   float aa = motorSpeeds[0] < 0 ? -aimMotorSpeed : aimMotorSpeed;
   float dd = min(cubes[id].distance(x, y) / 50.0, 1);
@@ -49,7 +49,7 @@ void motorVelocityTarget(int id, int x, int y, float vx, float vy, int theta) {
   if (!cubes[id].isActive) return;
   
   // use non-angled velocity targeting at high target distance or target velocity
-  float targetVelocity = sqrt(sq(vx) + sq(vy));
+  float targetVelocity = mag(vx, vy);
   float targetDistance = cubes[id].distance(x,y);
   if (targetVelocity > 10 || targetDistance > 10) {
     motorVelocityTarget(id, x, y, vx, vy);
@@ -57,7 +57,7 @@ void motorVelocityTarget(int id, int x, int y, float vx, float vy, int theta) {
   } 
   
   // rotate if the angle difference between the cube angle and the target angle is greater than ten degrees
-  float angleDiff = getAngleDiff(cubes[id].theta * PI / 180, theta * PI / 180);
+  float angleDiff = getAngleDiff(radians(cubes[id].theta), radians(theta));
   float angleDiffDegrees = degrees(angleDiff);
   if (abs(angleDiffDegrees) < 10) return;
   

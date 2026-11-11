@@ -60,25 +60,23 @@ pub async fn create_toio_info(toio_guard: &Arc<RwLock<Toio>>) -> ToioInfo {
     }
 }
 
-pub fn create_toio_ui(
+pub fn create_toio_ui<'a>(
     toio_info: Vec<ToioInfo>,
-    ordered: bool,
-    filter: Option<Vec<usize>>,
-    local_ip: String,
-    host_port: usize,
-    to_addr: String,
-) -> impl Fn(&mut Frame) {
+    filter: &'a Option<Vec<usize>>,
+    mode_label: &'static str,
+    addr_label: &'a str,
+) -> impl Fn(&mut Frame) + 'a {
     move |frame| {
         let area = frame.size();
 
         // construct header element for "Search Mode" or Filtered List
         let main_title = Title::from(vec![
             Span::from(" Laptop Toio ").style(Style::new().white()),
-            Span::from(format_mode(ordered, filter.clone())).style(Style::new().green()),
+            Span::from(mode_label).style(Style::new().green()),
         ]);
 
         let connected_ids: Vec<String> = toio_info.iter().map(|val| val.id.clone()).collect();
-        let filter_list = match &filter {
+        let filter_list = match filter {
             Some(toio_filter) => {
                 let spans: Vec<Span> = toio_filter
                     .iter()
@@ -145,12 +143,9 @@ pub fn create_toio_ui(
             .highlight_style(Style::new().reversed())
             .highlight_symbol(">>");
 
-        let addrs = Title::from(Line::from(format!(
-            " {}:{} -> {} ",
-            local_ip, host_port, to_addr
-        )))
-        .alignment(Alignment::Right)
-        .position(Position::Top);
+        let addrs = Title::from(Line::from(addr_label))
+            .alignment(Alignment::Right)
+            .position(Position::Top);
 
         let instructions = Title::from(Line::from(vec![" Quit ".into(), "<Q> ".blue().bold()]))
             .alignment(Alignment::Center)
@@ -195,16 +190,11 @@ pub fn handle_events() -> io::Result<bool> {
     Ok(false)
 }
 
-fn format_mode(ordered: bool, filter: Option<Vec<usize>>) -> String {
-    match filter {
-        Some(..) => {
-            if ordered {
-                return "[Ordered Mode] ".to_string();
-            } else {
-                return "[Unordered Mode] ".to_string();
-            };
-        }
-        None => "[Search Mode] ".to_string(),
+pub fn format_mode(ordered: bool, filtered: bool) -> &'static str {
+    match (filtered, ordered) {
+        (false, _) => "[Search Mode] ",
+        (true, true) => "[Ordered Mode] ",
+        (true, false) => "[Unordered Mode] ",
     }
 }
 

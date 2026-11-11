@@ -22,7 +22,7 @@ type ToioLock = Arc<RwLock<Vec<Arc<RwLock<Toio>>>>>;
 #[command(name = "toio")]
 struct Args {
     /// Filter toios by IDs (comma-separated list e.g. 1,2,3)
-    #[arg(short, long, value_delimiter = ',')]
+    #[arg(short, long, value_delimiter = ',', required_unless_present = "search")]
     axlab_id: Option<Vec<usize>>,
 
     /// Use ordered search
@@ -30,7 +30,7 @@ struct Args {
     ordered: bool,
 
     /// Use unfiltered search
-    #[arg(short, long)]
+    #[arg(short, long, conflicts_with_all = ["axlab_id", "ordered"])]
     search: bool,
 
     /// Set receiving port
@@ -58,36 +58,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // create scanner and array of toios
     let scanner = match args.axlab_id.clone() {
         Some(filter) => {
-            if args.search {
-                println!("You provide a filter and be in search mode");
-                process::exit(1);
-            }
-
             debugPrint!(
                 "Running {} Search for Toios: {:?}",
                 if args.ordered { "Ordered" } else { "Unordered" },
                 filter
             );
-            ToioScanner::new_filtered(args.ordered, filter.clone()).await?
+            ToioScanner::new_filtered(args.ordered, filter).await?
         }
         None => {
-            if !args.search {
-                println!("You must provide IDs when not in search mode");
-                process::exit(1);
-            }
-
-            if args.ordered {
-                println!("You cannot be in ordered mode when not in search mode");
-                process::exit(1);
-            }
-
             debugPrint!("Running Unfiltered Search for Toios");
             ToioScanner::new_search().await?
         }
     };
 
     // parse server and client address from args
-    let local_ip = get_local_ip();
+    let local_ip = local_ip().map_or_else(|_| "0.0.0.0".to_string(), |ip| ip.to_string());
     let host_port = args.port.unwrap_or(3334);
     let host_addr = format!("0.0.0.0:{}", host_port);
     let to_addr = format!(
@@ -179,14 +164,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     let mut toio_lock_write = toio_lock_clone.write().await;
 
                     // find if id was previously connected to
-                    let existing_id = join_all(
-                        toio_lock_write
-                            .iter()
-                            .map(|x| async { x.read().await.toio.peripheral_id.clone() }),
-                    )
-                    .await
-                    .iter()
-                    .position(|id| *id == toio_peripheral.peripheral_id);
+                    let existing_id =
+                        find_toio_index(&toio_lock_write, &toio_peripheral.peripheral_id).await;
                     let id = existing_id.unwrap_or(toio_lock_write.len());
 
                     // create instance of toio state and start listening for messages from toio
@@ -235,22 +214,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
                 Right(peripheral_id) => {
-                    // request permission to write to list of connected toios
-                    let toio_lock_write = toio_lock_clone.write().await;
-
-                    // Collect all peripheral_ids with their indices
-                    let toio_id = join_all(
-                        toio_lock_write
-                            .iter()
-                            .map(|x| async { x.read().await.toio.peripheral_id.clone() }),
-                    )
-                    .await
-                    .iter()
-                    .position(|id| *id == peripheral_id);
-
-                    // Find the index of the matching peripheral_id
-                    if let Some(idx) = toio_id {
-                        let mut toio = toio_lock_write[idx].write().await;
+                    let toio_lock_read = toio_lock_clone.read().await;
+                    if let Some(idx) = find_toio_index(&toio_lock_read, &peripheral_id).await {
+                        let mut toio = toio_lock_read[idx].write().await;
                         toio.disconnect();
                         debugPrint!("Toio Disconnected: {}", toio.id);
                     };
@@ -265,23 +231,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
         terminal = setup_terminal()?;
     }
 
+    // define terminal UI titles
+    let mode_label = format_mode(args.ordered, args.axlab_id.is_some());
+    let addr_label = format!(" {}:{} -> {} ", local_ip, host_port, to_addr);
+
     // update UI from all of the toios
-    let toio_lock_clone = toio_lock.clone();
     let mut interval = time::interval(Duration::from_millis(50)); // 20 FPS
     loop {
         interval.tick().await;
 
-        // read toio info and draw UI
-        let connected_read = toio_lock_clone.read().await;
-        let toio_info = join_all(connected_read.iter().map(create_toio_info)).await;
+        // read toio info (releasing the list lock before drawing/polling) and draw UI
+        let toio_info = join_all(toio_lock.read().await.iter().map(create_toio_info)).await;
         if let Some(ref mut toio_ui) = terminal {
             toio_ui.draw(create_toio_ui(
                 toio_info,
-                args.ordered,
-                args.axlab_id.clone(),
-                local_ip.clone(),
-                host_port,
-                to_addr.to_string(),
+                &args.axlab_id,
+                mode_label,
+                &addr_label,
             ))?;
         }
 
@@ -291,12 +257,4 @@ async fn main() -> Result<(), Box<dyn Error>> {
             process::exit(1);
         }
     }
-}
-
-fn get_local_ip() -> String {
-    if let Ok(my_local_ip) = local_ip() {
-        return my_local_ip.to_string();
-    } else {
-        return "0.0.0.0".to_string();
-    };
 }

@@ -4,9 +4,12 @@ use btleplug::{
         Central, CentralEvent, CharPropFlags, Characteristic, Manager as _, Peripheral, ScanFilter,
     },
     platform,
-    platform::{Adapter, Manager},
+    platform::{Adapter, Manager, PeripheralId},
 };
-use futures::{future::Either, stream::StreamExt};
+use futures::{
+    future::{join_all, Either},
+    stream::StreamExt,
+};
 use std::{error::Error, sync::Arc, time::SystemTime, vec};
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::{error::TrySendError, Receiver, Sender};
@@ -19,7 +22,6 @@ pub struct ToioScanner {
     central: Adapter,
     ordered: bool,
     filter: Option<Vec<String>>,
-    connected: Vec<String>,
 }
 
 pub struct ToioReceiver {
@@ -84,7 +86,6 @@ impl ToioScanner {
             central,
             filter: None,
             ordered: false,
-            connected: vec![],
         })
     }
 
@@ -107,7 +108,6 @@ impl ToioScanner {
             central,
             filter: Some(toio_filter),
             ordered,
-            connected: vec![],
         })
     }
 
@@ -126,7 +126,7 @@ impl ToioScanner {
 
         // Discovery Async Task
         let mut toio_filter = self.filter.clone();
-        let mut connected = self.connected.clone();
+        let mut connected: Vec<String> = vec![];
         let ordered = self.ordered;
         tokio::spawn(async move {
             while let Some(event) = events.next().await {
@@ -136,26 +136,18 @@ impl ToioScanner {
                         let peripheral = central.peripheral(&id).await.unwrap();
 
                         if ordered {
-                            if let Some(ref mut new_filter) = toio_filter.clone() {
-                                let filter = if new_filter.len() > 0 {
-                                    [connected.clone(), vec![new_filter[0].clone()]].concat()
-                                } else {
-                                    connected.clone()
-                                };
+                            if let Some(remaining) = toio_filter.as_mut() {
+                                // allow reconnecting known toios, or connecting the next toio in order
+                                let mut allowed = connected.clone();
+                                allowed.extend(remaining.first().cloned());
 
-                                let connect_success =
-                                    Self::try_connect(peripheral, &tx, Some(filter)).await;
+                                let connection_attempt =
+                                    Self::try_connect(peripheral, &tx, Some(allowed)).await;
 
-                                if let Some(toio_name) = connect_success {
-                                    // if filtered order, update filter on successful connection
-                                    let update_filter = !new_filter.is_empty()
-                                        && toio_name == new_filter[0].to_string();
-
-                                    if update_filter {
-                                        new_filter.remove(0);
+                                if let Some(toio_name) = connection_attempt {
+                                    if remaining.first() == Some(&toio_name) {
+                                        remaining.remove(0);
                                     }
-
-                                    toio_filter = Some(new_filter.to_vec());
                                     connected.push(toio_name);
                                 }
                             }
@@ -302,7 +294,7 @@ impl Toio {
 
         return Toio {
             name: toio.name.clone(),
-            id: id,
+            id,
             connected: true,
             channel: Some(channel),
             state,
@@ -391,4 +383,18 @@ fn toio_name_variants(id: &str) -> Vec<String> {
 // return the toio ID that corresponds to a specific toio
 fn get_toio_id(name: &str) -> Option<usize> {
     return IDARR.iter().position(|&r| r == name);
+}
+
+pub async fn find_toio_index(
+    toios: &[Arc<RwLock<Toio>>],
+    peripheral_id: &PeripheralId,
+) -> Option<usize> {
+    join_all(
+        toios
+            .iter()
+            .map(|x| async { x.read().await.toio.peripheral_id.clone() }),
+    )
+    .await
+    .iter()
+    .position(|id| id == peripheral_id)
 }
