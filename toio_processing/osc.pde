@@ -1,13 +1,23 @@
 String[] hosts = { "127.0.0.1" }; // list of IP hosts that are connecting to this instance of Laptop-TOIO
 
-//basic motor control (simplified), specification found at:
-//can use negative numbers to move toio backwards
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+int getHostId(String addr) {
+  for (int i = 0; i < hosts.length; i++) {
+    if (addr.equals("/" + hosts[i]) || addr.equals("/" + servers[i].address())) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+// basic motor control (simplified), specification found at:
+// can use negative numbers to move toio backwards
+// https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
 void motorBasic(int cubeId, int leftspeed, int rightspeed) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/motorBasic");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   if (leftspeed < 0) {
     msg.add(0x01);
   } else {
@@ -20,16 +30,16 @@ void motorBasic(int cubeId, int leftspeed, int rightspeed) {
     msg.add(0x02);
   }
   msg.add(rightspeed);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//basic motor control (advanced), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+// basic motor control (advanced), specification found at:
+// https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
 void motorBasic(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/motorBasic");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   if (leftforwards) {
     msg.add(0x01);
   } else {
@@ -42,17 +52,17 @@ void motorBasic(int cubeId, boolean leftforwards, int leftspeed, boolean rightfo
     msg.add(0x02);
   }
   msg.add(rightspeed);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//basic motor control (simplified), specification found at:
-//can use negative numbers to move toio backwards
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+// basic motor control (simplified), specification found at:
+// can use negative numbers to move toio backwards
+// https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
 void motorDuration(int cubeId, int leftspeed, int rightspeed, int duration) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/motorDuration");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   if (leftspeed < 0) {
     msg.add(0x01);
   } else {
@@ -66,16 +76,16 @@ void motorDuration(int cubeId, int leftspeed, int rightspeed, int duration) {
   }
   msg.add(rightspeed);
   msg.add(duration);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//basic motor control (advanced), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+// basic motor control (advanced), specification found at:
+// https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
 void motorDuration(int cubeId, boolean leftforwards, int leftspeed, boolean rightforwards, int rightspeed, int duration) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/motorDuration");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   if (leftforwards) {
     msg.add(0x01);
   } else {
@@ -89,16 +99,16 @@ void motorDuration(int cubeId, boolean leftforwards, int leftspeed, boolean righ
   }
   msg.add(rightspeed);
   msg.add(duration);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//motor control with target specified (advanced), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+// motor control with target specified (advanced), specification found at:
+// https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
 void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta){
   int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/motorTarget");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   msg.add(control);
   msg.add(timeout);
   msg.add(mode);
@@ -107,17 +117,17 @@ void motorTarget(int cubeId, int control, int timeout, int mode, int maxspeed, i
   msg.add(x);
   msg.add(y);
   msg.add(theta);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//motor control with multiple targets specified (advanced), specification found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-//targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
+// motor control with multiple targets specified (advanced), specification found at:
+// https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+// targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
 void motorMultiTarget(int cubeId, int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets){
   int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/multiTarget");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   msg.add(control);
   msg.add(timeout);
   msg.add(mode);
@@ -133,16 +143,16 @@ void motorMultiTarget(int cubeId, int control, int timeout, int mode, int maxspe
       msg.add(0);
     }
   }
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//motor control with acceleration specified, specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
+// motor control with acceleration specified, specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
 void motorAcceleration(int cubeId, int speed, int a, int rotateVelocity, int rotateDir, int dir, int priority, int duration){
   OscMessage msg = new OscMessage("/motorAcceleration");
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
-  msg.add(actualcubeid);
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
+  msg.add(actualCubeId);
   msg.add(speed);
   msg.add(a);
   msg.add(rotateVelocity);
@@ -150,33 +160,32 @@ void motorAcceleration(int cubeId, int speed, int a, int rotateVelocity, int rot
   msg.add(dir);
   msg.add(priority);
   msg.add(duration);
-  oscP5.send(msg, server[hostId]);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//activating LED on bottom of toio, specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_light
+// activating LED on bottom of toio, specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_light
 void lightLed(int cubeId, int duration, int red, int green, int blue) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/led");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   msg.add(1);
   msg.add(duration);
   msg.add(red);
   msg.add(green);
   msg.add(blue);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//activating LED sequence on bottom of toio, specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_light
-//lights should be formatted as {duration, red, green, blue}
+// activating LED sequence on bottom of toio, specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_light
+// lights should be formatted as {duration, red, green, blue}
 void lightLed(int cubeId, int repetitions, int[][] lights) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/led");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   msg.add(repetitions);
 
   for (int i = 0; i < lights.length; i++) {
@@ -185,44 +194,44 @@ void lightLed(int cubeId, int repetitions, int[][] lights) {
        msg.add(lights[i][j]);
     }
   } 
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
 
-//play sound effects, specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_sound
+// play sound effects, specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_sound
 void soundEffect(int cubeId, int soundeffect, int volume) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/sound");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   msg.add(soundeffect);
   msg.add(volume);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//play Midi Note (single), specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
+// play Midi Note (single), specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
 void soundMidi(int cubeId, int duration, int noteID, int volume) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/midi");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   msg.add(1);
   msg.add(duration);
   msg.add(noteID);
   msg.add(volume);
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//play Midi Notes (advanced), specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
-//targets should be formatted as {duration, noteID, volume} or {duration, noteID}. Unless specified, volume = 255
+// play Midi Notes (advanced), specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
+// targets should be formatted as {duration, noteID, volume} or {duration, noteID}. Unless specified, volume = 255
 void soundMidi(int cubeId, int repetitions, int[][] notes) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/midi");
-  msg.add(actualcubeid);
+  msg.add(actualCubeId);
   msg.add(repetitions);
   
   for (int i = 0; i < notes.length; i++) {
@@ -234,33 +243,35 @@ void soundMidi(int cubeId, int repetitions, int[][] notes) {
       msg.add(255);
     }
   }
-  oscP5.send(msg, server[hostId]);
+  oscChannel.send(msg, servers[hostId]);
 }
 
-//request for motion detection information, specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_sensor
+// request for motion detection information, specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_sensor
 void motionRequest(int cubeId) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/motion");
-  msg.add(actualcubeid);
-  oscP5.send(msg, server[hostId]);
+  msg.add(actualCubeId);
+  oscChannel.send(msg, servers[hostId]);
 }
 
+// request for motion sensor information, specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_sensor/#requesting-motion-detection-information
 void motionRequest(int[] cubeId) {
   for (int i = 0; i < cubeId.length; i++) {
     motionRequest(cubeId[i]);
   }
 }
 
-//request for magnetic sensor information, specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_magnetic_sensor
+// request for magnetic sensor information, specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_magnetic_sensor
 void magneticRequest(int cubeId) {
-  int hostId = cubeId/cubesPerHost;
-  int actualcubeid = cubeId % cubesPerHost;
+  int hostId = cubeId / cubesPerHost;
+  int actualCubeId = cubeId % cubesPerHost;
   OscMessage msg = new OscMessage("/magnetic");
-  msg.add(actualcubeid);
-  oscP5.send(msg, server[hostId]);
+  msg.add(actualCubeId);
+  oscChannel.send(msg, servers[hostId]);
 }
 
 void magneticRequest(int[] cubeId) {
@@ -269,45 +280,35 @@ void magneticRequest(int[] cubeId) {
   }
 }
 
-//request for cube rotation information (in Eulers), specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor
+// request for cube rotation information (in Eulers), specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor
 void postureRequest(int cubeId) {
-    int hostId = cubeId/cubesPerHost;
-    int actualcubeid = cubeId % cubesPerHost;
+    int hostId = cubeId / cubesPerHost;
+    int actualCubeId = cubeId % cubesPerHost;
     OscMessage msg = new OscMessage("/postureEuler");
-    msg.add(actualcubeid);
-    oscP5.send(msg, server[hostId]);
+    msg.add(actualCubeId);
+    oscChannel.send(msg, servers[hostId]);
 }
 
-//request for cube rotation information, specification can be found at:
-//https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor
+// request for cube rotation information, specification can be found at:
+// https://toio.github.io/toio-spec/en/docs/ble_high_precision_tilt_sensor
 void postureRequest(int cubeId, boolean euler) {
-    int hostId = cubeId/cubesPerHost;
-    int actualcubeid = cubeId % cubesPerHost;
+    int hostId = cubeId / cubesPerHost;
+    int actualCubeId = cubeId % cubesPerHost;
     OscMessage msg;
     if (euler) {
       msg = new OscMessage("/postureEuler");
     } else {
       msg = new OscMessage("/postureQuaternion");
     }
-     msg.add(actualcubeid);
-     oscP5.send(msg, server[hostId]);
+     msg.add(actualCubeId);
+     oscChannel.send(msg, servers[hostId]);
 }
 
 void postureRequest(boolean euler, int[] cubeId) {
   for (int i = 0; i < cubeId.length; i++) {
     postureRequest(cubeId[i], euler);
   }
-}
-
-int getHostId(String addr) {
-  for (int i = 0; i < hosts.length; i++) {
-    if (addr.equals("/" + hosts[i]) || addr.equals("/" + server[i].address())) {
-      return i;
-    }
-  }
-
-  return -1;
 }
 
 void oscEvent(OscMessage msg) {
@@ -336,8 +337,8 @@ void oscEvent(OscMessage msg) {
     cubes[id].onBatteryUpdate(battery);
   }
   
+  // collect motion sensor information
   else if (msg.checkAddrPattern("/motion")) {
-    //this collects motion sensor information
     int flatness = (int) msg.arguments()[1];
     int hit = (int) msg.arguments()[2];
     int double_tap = (int) msg.arguments()[3];
@@ -347,8 +348,8 @@ void oscEvent(OscMessage msg) {
     cubes[id].onMotionUpdate(flatness, hit, double_tap, face_up, shake_level);
   } 
   
+  // collect magnetic sensor information
   else if (msg.checkAddrPattern("/magnetic")) {
-    //this collects magnetic sensor information
     int state = (int) msg.arguments()[1];
     int strength = (int) msg.arguments()[2];
     int forcex = (int) msg.arguments()[3];
@@ -358,8 +359,8 @@ void oscEvent(OscMessage msg) {
     cubes[id].onMagneticUpdate(state, strength, forcex, forcey, forcez);
   }
   
+  // collect posture sensor information (in eulers)
   else if (msg.checkAddrPattern("/postureEuler")) {
-    //this collects posture sensor information (in eulers)
     int roll = (int) msg.arguments()[1];
     int pitch = (int) msg.arguments()[2];
     int yaw = (int) msg.arguments()[3];
@@ -367,8 +368,8 @@ void oscEvent(OscMessage msg) {
     cubes[id].onPostureUpdate(roll, pitch, yaw);
   } 
   
+  // collect posture sensor information (in quaternion)
   else if (msg.checkAddrPattern("/postureQuaternion")) {
-    //this collects posture sensor information (in quaternion)
     float w = (float) msg.arguments()[1];
     float x = (float) msg.arguments()[2];
     float y = (float) msg.arguments()[3];
@@ -377,8 +378,9 @@ void oscEvent(OscMessage msg) {
     cubes[id].onPostureUpdate(w, x, y, z);
   } 
   
+  // collects button information
   else if (msg.checkAddrPattern("/button")) {
-    //this collects button information
+    
     int pressValue = (int) msg.arguments()[1];
     
     if (pressValue == 0) {
@@ -388,24 +390,11 @@ void oscEvent(OscMessage msg) {
     } 
   }
   
+  // collect motor response information
   else if (msg.checkAddrPattern("/motorresponse")) {
-    //this collects motor response information
     int control = (int) msg.arguments()[1];
     int response = (int) msg.arguments()[2];
     
     cubes[id].onMotorResponse(control, response);
   }
-}
-
-void check_connection(){
-  long now = System.currentTimeMillis();
-  for (int i = 0; i < nCubes; i++) {
-    cubes[i].checkActive(now);
-    if (!cubes[i].isActive){
-      println("Waiting for cube"+i);
-      i -= 1;
-      delay(500);
-    }
-  }
-  println("Connection Check Passed.");
 }

@@ -10,6 +10,7 @@ use crate::{osc::*, terminal::*, toio::*, updates::*};
 use clap::Parser;
 use futures::future::join_all;
 use futures::future::Either::{Left, Right};
+use local_ip_address::local_ip;
 use std::time::{Duration, SystemTime};
 use std::{error::Error, process, sync::atomic::Ordering, sync::Arc};
 use tokio::sync::{mpsc::error::TrySendError, RwLock};
@@ -20,6 +21,18 @@ type ToioLock = Arc<RwLock<Vec<Arc<RwLock<Toio>>>>>;
 #[derive(Parser)]
 #[command(name = "toio")]
 struct Args {
+    /// Filter toios by IDs (comma-separated list e.g. 1,2,3)
+    #[arg(short, long, value_delimiter = ',')]
+    axlab_id: Option<Vec<usize>>,
+
+    /// Use ordered search
+    #[arg(short, long)]
+    ordered: bool,
+
+    /// Use unfiltered search
+    #[arg(short, long)]
+    search: bool,
+
     /// Set receiving port
     #[arg(short, long)]
     port: Option<usize>,
@@ -35,18 +48,6 @@ struct Args {
     /// Show debug terminal stream instead of terminal UI
     #[arg(short, long)]
     debug: bool,
-
-    /// Use unfiltered search
-    #[arg(short, long)]
-    search: bool,
-
-    /// Use ordered search
-    #[arg(short, long)]
-    ordered: bool,
-
-    /// Filter toios by IDs (comma-separated list e.g. 1,2,3)
-    #[arg(short, long, value_delimiter = ',')]
-    axlab_id: Option<Vec<usize>>,
 }
 
 #[tokio::main]
@@ -59,7 +60,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Some(filter) => {
             if args.search {
                 println!("You provide a filter and be in search mode");
-                process::exit(0);
+                process::exit(1);
             }
 
             debugPrint!(
@@ -72,12 +73,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         None => {
             if !args.search {
                 println!("You must provide IDs when not in search mode");
-                process::exit(0);
+                process::exit(1);
             }
 
             if args.ordered {
                 println!("You cannot be in ordered mode when not in search mode");
-                process::exit(0);
+                process::exit(1);
             }
 
             debugPrint!("Running Unfiltered Search for Toios");
@@ -86,7 +87,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
 
     // parse server and client address from args
-    let host_addr = format!("0.0.0.0:{}", args.port.unwrap_or(3334));
+    let local_ip = get_local_ip();
+    let host_port = args.port.unwrap_or(3334);
+    let host_addr = format!("0.0.0.0:{}", host_port);
     let to_addr = format!(
         "{}:{}",
         args.ip.unwrap_or("127.0.0.1".to_string()),
@@ -274,8 +277,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         if let Some(ref mut toio_ui) = terminal {
             toio_ui.draw(create_toio_ui(
                 toio_info,
+                args.ordered,
                 args.axlab_id.clone(),
-                host_addr.clone(),
+                local_ip.clone(),
+                host_port,
                 to_addr.to_string(),
             ))?;
         }
@@ -283,7 +288,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // exit terminal if "Q" key is pressed
         if handle_events()? {
             exit_terminal()?;
-            process::exit(0);
+            process::exit(1);
         }
     }
+}
+
+fn get_local_ip() -> String {
+    if let Ok(my_local_ip) = local_ip() {
+        return my_local_ip.to_string();
+    } else {
+        return "0.0.0.0".to_string();
+    };
 }

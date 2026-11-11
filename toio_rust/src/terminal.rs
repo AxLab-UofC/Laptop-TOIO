@@ -20,7 +20,7 @@ const TOIO_LAYOUT: [(u16, &str); 7] = [
     (3, "ID"),            // toio id
     (4, "Name"),          // name
     (7, "Battery"),       // battery
-    (10, "Pos"),          // location
+    (10, "Position"),     // position
     (12, "Last Update"),  // last update
     (12, "Last Command"), // last command
 ];
@@ -62,14 +62,21 @@ pub async fn create_toio_info(toio_guard: &Arc<RwLock<Toio>>) -> ToioInfo {
 
 pub fn create_toio_ui(
     toio_info: Vec<ToioInfo>,
+    ordered: bool,
     filter: Option<Vec<usize>>,
-    host_addr: String,
+    local_ip: String,
+    host_port: usize,
     to_addr: String,
 ) -> impl Fn(&mut Frame) {
     move |frame| {
         let area = frame.size();
 
         // construct header element for "Search Mode" or Filtered List
+        let main_title = Title::from(vec![
+            Span::from(" Laptop Toio ").style(Style::new().white()),
+            Span::from(format_mode(ordered, filter.clone())).style(Style::new().green()),
+        ]);
+
         let connected_ids: Vec<String> = toio_info.iter().map(|val| val.id.clone()).collect();
         let filter_list = match &filter {
             Some(toio_filter) => {
@@ -89,9 +96,10 @@ pub fn create_toio_ui(
                         }
                     })
                     .collect();
+
                 Title::from(spans)
             }
-            None => Title::from(Line::from(" Search Mode ").style(Style::new().green())),
+            None => Title::from(Line::from("")),
         };
 
         let rows: Vec<Row> = toio_info
@@ -137,9 +145,12 @@ pub fn create_toio_ui(
             .highlight_style(Style::new().reversed())
             .highlight_symbol(">>");
 
-        let addrs = Title::from(Line::from(format!(" {} -> {} ", host_addr, to_addr)))
-            .alignment(Alignment::Right)
-            .position(Position::Top);
+        let addrs = Title::from(Line::from(format!(
+            " {}:{} -> {} ",
+            local_ip, host_port, to_addr
+        )))
+        .alignment(Alignment::Right)
+        .position(Position::Top);
 
         let instructions = Title::from(Line::from(vec![" Quit ".into(), "<Q> ".blue().bold()]))
             .alignment(Alignment::Center)
@@ -148,7 +159,7 @@ pub fn create_toio_ui(
         frame.render_widget(
             table.block(
                 Block::default()
-                    .title(" Laptop Toio ")
+                    .title(main_title)
                     .title(filter_list)
                     .title(addrs)
                     .title(instructions)
@@ -182,6 +193,19 @@ pub fn handle_events() -> io::Result<bool> {
         }
     }
     Ok(false)
+}
+
+fn format_mode(ordered: bool, filter: Option<Vec<usize>>) -> String {
+    match filter {
+        Some(..) => {
+            if ordered {
+                return "[Ordered Mode] ".to_string();
+            } else {
+                return "[Unordered Mode] ".to_string();
+            };
+        }
+        None => "[Search Mode] ".to_string(),
+    }
 }
 
 fn format_time(time: Option<SystemTime>) -> String {
