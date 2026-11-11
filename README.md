@@ -135,15 +135,13 @@ Motor Velocity Target is a special command for toios based off of PID (Proportio
 ``` java 
 int xMid = (int) (matDims[2] + matDims[0]) / 2;
 int yMid = (int) (matDims[3] + matDims[1]) / 2;
-float radius = (2 / 3) * min(matDims[2] - matDims[0], matDims[3] + matDims[1]);
+int radius = 100;
 int period = 5; // set an animation period of 5 seconds
 
 void animCircle() {
   int currTime = millis();
   float t = (float) currTime/(5 * 1000);
-  
   float angle = t * (2 * PI);
-  float radius = 100;
   
   int x = (int) (xMid + (radius * sin(angle)));
   int y = (int) (yMid + (radius * cos(angle)));
@@ -190,8 +188,8 @@ After setting the remote IP, the top right should look like this:
 4. Update the Processing code to add the additional host(s), as well as `nCubes` and `cubesPerHost`:
 ``` java
    // main.pde
-   int cubesPerHost = 12; // number of toios each instance of the rust backend is connecting to
-   int nCubes = 12; // total number of toios connected 
+   int cubesPerHost = 3; // number of toios each instance of the rust backend is connecting to
+   int nCubes = 6; // total number of toios connected 
 
    // osc.pde
    String[] hosts = { "127.0.0.1", "10.0.0.233" }; // list of IP hosts that are connecting to this instance of Laptop-TOIO
