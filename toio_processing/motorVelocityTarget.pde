@@ -1,81 +1,69 @@
-boolean motorTargetVelocity(int id, int x, int y, float vx, float vy) {
+int maxMotorSpeed = 115;
+int velocityTargetingDuration = 50;
 
-  if (cubes[id].isActive) {
-    /////previously defined as .aim
-    int left = 0;
-    int right = 0;
-    float angleToTarget = atan2(y-cubes[id].y, x-cubes[id].x);
+float getAngleDiff(float cubeAngle, float angleToTarget) {
+  float angleDiff = cubeAngle - angleToTarget;
+  if (angleDiff > PI) return angleDiff - TWO_PI;
+  if (angleDiff < -PI) return angleDiff + TWO_PI;
+  return angleDiff;
+}
 
-    float thisAngle = cubes[id].theta*PI/180;
-    float diffAngle = thisAngle-angleToTarget;
-    if (diffAngle > PI) diffAngle -= TWO_PI;
-    if (diffAngle < -PI) diffAngle += TWO_PI;
-    
+int[] getMotorSpeeds(float angleDiff) {
+  int negativeModifier = abs(angleDiff) > HALF_PI ? 1 : -1;
+  float frac = negativeModifier * cos(angleDiff);
 
-    //if in front, go forward and
-    if (abs(diffAngle) > HALF_PI) { //in front
-      float frac = cos(diffAngle);
+  // the outer wheel is always at full speed, while the inner wheel slows down as the angle error grows, causing sharper turns
+  int outerWheelSpeed = negativeModifier * maxMotorSpeed;
+  int innerWheelSpeed = negativeModifier * floor(maxMotorSpeed * pow(frac, 2));
+  
+  // return motor speeds as { left, right }, setting the inner and outer wheel speeds based on the angle difference
+  return angleDiff > 0 ? new int[] { innerWheelSpeed, outerWheelSpeed } : new int[] { outerWheelSpeed, innerWheelSpeed };
+}
 
-      if (diffAngle > 0) {
-        //up-left
-        left = floor(maxMotorSpeed*pow(frac, 2));
-        right = maxMotorSpeed;
-      } else {
-        left = maxMotorSpeed;
-        right = floor(maxMotorSpeed*pow(frac, 2));
-      }
-    } else { //face back
+// non-angled velocity targeting to smoothly travel along a path of points
+void motorVelocityTarget(int id, int x, int y, float vx, float vy) {
+  if (!cubes[id].isActive) return;
+  
+  // get left and right motor speeds
+  float cubeAngle = radians(cubes[id].theta);
+  float angleDiff = getAngleDiff(cubeAngle, atan2(y - cubes[id].y, x - cubes[id].x));
+  int[] motorSpeeds = getMotorSpeeds(angleDiff);
 
-      float frac = -cos(diffAngle);
-      if (diffAngle > 0) {
-        left  = -floor(maxMotorSpeed*pow(frac, 2));
-        right =  -maxMotorSpeed;
-      } else {
-        left  =  -maxMotorSpeed;
-        right = -floor(maxMotorSpeed*pow(frac, 2));
-      }
-    }
-    int[] lr = {left, right};
-    // code above came from the previous aim function
-
-    float angleToVelocity = atan2(vy, vx);
-    float diffVAngle = thisAngle-angleToVelocity;
-    if (diffVAngle > PI) diffVAngle -= TWO_PI;
-    if (diffVAngle < -PI) diffVAngle += TWO_PI;
-
-    if (diffAngle > 0) {
-      diffVAngle = -diffVAngle;
-    }
-
-
-
-    float velIntegrate = sqrt(sq(vx)+sq(vy)); // integrate velocity x + y
-
-    float aimMotSpeed = velIntegrate / 2.0; // translate the speed (pixel/s)  to motor control command /// Maximum is 115 =>
-    //println("Vel Intagrate:", velIntegrate, "aimMotSpeed: ", aimMotSpeed);
-
-
-    //println("diffVAngle = ", degrees(diffVAngle));
-    float aa = 0;
-    if (lr[0]<0) { //facing back
-      aa = -aimMotSpeed;
-    } else { //facing front
-      aa = aimMotSpeed;
-    }
-
-
-    float dd = cubes[id].distance(x, y)/50.0;
-    dd = min(dd, 1);
-    if (dd <.15) cubes[id].motor(0, 0); // keep the motor moving
-
-
-    float left_ = constrain(aa + (lr[0]*dd), -maxMotorSpeed, maxMotorSpeed);
-    float right_ = constrain(aa + (lr[1]*dd), -maxMotorSpeed, maxMotorSpeed);
-    int duration = (50);
-
-    //println("motor command:", id, left_, right_);
-
-    cubes[id].motor((int)left_, (int)right_, duration);
+  float velIntegrate = mag(vx, vy); // integrate velocity x + y
+  float aimMotorSpeed = velIntegrate / 2.0; // translate the speed (pixel/s)  to motor control command /// Maximum is 115 =>
+  float aa = motorSpeeds[0] < 0 ? -aimMotorSpeed : aimMotorSpeed;
+  float dd = min(cubes[id].distance(x, y) / 50.0, 1);
+  if (dd < .15) {
+    cubes[id].motor(0, 0); // keep the motor moving
+    return;
   }
-  return false;
+
+  // motor towards target
+  int leftMotorSpeed = (int) constrain(aa + (motorSpeeds[0] * dd), -maxMotorSpeed, maxMotorSpeed);
+  int rightMotorSpeed = (int) constrain(aa + (motorSpeeds[1] * dd), -maxMotorSpeed, maxMotorSpeed);
+  cubes[id].motor(leftMotorSpeed, rightMotorSpeed, velocityTargetingDuration);
+}
+
+// angled velocity targeting to smoothly travel along a path of points while matching angle
+void motorVelocityTarget(int id, int x, int y, float vx, float vy, int theta) {
+  if (!cubes[id].isActive) return;
+  
+  // use non-angled velocity targeting at high target distance or target velocity
+  float targetVelocity = mag(vx, vy);
+  float targetDistance = cubes[id].distance(x,y);
+  if (targetVelocity > 10 || targetDistance > 10) {
+    motorVelocityTarget(id, x, y, vx, vy);
+    return;
+  } 
+  
+  // rotate if the angle difference between the cube angle and the target angle is greater than ten degrees
+  float angleDiff = getAngleDiff(radians(cubes[id].theta), radians(theta));
+  float angleDiffDegrees = degrees(angleDiff);
+  if (abs(angleDiffDegrees) < 10) return;
+  
+  // motor towards target while matching angle
+  int rotateSpeed = angleDiffDegrees > 10 
+      ? (int) constrain(map(angleDiffDegrees, 10, 150, 10, maxMotorSpeed), 10.0, maxMotorSpeed) 
+      : (int) constrain(map(angleDiffDegrees, -10, -150, -10, -maxMotorSpeed), -10.0, -maxMotorSpeed);
+  cubes[id].motor(rotateSpeed, -rotateSpeed, 10);
 }

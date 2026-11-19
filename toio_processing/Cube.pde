@@ -1,3 +1,16 @@
+void checkCubesConnections(){
+  long now = System.currentTimeMillis();
+  for (int i = 0; i < nCubes; i++) {
+    cubes[i].checkActive(now);
+    if (!cubes[i].isActive){
+      println("Waiting for cube" + i);
+      i -= 1;
+      delay(500);
+    }
+  }
+  println("Connection Check Passed.");
+}
+
 class Cube {
   int id;
   boolean isActive;
@@ -7,13 +20,13 @@ class Cube {
   int x;
   int y;
   int theta;
-  boolean ready;
+  boolean isReady;
   
-  //motor targeting
+  // motor targeting
   int targetX;
   int targetY;
   
-  //velocity targeting
+  // velocity targeting
   int velocityX;
   int velocityY;
   int velocityTime;
@@ -44,10 +57,10 @@ class Cube {
   int yaw;
   
   // posture (quaternions)
-  int qx;
-  int qy;
-  int qw;
-  int qz;
+  float qx;
+  float qy;
+  float qw;
+  float qz;
   
   Cube(int i) {
     id = i;
@@ -68,15 +81,14 @@ class Cube {
     y = upy;
     theta = uptheta; 
     
-    //insert code here
-    
     lastUpdate = System.currentTimeMillis();
     isActive = true;
+    // insert code here
   }
   
   // Updates battery values
-  void onBatteryUpdate(int upbatt) {
-    battery = upbatt;
+  void onBatteryUpdate(int upBatt) {
+    battery = upBatt;
   }
   
   // Updates motion values
@@ -87,15 +99,17 @@ class Cube {
      posture = face_up;
      shake = shake_level;
      
-     //insert code here
-     
      if (collision) {
        onCollision();
+       // insert code here
      }
      
      if (doubleTap) {
        onDoubleTap();
+       // insert code here
      }
+     
+     // insert code here
   }
   
   // Updates magnetic values 
@@ -106,173 +120,185 @@ class Cube {
     magy = upy;
     magz = upz;
     
-    //insert code here
+    // insert code here
   }
   
-  //Updates posture values (euler)
+  // Updates posture values (euler)
   void onPostureUpdate(int uproll, int uppitch, int upyaw) {
     roll = uproll;
     pitch = uppitch;
     yaw = upyaw;
     
-    //insert code here
+    // insert code here
   }
   
-  //Updates posture values (quaternion)
-  void onPostureUpdate(int upw, int upx, int upy, int upz) {
+  // Updates posture values (quaternion)
+  void onPostureUpdate(float upw, float upx, float upy, float upz) {
     qw = upw;
     qx = upx;
     qy = upy;
     qz = upz;
     
-    //insert code here
+    // insert code here
   }
   
   
-  //Execute this code on button press
+  // Execute this code on button press
   void onButtonDown() {
     buttonDown(id);
     buttonDown = true;
-    //insert code here
+    // insert code here
   }
   
-  //Execute this code on button release
+  // Execute this code on button release
   void onButtonUp() {
     buttonUp(id);
     buttonDown = false;
     
-    //insert code here
+    // insert code here
   }
   
-  //Execute this code on collision
+  // Execute this code on collision
   void onCollision() {
     collision(id);
     
-    //insert code here
+    // insert code here
   }
   
-  //Execute this code on double tap
+  // Execute this code on double tap
   void onDoubleTap() {
     doubleTap(id);
     
-    //insert code here
+    // insert code here
   }
   
-  //Execute this code on motor response
+  // Execute this code on motor response
   void onMotorResponse(int control, int response) {
     if (response == 0) {
-      ready = true;
+      isReady = true;
     }
 
-    //insert code here
+    // insert code here
   }
   
-  //basic motor control, specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
-  //can use negative numbers to move toio backwards
+  // basic motor control, specification found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control
+  // can use negative numbers to move toio backwards
   void motor(int leftSpeed,int rightSpeed) {
     motorBasic(id, leftSpeed, rightSpeed);
   }
   
-  //basic motor control w/ duration, specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-specified-duration
-  //can use negative numbers to move toio backwards
+  // basic motor control w/ duration, specification found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-specified-duration
+  // can use negative numbers to move toio backwards
   void motor(int leftSpeed, int rightSpeed, int duration) {
     motorDuration(id, leftSpeed, rightSpeed, duration);
   }
   
   
-  //motor control with target specified (simplified), specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-  //control, timeout, maxspeed, and speed change are preset
+  // motor control with target specified (simplified), specification found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  // control, timeout, maxspeed, and speed change are preset
   void target(int x, int y, int theta) {
     motorTarget(id, 0, 5, 0, 80, 0, x, y, theta);
-    ready = false;
+    isReady = false;
     targetX = x;
     targetY = y;
   }
   
-  //motor control with target specified (simplified), specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
-  //control, timeout, maxspeed, and speed change are preset
+  // motor control with target specified (simplified), specification found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  // control, timeout, maxspeed, and speed change are preset
   void target(int mode, int x, int y, int theta) {
-    motorTarget(id, mode, 5, 0, 80, 0, x, y, theta);
-    ready = false;
+    motorTarget(id, 0, 5, mode, 80, 0, x, y, theta);
+    isReady = false;
     targetX = x;
     targetY = y;
   }
   
-  //motor control with target specified (advanced), specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
+  // motor control with target specified (advanced), specification found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-target-specified
   void target(int control, int timeout, int mode, int maxspeed, int speedchange,  int x, int y, int theta) {
     motorTarget(id, control, timeout, mode, maxspeed, speedchange, x, y, theta);
-    ready = false;
+    isReady = false;
     targetX = x;
     targetY = y;
   }
   
-  //velocity targeting to allow you to smoothly move to points continously
-  boolean velocityTarget(int x, int y) {
+  // non-angled velocity targeting to smoothly travel along a path of points
+  void velocityTarget(int x, int y) {
     float elapsedTime = millis() - velocityTime;
     float vx = (velocityX - x) / elapsedTime;
     float vy = (velocityY - y) / elapsedTime;
     
-    boolean val = motorTargetVelocity(id, x, y, vx, vy);
+    motorVelocityTarget(id, x, y, vx, vy);
     
     velocityX = x;
     velocityY = y;
     velocityTime = millis();
-    return val;
+  }
+
+  // angled velocity targeting to smoothly travel along a path of points while matching angle
+  void velocityTarget(int x, int y, int theta) {
+    float elapsedTime = millis() - velocityTime;
+    float vx = (velocityX - x) / elapsedTime;
+    float vy = (velocityY - y) / elapsedTime;
+    
+    motorVelocityTarget(id, x, y, vx, vy, theta);
+    
+    velocityX = x;
+    velocityY = y;
+    velocityTime = millis();
   }
   
-  //motor control with acceleration specified, specification can be found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
+  // motor control with acceleration specified, specification can be found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_motor#motor-control-with-acceleration-specified
   void accelerate(int speed, int acc, int rotateVelocity, int rotateDir, int dir, int priority, int duration) {
     motorAcceleration(id, speed, acc, rotateVelocity, rotateDir, dir, priority, duration);
   }
   
-  //motor control with multiple targets specified (simplified), specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
-  //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
+  // motor control with multiple targets specified (simplified), specification found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
+  // targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
   void multiTarget(int mode, int[][] targets) {
-    motorMultiTarget(id, mode, 5, 0, 80, 0, targets);
+    motorMultiTarget(id, 0, 5, mode, 80, 0, targets);
   }
   
-  //motor control with multiple targets specified (advanced), specification found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
-  //targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
+  // motor control with multiple targets specified (advanced), specification found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_motor/#motor-control-with-multiple-targets-specified
+  // targets should be formatted as {x, y, theta} or {x, y}. Unless specified, theta = 0
   void multiTarget(int control, int timeout, int mode, int maxspeed, int speedchange,  int[][] targets) {
     motorMultiTarget(id, control, timeout, mode, maxspeed, speedchange, targets);
   }
   
-  //Activating the toio LED (single), specification can be found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_light
+  // Activating the toio LED (single), specification can be found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_light
   void led(int duration, int red, int green, int blue) {
     lightLed(id, duration, red, green, blue);
   }
   
-  //Activating the toio LED (sequence), specification can be found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_light
-  //lights should be formatted as {duration, red, green, blue}
+  // Activating the toio LED (sequence), specification can be found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_light
+  // lights should be formatted as {duration, red, green, blue}
   void led(int repetitions, int[][] lights) {
     lightLed(id, repetitions, lights);
   }
   
-  //play sound effects, specification can be found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_sound
+  // play sound effects, specification can be found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_sound
   void sound(int soundeffect, int volume) {
     soundEffect(id, soundeffect, volume);
   }
   
-  //play Midi Note (single), specification can be found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
+  // play MIDI Note (single), specification can be found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
   void midi(int duration, int noteID, int volume) {
     soundMidi(id, duration, noteID, volume);
   }
   
-  //play Midi Notes (sequence), specification can be found at:
-  //https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
-  //targets should be formatted as {duration, noteID, volume} or {duration, noteID}. Unless specified, volume = 255
+  // play MIDI Notes (sequence), specification can be found at:
+  // https://toio.github.io/toio-spec/en/docs/ble_sound/#playing-the-midi-note-numbers
+  // targets should be formatted as {duration, noteID, volume} or {duration, noteID}. Unless specified, volume = 255
   void midi(int repetitions, int[][] notes)  {
     soundMidi(id, repetitions, notes);
   }
