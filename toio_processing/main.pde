@@ -8,14 +8,16 @@ import netP5.*;
 // Optional: If the toio behavior is werid consider dropping the framerate (e.g. change from 30 to 10)
 
 // Mat Dimension Constants
-int[] matDims = { 45, 45, 455, 455 }; // Mat Dimensions, expressed as { x1, y1, x2, y2 };
+// Raw coordinates reported at the mat's top-left and bottom-right, not pixel dimensions.
+int[] matDims = { 45,450,650,900 }; // { x1, y1, x2, y2 }
+// Subtract these offsets to display mat coordinates with a 45-pixel margin.
 int xOffset = matDims[0] - 45;
 int yOffset = matDims[1] - 45;
 
 // Cube and Framerate Constants
 // The laptop can handle upto a soft limit of 10-12 toios at once. It becomes more difficult to maintain the connection at higher numbers
 int cubesPerHost = 12;
-int nCubes = 12;
+int nCubes = 5;
 int framerate = 30;
 
 Cube[] cubes;
@@ -23,7 +25,7 @@ OscP5 oscChannel; // for OSC
 NetAddress[] servers; // where to send the commands to
 
 void settings() {
-  size(matDims[2] + 45, matDims[3] + 45);
+  size(matDims[2] - matDims[0] + 90, matDims[3] - matDims[1] + 90);
 }
 
 void setup() {  
@@ -67,7 +69,7 @@ void draw() {
 
   // draw the cubes
   pushMatrix();
-  translate(xOffset, yOffset);
+  translate(-xOffset, -yOffset);
   for (int i = 0; i < nCubes; i++) {
     cubes[i].checkActive(now);
     

@@ -90,6 +90,11 @@ This tab is analogous to the `setup` and `loop` structure in arduino
 
 For the most part, you will purely be writing your code in the `main` and `events` tabs, and `cube` can be refered for you to quickly understand different commands.
 
+## Mat coordinates
+In `toio_processing/main.pde`, set `matDims` to `{x1, y1, x2, y2}` using the raw coordinates reported at the physical mat's top-left and bottom-right. The width and height are `x2 - x1` and `y2 - y1`; these values are not screen coordinates or measurements in millimeters. Restart the sketch after changing them.
+
+The display subtracts the mat's origin offset so that its top-left appears at `(45, 45)` in the window. `cubes[i].x`, `cubes[i].y`, and motor targets remain in raw mat coordinates. Mouse clicks are converted back to raw coordinates before sending a target.
+
 ## Writing toio Processing code
 Processing allows you to write code in two ways:
 - The `draw()` function is called continously on a loop. If you want your code to run on a regular interval, this is the best place to put it.

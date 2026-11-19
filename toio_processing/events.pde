@@ -75,8 +75,9 @@ void keyPressed() {
 
 //execute code when mouse is pressed
 void mousePressed() {
-  if (mouseX > 45 && mouseX < matDims[2] - xOffset && mouseY > 45 && mouseY < matDims[2] - yOffset) {
-    cubes[0].target(mouseX, mouseY, 0);
+  if (mouseX > 45 && mouseX < matDims[2] - xOffset && mouseY > 45 && mouseY < matDims[3] - yOffset) {
+    // Convert display coordinates back to the raw coordinates used by the toio.
+    cubes[0].target(mouseX + xOffset, mouseY + yOffset, 0);
   }
 
   //insert code here;

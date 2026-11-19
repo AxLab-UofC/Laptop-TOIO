@@ -1,0 +1,95 @@
+import oscP5.*;
+import netP5.*;
+
+//// Instruction for Windows Users  (Feb 2. 2025) ////
+// 1. Set nCubes to the exact number of toio you are connecting.
+// 2. Run Processing Code FIRST, Then Run the Rust Code. After running the Rust Code, you should place the toio on the toio mat, then Processing should start showing the toio position.
+// 3. When you re-run the processing code, make sure to stop the rust code and toios to be disconnected (switch to Bluetooth stand-by mode [blue LED blinking]). If toios are taking time to disconnect, you can optionally turn off the toio and turn back on using the power button.
+// Optional: If the toio behavior is werid consider dropping the framerate (e.g. change from 30 to 10)
+
+// Mat Dimension Constants
+int[] matDims = { 45, 450, 650, 900 }; // Mat Dimensions, expressed as { x1, y1, x2, y2 };
+int xOffset = matDims[0] - 45;
+int yOffset = matDims[1] - 45;
+
+// Cube and Framerate Constants
+// The laptop can handle upto a soft limit of 10-12 toios at once. It becomes more difficult to maintain the connection at higher numbers
+int cubesPerHost = 12;
+int nCubes = 6;
+int framerate = 30;
+
+Cube[] cubes;
+OscP5 oscChannel; // for OSC
+NetAddress[] servers; // where to send the commands to
+
+void settings() {
+  size(matDims[2] + 45, matDims[3] + 45);
+}
+
+void setup() {  
+  // initalize OSC channel and servers
+  oscChannel = new OscP5(this, 3333);
+  servers = new NetAddress[hosts.length];
+  for (int i = 0; i < hosts.length; i++) {
+    servers[i] = new NetAddress(hosts[i], 3334);
+  }
+  
+  // create cubes
+  cubes = new Cube[nCubes];
+  for (int i = 0; i< nCubes; ++i) {
+    cubes[i] = new Cube(i);
+  }
+
+  // check OS for enabling Windows Mode 
+  String osName = System.getProperty("os.name").toLowerCase();
+  if (osName.contains("win")) {
+    println("Detected Windows: Enabling Windows Mode");
+    checkCubesConnections();
+  };
+  
+  // do not send TOO MANY PACKETS
+  // we'll be updating the cubes every frame, so don't try to go too high
+  frameRate(framerate);
+  
+  // set window title
+  windowTitle("Laptop-TOIO");
+}
+
+void draw() {
+  // START TEMPLATE/DEBUG VIEW
+  long now = System.currentTimeMillis();
+  
+  // draw background and the "mat"
+  background(204);
+  stroke(0);
+  fill(255);
+  rect(matDims[0] - xOffset, matDims[1] - yOffset, matDims[2] - matDims[0], matDims[3] - matDims[1]);
+
+  // draw the cubes
+  pushMatrix();
+  translate(xOffset, yOffset);
+  for (int i = 0; i < nCubes; i++) {
+    cubes[i].checkActive(now);
+    
+    if (cubes[i].isActive) {
+      pushMatrix();
+      translate(cubes[i].x, cubes[i].y);
+      
+      // draw toio label
+      fill(0);
+      textSize(15);
+      text(i, 0, -20);
+      
+      // draw toio cube
+      noFill();
+      rotate(cubes[i].theta * PI/180);
+      rect(-10, -10, 20, 20);
+      line(0, 0, 20, 0);
+      popMatrix();
+    }
+  }
+  popMatrix();
+  // END TEMPLATE/DEBUG VIEW
+  
+  // INSERT NEW CODE HERE!
+}
